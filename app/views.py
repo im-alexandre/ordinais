@@ -5,4 +5,4 @@ from django.http import HttpResponse
 
 def index(request):
     """docstring"""
-    return HttpResponse("<H1> Testando!!!</H1>")
+    return render(request, 'index.html')
