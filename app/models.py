@@ -13,7 +13,7 @@ class Alternativa(models.Model):
 class Criterio(models.Model):
     escolhas = ((1, "lucro"), (2, "custo"))
     nome = models.CharField(max_length=20, blank=False, null=False)
-    monotonico = models.IntegerField(choices=escolhas, default=1)
+    monotonico = models.IntegerField(choices=escolhas, null=False, blank=False)
 
     def __str__(self):
         return self.nome
