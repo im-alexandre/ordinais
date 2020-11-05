@@ -1,3 +1,5 @@
+import mimetypes
+import os
 from datetime import datetime
 from itertools import product
 
@@ -42,14 +44,16 @@ def salva_projeto(request):
 
 def form(request):
     """docstring for form"""
-    criteriosformset = modelformset_factory(model=Criterio,
-                                            fields=('nome', 'monotonico'),
-                                            min_num=request.session['qtde_criterios'],
-                                            extra=0)
-    alternativasformset = modelformset_factory(model=Alternativa,
-                                               fields=('nome', ),
-                                               min_num=request.session['qtde_alternativas'],
-                                               extra=0)
+    criteriosformset = modelformset_factory(
+        model=Criterio,
+        fields=('nome', 'monotonico'),
+        min_num=request.session['qtde_criterios'],
+        extra=0)
+    alternativasformset = modelformset_factory(
+        model=Alternativa,
+        fields=('nome', ),
+        min_num=request.session['qtde_alternativas'],
+        extra=0)
 
     criterios_form_set = criteriosformset(queryset=Criterio.objects.none(),
                                           prefix="critform")
@@ -126,7 +130,8 @@ def resultado(request):
         for criterio in lista_criterios:
             if criterio.monotonico == 2:
                 df[criterio.nome] = df[criterio.nome].apply(lambda x: x * -1)
-        df_condorcet = condorcet.condorcet(df, request.session['id_projeto'], saida)
+        df_condorcet = condorcet.condorcet(df, request.session['id_projeto'],
+                                           saida)
         df_borda = borda(df)
         df_borda.reset_index(inplace=True)
         df_borda.index.rename('classificação', inplace=True)
@@ -139,3 +144,14 @@ def resultado(request):
             'df_condorcet': df_condorcet['condorcet'].to_html(),
             'df_copeland': df_condorcet['copeland'].to_html()
         })
+
+
+def relatorio(request):
+    """docstring for relatório"""
+    fl_path = str(request.session['id_projeto']) + '.xlsx'
+    fl = open(fl_path, 'rb')
+    mime_type, _ = mimetypes.guess_type(fl_path)
+    response = HttpResponse(fl, content_type=mime_type)
+    response['Content-Disposition'] = "attachment; filename=%s" % fl_path
+    os.remove(fl_path)
+    return response

@@ -28,4 +28,5 @@ urlpatterns = [
          name='salva_criterios_alternativas'),
     path('avalia/', views.avalia, name='avalia'),
     path('resultado/', views.resultado, name='resultado'),
+    path('relatorio/', views.relatorio, name='relatorio'),
 ]
