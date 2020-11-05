@@ -103,13 +103,14 @@ def resultado(request):
                             columns='criterio')
         for criterio in lista_criterios:
             print(criterio.monotonico)
-            if criterio.monotonico == 1:
+            if criterio.monotonico == 2:
                 df[criterio.nome] = df[criterio.nome].apply(lambda x: x * -1)
-        # df_condorcet = condorcet.condorcet(df)
+        df_condorcet = condorcet.condorcet(df)
         df_borda = borda(df)
 
     return render(
         request, 'resultado.html', {
             'df_borda': df_borda.to_html(),
-            # 'df_condorcet': df_condorcet['condorcet'].to_html()
+            'df_condorcet': df_condorcet['condorcet'].to_html(),
+            'df_copeland': df_condorcet['copeland'].to_html()
         })

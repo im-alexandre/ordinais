@@ -11,17 +11,24 @@
 {% endautoescape %}
     </div>
 
-    {% comment %}<div class="p-2 bd-highlight">{% endcomment %}
-      {% comment %}<h1>CONDORCET</h1>{% endcomment %}
-{% comment %}{% autoescape off %}{% endcomment %}
-{% comment %}{{ df_condorcet }}{% endcomment %}
-{% comment %}{% endautoescape %}{% endcomment %}
-    {% comment %}</div>{% endcomment %}
+    <div class="p-2 bd-highlight">
+      <h1>CONDORCET</h1>
+{% autoescape off %}
+{{ df_condorcet }}
+{% endautoescape %}
+    </div>
+    <div class="p-2 bd-highlight">
+      <h1>COPELAND</h1>
+{% autoescape off %}
+{{ df_copeland }}
+{% endautoescape %}
+    </div>
   </main>
   <div class="mt-5 d-flex justify-content-center">
-    <input type="submit" class="p-3 mb-5 btn btn-outline-primary" value="Avaliar Projeto">
   </div>
 </div>
+  </main>
+
 
 {% endblock %}
 
