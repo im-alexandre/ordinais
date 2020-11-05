@@ -135,6 +135,7 @@ def resultado(request):
         df_borda = borda(df)
         df_borda.reset_index(inplace=True)
         df_borda.index.rename('classificação', inplace=True)
+        df_borda.index = df_borda.index.map(lambda x: x + 1)
         df_borda.to_excel(saida, sheet_name='borda')
         saida.save()
 

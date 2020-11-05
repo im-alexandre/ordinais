@@ -19,7 +19,6 @@ def transformacao(valor):
 def condorcet(df: pd.DataFrame, projeto_id, saida):
     """docstring for condorcet"""
 
-
     alternativas = list(df.index)
     criterios = list(df.columns)
 
@@ -63,10 +62,15 @@ def condorcet(df: pd.DataFrame, projeto_id, saida):
     matriz_decisao = matriz_decisao.sort_values(by='soma', ascending=False)
     matriz_final = matriz_final.sort_values(by='soma', ascending=False)
     matriz_decisao.reset_index(inplace=True)
+    matriz_decisao.rename(columns={'index': 'Alternativas'}, inplace=True)
     matriz_decisao.index.rename('classificação', inplace=True)
+    matriz_decisao.index = matriz_decisao.index.map(lambda x: x + 1)
     matriz_decisao.to_excel(saida, sheet_name='condorcet')
     matriz_final.reset_index(inplace=True)
+    matriz_final.rename(columns={'index': 'Alternativas'}, inplace=True)
     matriz_final.index.rename('classificação', inplace=True)
     matriz_final.to_excel(saida, sheet_name='copeland')
-    matriz_final.index = matriz_final.index.map(lambda x: x+1)
+    matriz_final.index = matriz_final.index.map(lambda x: x + 1)
+
+
     return dict(condorcet=matriz_decisao, copeland=matriz_final)
