@@ -69,8 +69,8 @@ def condorcet(df: pd.DataFrame, projeto_id, saida):
     matriz_final.reset_index(inplace=True)
     matriz_final.rename(columns={'index': 'Alternativas'}, inplace=True)
     matriz_final.index.rename('classificação', inplace=True)
-    matriz_final.to_excel(saida, sheet_name='copeland')
     matriz_final.index = matriz_final.index.map(lambda x: x + 1)
+    matriz_final.to_excel(saida, sheet_name='copeland')
 
 
     return dict(condorcet=matriz_decisao, copeland=matriz_final)
