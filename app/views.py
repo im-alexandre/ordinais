@@ -2,12 +2,12 @@ from datetime import datetime
 from itertools import product
 
 import pandas as pd
-
 from django.forms import formset_factory, modelformset_factory
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 
-from .forms import AlternativaCriterioForm, AlternativaForm, CriterioForm
+from .forms import (AlternativaCriterioForm, AlternativaForm, CriterioForm,
+                    ProjetoForm)
 from .metodos import condorcet
 from .metodos.borda_cardinal import borda
 from .models import Alternativa, AlternativaCriterio, Criterio
@@ -18,15 +18,35 @@ def index(request):
     return render(request, 'index.html')
 
 
+def projeto_form(request):
+    """view para definir o número de alternativas e critérios"""
+    formulario = ProjetoForm()
+
+    return render(request, 'projeto_form.html', context={'form': formulario})
+
+
+def salva_projeto(request):
+    """validar os parâmetros do projeto"""
+    if request.method == 'POST':
+        formulario_projeto = ProjetoForm(request.POST)
+        if formulario_projeto.is_valid():
+            info_projeto = formulario_projeto.cleaned_data
+            request.session[
+                'qtde_alternativas'] = info_projeto['num_alternativas']
+            request.session['qtde_criterios'] = info_projeto['num_criterios']
+            request.session['nome_projeto'] = info_projeto['nome_projeto']
+    return redirect('form')
+
+
 def form(request):
     """docstring for form"""
     criteriosformset = modelformset_factory(model=Criterio,
                                             fields=('nome', 'monotonico'),
-                                            min_num=2,
+                                            min_num=request.session['qtde_criterios'],
                                             extra=0)
     alternativasformset = modelformset_factory(model=Alternativa,
                                                fields=('nome', ),
-                                               min_num=2,
+                                               min_num=request.session['qtde_alternativas'],
                                                extra=0)
 
     criterios_form_set = criteriosformset(queryset=Criterio.objects.none(),
