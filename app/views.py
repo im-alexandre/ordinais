@@ -35,7 +35,8 @@ def salva_projeto(request):
                 'qtde_alternativas'] = info_projeto['num_alternativas']
             request.session['qtde_criterios'] = info_projeto['num_criterios']
             request.session['nome_projeto'] = info_projeto['nome_projeto']
-    return redirect('form')
+            return redirect('form')
+    return redirect('projeto_form')
 
 
 def form(request):
@@ -80,7 +81,8 @@ def salva_criterios_alternativas(request):
             alternativa.id for alternativa in alternativas
         ]
 
-    return redirect('avalia')
+        return redirect('avalia')
+    return redirect('form')
 
 
 def avalia(request):
@@ -122,7 +124,6 @@ def resultado(request):
                             index='alternativa',
                             columns='criterio')
         for criterio in lista_criterios:
-            print(criterio.monotonico)
             if criterio.monotonico == 2:
                 df[criterio.nome] = df[criterio.nome].apply(lambda x: x * -1)
         df_condorcet = condorcet.condorcet(df)

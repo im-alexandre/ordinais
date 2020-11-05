@@ -55,6 +55,8 @@ def condorcet(df: pd.DataFrame):
     matriz_final = pd.DataFrame(valores_decisao,
                                 index=alternativas,
                                 columns=alternativas)
-    # matriz_decisao['soma'] = matriz_decisao.apply(np.sum, axis=1)
-    # matriz_decisao = matriz_decisao.sort_values(by='soma', ascending=False)
+    matriz_decisao['soma'] = matriz_decisao.apply(np.sum, axis=1)
+    matriz_final['soma'] = matriz_final.apply(np.sum, axis=1)
+    matriz_decisao = matriz_decisao.sort_values(by='soma', ascending=False)
+    matriz_final = matriz_final.sort_values(by='soma', ascending=False)
     return dict(condorcet=matriz_decisao, copeland=matriz_final)
