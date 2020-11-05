@@ -1,12 +1,14 @@
 from django import forms
 
-from app.models import Alternativa, AlternativaCriterio, Criterio
+from app.models import Alternativa, AlternativaCriterio, Criterio, Projeto
 
-class ProjetoForm(forms.Form):
+
+class ProjetoForm(forms.ModelForm):
     """formulário para definir a quantidade de critérios e alternativas do projeto"""
-    nome_projeto = forms.CharField(max_length=20, required=True)
-    num_alternativas = forms.IntegerField(min_value=2, required=True)
-    num_criterios = forms.IntegerField(min_value=2, required=True)
+    class Meta:
+        model = Projeto
+        fields = '__all__'
+
 
 class AlternativaForm(forms.ModelForm):
     class Meta:
@@ -24,4 +26,3 @@ class AlternativaCriterioForm(forms.ModelForm):
     class Meta:
         model = AlternativaCriterio
         fields = ('alternativa', 'criterio', 'nota')
-

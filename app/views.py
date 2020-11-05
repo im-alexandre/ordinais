@@ -30,11 +30,12 @@ def salva_projeto(request):
     if request.method == 'POST':
         formulario_projeto = ProjetoForm(request.POST)
         if formulario_projeto.is_valid():
-            info_projeto = formulario_projeto.cleaned_data
+            info_projeto = formulario_projeto.save()
+            request.session['id_projeto'] = info_projeto.id
             request.session[
-                'qtde_alternativas'] = info_projeto['num_alternativas']
-            request.session['qtde_criterios'] = info_projeto['num_criterios']
-            request.session['nome_projeto'] = info_projeto['nome_projeto']
+                'qtde_alternativas'] = info_projeto.num_alternativas
+            request.session['qtde_criterios'] = info_projeto.num_criterios
+            request.session['nome_projeto'] = info_projeto.nome
             return redirect('form')
     return redirect('projeto_form')
 
@@ -107,9 +108,6 @@ def resultado(request):
     if request.method == 'POST':
         criterios = request.session['criterios']
         lista_criterios = list(Criterio.objects.filter(id__in=criterios))
-        alternativas = request.session['alternativas']
-        lista_alternativas = list(
-            Alternativa.objects.filter(id__in=alternativas))
         avalia_formset = formset_factory(form=AlternativaCriterioForm)
         avaliacoes = avalia_formset(request.POST)
         notas = list()
@@ -118,16 +116,22 @@ def resultado(request):
                 nota = avaliacao.save()
                 notas.append(nota.id)
 
+        saida = pd.ExcelWriter(str(request.session['id_projeto']) + '.xlsx')
         df = AlternativaCriterio.objects.filter(id__in=notas)
         df = df.to_dataframe().drop(columns=['id'])
         df = df.pivot_table(values='nota',
                             index='alternativa',
                             columns='criterio')
+        print(df)
         for criterio in lista_criterios:
             if criterio.monotonico == 2:
                 df[criterio.nome] = df[criterio.nome].apply(lambda x: x * -1)
-        df_condorcet = condorcet.condorcet(df)
+        df_condorcet = condorcet.condorcet(df, request.session['id_projeto'], saida)
         df_borda = borda(df)
+        df_borda.reset_index(inplace=True)
+        df_borda.index.rename('classificação', inplace=True)
+        df_borda.to_excel(saida, sheet_name='borda')
+        saida.save()
 
     return render(
         request, 'resultado.html', {
