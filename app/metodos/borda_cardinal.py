@@ -1,5 +1,3 @@
-import os
-
 import numpy as np
 import pandas as pd
 
@@ -11,7 +9,6 @@ def borda(df: pd.DataFrame):
         ordenado = ordenado.reset_index()
         ordenado[criterio + '_ordem'] = ordenado.index
         ordenado.set_index('alternativa', inplace=True)
-        os.system('clear')
         colunas.append(ordenado[criterio + '_ordem'])
 
     matriz_decisao = pd.concat(colunas, axis=1).applymap(lambda x: x + 1)

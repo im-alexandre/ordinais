@@ -1,13 +1,15 @@
+import mimetypes
+import os
 from datetime import datetime
 from itertools import product
 
 import pandas as pd
-
 from django.forms import formset_factory, modelformset_factory
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
 
-from .forms import AlternativaCriterioForm, AlternativaForm, CriterioForm
+from .forms import (AlternativaCriterioForm, AlternativaForm, CriterioForm,
+                    ProjetoForm)
 from .metodos import condorcet
 from .metodos.borda_cardinal import borda
 from .models import Alternativa, AlternativaCriterio, Criterio
@@ -18,16 +20,40 @@ def index(request):
     return render(request, 'index.html')
 
 
+def projeto_form(request):
+    """view para definir o número de alternativas e critérios"""
+    formulario = ProjetoForm()
+
+    return render(request, 'projeto_form.html', context={'form': formulario})
+
+
+def salva_projeto(request):
+    """validar os parâmetros do projeto"""
+    if request.method == 'POST':
+        formulario_projeto = ProjetoForm(request.POST)
+        if formulario_projeto.is_valid():
+            info_projeto = formulario_projeto.save()
+            request.session['id_projeto'] = info_projeto.id
+            request.session[
+                'qtde_alternativas'] = info_projeto.num_alternativas
+            request.session['qtde_criterios'] = info_projeto.num_criterios
+            request.session['nome_projeto'] = info_projeto.nome
+            return redirect('form')
+    return redirect('projeto_form')
+
+
 def form(request):
     """docstring for form"""
-    criteriosformset = modelformset_factory(model=Criterio,
-                                            fields=('nome', 'monotonico'),
-                                            min_num=2,
-                                            extra=0)
-    alternativasformset = modelformset_factory(model=Alternativa,
-                                               fields=('nome', ),
-                                               min_num=2,
-                                               extra=0)
+    criteriosformset = modelformset_factory(
+        model=Criterio,
+        fields=('nome', 'monotonico'),
+        min_num=request.session['qtde_criterios'],
+        extra=0)
+    alternativasformset = modelformset_factory(
+        model=Alternativa,
+        fields=('nome', ),
+        min_num=request.session['qtde_alternativas'],
+        extra=0)
 
     criterios_form_set = criteriosformset(queryset=Criterio.objects.none(),
                                           prefix="critform")
@@ -60,7 +86,8 @@ def salva_criterios_alternativas(request):
             alternativa.id for alternativa in alternativas
         ]
 
-    return redirect('avalia')
+        return redirect('avalia')
+    return redirect('form')
 
 
 def avalia(request):
@@ -85,9 +112,6 @@ def resultado(request):
     if request.method == 'POST':
         criterios = request.session['criterios']
         lista_criterios = list(Criterio.objects.filter(id__in=criterios))
-        alternativas = request.session['alternativas']
-        lista_alternativas = list(
-            Alternativa.objects.filter(id__in=alternativas))
         avalia_formset = formset_factory(form=AlternativaCriterioForm)
         avaliacoes = avalia_formset(request.POST)
         notas = list()
@@ -96,20 +120,39 @@ def resultado(request):
                 nota = avaliacao.save()
                 notas.append(nota.id)
 
+        saida = pd.ExcelWriter(str(request.session['id_projeto']) + '.xlsx')
         df = AlternativaCriterio.objects.filter(id__in=notas)
         df = df.to_dataframe().drop(columns=['id'])
         df = df.pivot_table(values='nota',
                             index='alternativa',
                             columns='criterio')
+        print(df)
         for criterio in lista_criterios:
-            print(criterio.monotonico)
-            if criterio.monotonico == 1:
+            if criterio.monotonico == 2:
                 df[criterio.nome] = df[criterio.nome].apply(lambda x: x * -1)
-        # df_condorcet = condorcet.condorcet(df)
+        df_condorcet = condorcet.condorcet(df, request.session['id_projeto'],
+                                           saida)
         df_borda = borda(df)
+        df_borda.reset_index(inplace=True)
+        df_borda.index.rename('classificação', inplace=True)
+        df_borda.index = df_borda.index.map(lambda x: x + 1)
+        df_borda.to_excel(saida, sheet_name='borda')
+        saida.save()
 
     return render(
         request, 'resultado.html', {
             'df_borda': df_borda.to_html(),
-            # 'df_condorcet': df_condorcet['condorcet'].to_html()
+            'df_condorcet': df_condorcet['condorcet'].to_html(),
+            'df_copeland': df_condorcet['copeland'].to_html()
         })
+
+
+def relatorio(request):
+    """docstring for relatório"""
+    fl_path = str(request.session['id_projeto']) + '.xlsx'
+    fl = open(fl_path, 'rb')
+    mime_type, _ = mimetypes.guess_type(fl_path)
+    response = HttpResponse(fl, content_type=mime_type)
+    response['Content-Disposition'] = "attachment; filename=%s" % fl_path
+    os.remove(fl_path)
+    return response

@@ -20,10 +20,13 @@ from django.urls import path
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index, name='index'),
+    path('form_projeto/', views.projeto_form, name='projeto_form'),
     path('form/', views.form, name='form'),
+    path('salva_projeto/', views.salva_projeto, name='salva_projeto'),
     path('salva_criterios_alternativas/',
          views.salva_criterios_alternativas,
          name='salva_criterios_alternativas'),
     path('avalia/', views.avalia, name='avalia'),
     path('resultado/', views.resultado, name='resultado'),
+    path('relatorio/', views.relatorio, name='relatorio'),
 ]

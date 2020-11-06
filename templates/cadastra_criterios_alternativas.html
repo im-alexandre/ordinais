@@ -45,36 +45,3 @@
 </form>
 
 {% endblock %}
-
-{% block custom_js %}
-<script src="{% static "js/obriga_campos.js" %}"></script>
-<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-<script
-         src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
-         integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
-         crossorigin="anonymous"
-         ></script>
-
-<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"
-        integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous">
-</script>
-
-<!-- Jeditable -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jeditable.js/2.0.6/jquery.jeditable.min.js"></script>
-<script src="http://code.jquery.com/jquery-1.3.2.min.js"></script>
-<script src="{% static "js/jquery.formset.js" %}"></script>
-<script type="text/javascript">
-  $(function() {
-      $('#criterio_form_set tbody tr').formset({
-          prefix: '{{ criterio_form_set.prefix }}',
-          formCssClass: 'dynamic-formset2'
-        });
-    });
-    $(function() {
-        $('#alternativa_form_set tbody tr').formset({
-            prefix: '{{ alternativa_form_set.prefix }}',
-            formCssClass: 'dynamic-formset3'
-          });
-      });
-</script>
-{% endblock %}
