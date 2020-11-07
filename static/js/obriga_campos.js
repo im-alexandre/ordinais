@@ -1,6 +1,5 @@
-document.querySelectorAll("input").forEach(function(valor){
-    valor.setAttribute("required", "");
-});
 document.querySelectorAll("select").forEach(function(valor){
-    valor.setAttribute("required", "");
+    valor.setAttribute("readonly", "readonly");
+    valor.setAttribute("adia-disabled", "true");
+    valor.setAttribute("tabindex", "-1");
 });
