@@ -4,6 +4,7 @@ from datetime import datetime
 from itertools import product
 
 import pandas as pd
+
 from django.forms import formset_factory, modelformset_factory
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
@@ -78,15 +79,18 @@ def salva_criterios_alternativas(request):
                                                    min_num=2,
                                                    extra=0)
 
-        criterios = criteriosformset(request.POST, prefix='critform').save()
+        criterios = criteriosformset(request.POST, prefix='critform')
         alternativas = alternativasformset(request.POST,
-                                           prefix='altform').save()
-        request.session['criterios'] = [criterio.id for criterio in criterios]
-        request.session['alternativas'] = [
-            alternativa.id for alternativa in alternativas
-        ]
+                                               prefix='altform')
+        if criterios.is_valid() and alternativas.is_valid():
+            criterios = criterios.save()
+            alternativas = alternativas.save()
+            request.session['criterios'] = [criterio.id for criterio in criterios]
+            request.session['alternativas'] = [
+                alternativa.id for alternativa in alternativas
+            ]
 
-        return redirect('avalia')
+            return redirect('avalia')
     return redirect('form')
 
 
@@ -126,7 +130,6 @@ def resultado(request):
         df = df.pivot_table(values='nota',
                             index='alternativa',
                             columns='criterio')
-        print(df)
         for criterio in lista_criterios:
             if criterio.monotonico == 2:
                 df[criterio.nome] = df[criterio.nome].apply(lambda x: x * -1)
@@ -136,14 +139,19 @@ def resultado(request):
         df_borda.reset_index(inplace=True)
         df_borda.index.rename('classificação', inplace=True)
         df_borda.index = df_borda.index.map(lambda x: x + 1)
+        df_borda.columns.rename('', inplace=True)
+        df_borda.rename(columns={'index': 'Alternativas'}, inplace=True)
         df_borda.to_excel(saida, sheet_name='borda')
         saida.save()
 
     return render(
         request, 'resultado.html', {
-            'df_borda': df_borda.to_html(),
-            'df_condorcet': df_condorcet['condorcet'].to_html(),
-            'df_copeland': df_condorcet['copeland'].to_html()
+            'df_borda':
+            df_borda[['Alternativas', 'soma']].to_html(),
+            'df_condorcet':
+            df_condorcet['condorcet'][['Alternativas', 'soma']].to_html(),
+            'df_copeland':
+            df_condorcet['copeland'][['Alternativas', 'soma']].to_html()
         })
 
 
