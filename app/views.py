@@ -80,12 +80,13 @@ def salva_criterios_alternativas(request):
                                                    extra=0)
 
         criterios = criteriosformset(request.POST, prefix='critform')
-        alternativas = alternativasformset(request.POST,
-                                               prefix='altform')
+        alternativas = alternativasformset(request.POST, prefix='altform')
         if criterios.is_valid() and alternativas.is_valid():
             criterios = criterios.save()
             alternativas = alternativas.save()
-            request.session['criterios'] = [criterio.id for criterio in criterios]
+            request.session['criterios'] = [
+                criterio.id for criterio in criterios
+            ]
             request.session['alternativas'] = [
                 alternativa.id for alternativa in alternativas
             ]
@@ -163,4 +164,5 @@ def relatorio(request):
     response = HttpResponse(fl, content_type=mime_type)
     response['Content-Disposition'] = "attachment; filename=%s" % fl_path
     os.remove(fl_path)
+    # Alternativa.objects.filter(id__in=request.session['alternativas']).delete()
     return response

@@ -9,15 +9,17 @@
       <table id="criterio_form_set">
         {% comment %}{{ criterio_form_set.as_table }}{% endcomment %}
         <tbody>
+          <tr>
+            <td class="ml-8"></td>
+            <td class="ml-8">Alternativa</td>
+            <td class="ml-8">Atributo</td>
+            <td class="ml-8">Valor</td>
+          </tr>
           {% for form in avalia_formset.forms %}
           <tr>
-            <td class="ml-8">{{ form.nome.label }}</td>
             <td class="ml-8">{{ form.nome }}</td>
-            <td class="ml-8">{{ form.alternativa.label }}</td>
             <td class="ml-8">{{ form.alternativa }}</td>
-            <td class="ml-8">atributo</td>
             <td class="ml-8">{{ form.criterio }}</td>
-            <td class="ml-8">valor</td>
             <td class="ml-8">{{ form.nota }}</td>
           </tr>
           {% endfor %}
