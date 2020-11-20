@@ -142,6 +142,7 @@ def resultado(request):
         df_borda.index = df_borda.index.map(lambda x: x + 1)
         df_borda.columns.rename('', inplace=True)
         df_borda.rename(columns={'index': 'Alternativas'}, inplace=True)
+        df_borda.rename(columns={'alternativa': 'Alternativas'}, inplace=True)
         df_borda.to_excel(saida, sheet_name='borda')
         saida.save()
 
