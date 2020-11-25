@@ -35,5 +35,5 @@ class AlternativaCriterio(models.Model):
     alternativa = models.ForeignKey('Alternativa',
                                     on_delete=models.CASCADE,
                                     related_name='alternativa')
-    nota = models.FloatField(null=True)
+    nota = models.FloatField(null=False, blank=False)
     objects = DataFrameManager()
