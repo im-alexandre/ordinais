@@ -2,9 +2,7 @@ version: '3.7'
 
 services:
   web:
-    build:
-      context: ./app
-      dockerfile: Dockerfile.prod
+    image: alexandre07/ordinais_web
     command: gunicorn project.wsgi:application --bind 0.0.0.0:8000
     volumes:
       - static_volume:/usr/src/app/staticfiles
@@ -25,7 +23,7 @@ services:
     volumes:
       - static_volume:/usr/app/src/staticfiles
     ports:
-      - 1337:80
+      - 80:80
     depends_on:
       - web
 
