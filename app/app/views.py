@@ -124,6 +124,8 @@ def resultado(request):
             for avaliacao in avaliacoes:
                 nota = avaliacao.save()
                 notas.append(nota.id)
+        else:
+            return redirect('avalia')
 
         saida = pd.ExcelWriter(str(request.session['id_projeto']) + '.xlsx')
         df = AlternativaCriterio.objects.filter(id__in=notas)

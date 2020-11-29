@@ -41,5 +41,5 @@ class AlternativaCriterio(models.Model):
                                     null=False,
                                     blank=False
                                     )
-    nota = models.FloatField(null=True)
+    nota = models.FloatField(null=False, blank=False)
     objects = DataFrameManager()
