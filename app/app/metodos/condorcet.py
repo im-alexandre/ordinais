@@ -34,9 +34,11 @@ def condorcet(df: pd.DataFrame, projeto_id, saida):
                                             alternativas_combinadas):
         if df.at[alternativaA, criterio] > df.at[alternativaB, criterio]:
             dataframes[criterio].at[alternativaA, alternativaB] = +1
+            dataframes[criterio].at[alternativaB, alternativaA] = -1
 
         elif df.at[alternativaA, criterio] < df.at[alternativaB, criterio]:
             dataframes[criterio].at[alternativaA, alternativaB] = -1
+            dataframes[criterio].at[alternativaB, alternativaA] = 1
 
         else:
             dataframes[criterio].at[alternativaA, alternativaB] = 0
@@ -57,7 +59,7 @@ def condorcet(df: pd.DataFrame, projeto_id, saida):
     matriz_final = pd.DataFrame(valores_decisao,
                                 index=alternativas,
                                 columns=alternativas)
-    matriz_decisao['soma'] = matriz_decisao.apply(np.sum, axis=1)
+    matriz_decisao['soma'] = matriz_decisao.replace(-1, 0).apply(np.sum, axis=1)
     matriz_final['soma'] = matriz_final.apply(np.sum, axis=1)
     matriz_decisao = matriz_decisao.sort_values(by='soma', ascending=False)
     matriz_final = matriz_final.sort_values(by='soma', ascending=False)
