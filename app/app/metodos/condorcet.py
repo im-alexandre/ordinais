@@ -1,8 +1,6 @@
 import os
 from itertools import combinations, product
 
-# import matplotlib.pyplot as plt
-# import networkx as nx
 import numpy as np
 import pandas as pd
 
@@ -51,28 +49,21 @@ def condorcet(df: pd.DataFrame, projeto_id, saida):
         columns=alternativas)
 
     matriz_decisao = matriz_somatorio.applymap(transformacao)
+    matriz_final = matriz_decisao.copy()
 
-    transposta = matriz_decisao.T
-    transposta = transposta.values * -1
-    valores_decisao = matriz_decisao.values + transposta
-
-    matriz_final = pd.DataFrame(valores_decisao,
-                                index=alternativas,
-                                columns=alternativas)
-    matriz_decisao['soma'] = matriz_decisao.replace(-1, 0).apply(np.sum, axis=1)
-    matriz_final['soma'] = matriz_final.apply(np.sum, axis=1)
+    matriz_decisao['soma'] = matriz_decisao.replace(-1, 0).apply(np.sum,
+                                                                 axis=1)
     matriz_decisao = matriz_decisao.sort_values(by='soma', ascending=False)
-    matriz_final = matriz_final.sort_values(by='soma', ascending=False)
-    matriz_decisao.reset_index(inplace=True)
-    matriz_decisao.rename(columns={'index': 'Alternativas'}, inplace=True)
-    matriz_decisao.index.rename('classificação', inplace=True)
-    matriz_decisao.index = matriz_decisao.index.map(lambda x: x + 1)
+    matriz_decisao['Classificação'] = matriz_decisao['soma'].rank(
+        method='dense', ascending=False)
+    matriz_decisao['Classificação'] = matriz_decisao['Classificação'].astype(int)
     matriz_decisao.to_excel(saida, sheet_name='condorcet')
-    matriz_final.reset_index(inplace=True)
-    matriz_final.rename(columns={'index': 'Alternativas'}, inplace=True)
-    matriz_final.index.rename('classificação', inplace=True)
-    matriz_final.index = matriz_final.index.map(lambda x: x + 1)
-    matriz_final.to_excel(saida, sheet_name='copeland')
 
+    matriz_final['soma'] = matriz_final.apply(np.sum, axis=1)
+    matriz_final = matriz_final.sort_values(by='soma', ascending=False)
+    matriz_final['Classificação'] = matriz_final.soma.rank(method='dense',
+                                                           ascending=False)
+    matriz_final['Classificação'] = matriz_final['Classificação'].astype(int)
+    matriz_final.to_excel(saida, sheet_name='copeland')
 
     return dict(condorcet=matriz_decisao, copeland=matriz_final)

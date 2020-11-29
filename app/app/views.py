@@ -139,23 +139,17 @@ def resultado(request):
         df_condorcet = condorcet.condorcet(df, request.session['id_projeto'],
                                            saida)
         df_borda = borda(df)
-        df_borda.reset_index(inplace=True)
-        df_borda.index.rename('classificação', inplace=True)
-        df_borda.index = df_borda.index.map(lambda x: x + 1)
-        df_borda.columns.rename('', inplace=True)
-        df_borda.rename(columns={'index': 'Alternativas'}, inplace=True)
-        df_borda.rename(columns={'alternativa': 'Alternativas'}, inplace=True)
         df_borda.to_excel(saida, sheet_name='borda')
         saida.save()
 
     return render(
         request, 'resultado.html', {
             'df_borda':
-            df_borda[['Alternativas', 'soma']].to_html(),
+            df_borda[['soma', 'Classificação']].to_html(),
             'df_condorcet':
-            df_condorcet['condorcet'][['Alternativas', 'soma']].to_html(),
+            df_condorcet['condorcet'][['soma', 'Classificação']].to_html(),
             'df_copeland':
-            df_condorcet['copeland'][['Alternativas', 'soma']].to_html()
+            df_condorcet['copeland'][['soma', 'Classificação']].to_html()
         })
 
 

@@ -4,15 +4,19 @@ import pandas as pd
 
 def borda(df: pd.DataFrame):
     colunas = list()
-    for criterio in df.columns:
-        ordenado = df[criterio].sort_values(ascending=False)
-        ordenado = ordenado.reset_index()
-        ordenado[criterio + '_ordem'] = ordenado.index
-        ordenado.set_index('alternativa', inplace=True)
-        colunas.append(ordenado[criterio + '_ordem'])
+    matriz_decisao = df.copy()
+    for criterio in matriz_decisao.columns:
+        matriz_decisao[criterio + '_ordem'] = matriz_decisao[criterio].rank(
+            method='dense', ascending=False)
+        colunas.append(criterio + '_ordem')
 
-    matriz_decisao = pd.concat(colunas, axis=1).applymap(lambda x: x + 1)
-    matriz_decisao.columns = df.columns
-    matriz_decisao['soma'] = matriz_decisao.apply(np.sum, axis=1)
+    matriz_decisao['soma'] = matriz_decisao[colunas].apply(np.sum, axis=1)
+    matriz_decisao['Classificação'] = matriz_decisao['soma'].rank(
+        method='dense', ascending=True)
     matriz_decisao = matriz_decisao.sort_values(by='soma')
+    matriz_decisao.index.rename(None, inplace=True)
+    matriz_decisao.columns.rename(None, inplace=True)
+    matriz_decisao['soma'] = matriz_decisao['soma'].astype(int)
+    matriz_decisao['Classificação'] = matriz_decisao['Classificação'].astype(
+        int)
     return matriz_decisao
