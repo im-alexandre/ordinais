@@ -20,7 +20,7 @@ class Alternativa(models.Model):
 
 
 class Criterio(models.Model):
-    escolhas = ((1, "lucro"), (2, "custo"))
+    escolhas = ((1, "Increasing"), (2, "Decreasing"))
     nome = models.CharField(max_length=20, blank=False, null=False)
     monotonico = models.IntegerField(choices=escolhas, null=False, blank=False)
 

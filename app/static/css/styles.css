@@ -10185,16 +10185,16 @@ header.masthead .masthead-heading {
   }
 }
 .team-member {
-  margin-bottom: 3rem;
+  margin-bottom: 1rem;
   text-align: center;
 }
 .team-member img {
-  width: 10rem;
-  height: 10rem;
+  width: 5rem;
+  height: 5rem;
   border: 0.5rem solid rgba(0, 0, 0, 0.1);
 }
 .team-member h4 {
-  margin-top: 1rem;
+  margin-top: 0.1rem;
   margin-bottom: 0;
 }
 
@@ -10262,4 +10262,14 @@ select[readonly] {
   background: #eee; /*Simular campo inativo - Sugestão @GabrielRodrigues*/
   pointer-events: none;
   touch-action: none;
+}
+
+.lattes {
+    width: 2.5rem !important;
+    height: 2.5rem !important;
+    border: none !important;
+}
+
+.citacao {
+    text-align: center;
 }

@@ -5,13 +5,22 @@
   {% csrf_token %}
   <main role="main" class="d-flex flex-row justify-content-center mt-5">
     <div class="p-2 bd-highlight">
-      <h1>Informações do problema</h1>
-      <p>*O problema deve ter, no mínimo, 2(duas) alternativas e 2(dois) critérios</p>
+      <h1>Problem parameters</h1>
+      <p>* A multicriteria decision problem must have at least 2 alternatives and 2 criteria</p>
       <table id="criterio_form_set">
         {% comment %}{{ criterio_form_set.as_table }}{% endcomment %}
         <tbody>
           <tr>
-            <td class="ml-8">{{ form }}</td>
+            <td class="ml-8">Project's name</td>
+            <td class="ml-8">{{ form.nome }}</td>
+          </tr>
+          <tr>
+            <td class="ml-8">Number of Alternatives</td>
+            <td class="ml-8">{{ form.num_alternativas }}</td>
+          </tr>
+          <tr>
+            <td class="ml-8">Number of Criteria</td>
+            <td class="ml-8">{{ form.num_criterios }}</td>
           </tr>
         </tbody>
       </table>

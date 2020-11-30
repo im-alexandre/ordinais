@@ -11,8 +11,8 @@ from django.shortcuts import redirect, render
 
 from .forms import (AlternativaCriterioForm, AlternativaForm, CriterioForm,
                     ProjetoForm)
-from .metodos import condorcet
-from .metodos.borda_cardinal import borda
+from .metodos.condorcet_copeland import condorcet_copeland
+from .metodos.borda import borda
 from .models import Alternativa, AlternativaCriterio, Criterio
 
 
@@ -136,7 +136,7 @@ def resultado(request):
         for criterio in lista_criterios:
             if criterio.monotonico == 2:
                 df[criterio.nome] = df[criterio.nome].apply(lambda x: x * -1)
-        df_condorcet = condorcet.condorcet(df, request.session['id_projeto'],
+        df_condorcet = condorcet_copeland(df, request.session['id_projeto'],
                                            saida)
         df_borda = borda(df)
         df_borda.to_excel(saida, sheet_name='borda')
