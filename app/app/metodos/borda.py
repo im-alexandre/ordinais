@@ -7,18 +7,18 @@ def borda(df: pd.DataFrame) -> pd.DataFrame:
     matriz_decisao = df.copy()
 
     for criterio in matriz_decisao.columns:
-        matriz_decisao[criterio + '_ordem'] = matriz_decisao[criterio].rank(
+        matriz_decisao[criterio + '_ranking'] = matriz_decisao[criterio].rank(
             method='dense', ascending=False)
-        colunas.append(criterio + '_ordem')
+        colunas.append(criterio + '_ranking')
 
-    matriz_decisao['soma'] = matriz_decisao[colunas].apply(np.sum, axis=1)
-    matriz_decisao['Classificação'] = matriz_decisao['soma'].rank(
+    matriz_decisao['Score'] = matriz_decisao[colunas].apply(np.sum, axis=1)
+    matriz_decisao['Rank'] = matriz_decisao['Score'].rank(
         method='dense', ascending=True)
 
-    matriz_decisao = matriz_decisao.sort_values(by='soma')
+    matriz_decisao = matriz_decisao.sort_values(by='Score')
     matriz_decisao.index.rename(None, inplace=True)
     matriz_decisao.columns.rename(None, inplace=True)
-    matriz_decisao['soma'] = matriz_decisao['soma'].astype(int)
-    matriz_decisao['Classificação'] = matriz_decisao['Classificação'].astype(
+    matriz_decisao['Score'] = matriz_decisao['Score'].astype(int)
+    matriz_decisao['Rank'] = matriz_decisao['Rank'].astype(
         int)
     return matriz_decisao

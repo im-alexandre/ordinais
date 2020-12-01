@@ -145,11 +145,11 @@ def resultado(request):
     return render(
         request, 'resultado.html', {
             'df_borda':
-            df_borda[['soma', 'Classificação']].to_html(),
+            df_borda[['Score', 'Rank']].to_html(),
             'df_condorcet':
-            df_condorcet['condorcet'][['soma', 'Classificação']].to_html(),
+            df_condorcet['condorcet'][['Score', 'Rank']].to_html(),
             'df_copeland':
-            df_condorcet['copeland'][['soma', 'Classificação']].to_html()
+            df_condorcet['copeland'][['Score', 'Rank']].to_html()
         })
 
 

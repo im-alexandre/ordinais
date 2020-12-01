@@ -50,31 +50,31 @@ def condorcet_copeland(df: pd.DataFrame, projeto_id, saida) -> dict[str, pd.Data
 
         dataframes[criterio].to_excel(saida, sheet_name=criterio)
 
-    matriz_somatorio = pd.DataFrame(sum(
+    matriz_Scoretorio = pd.DataFrame(sum(
         [i.values for i in dataframes.values()]),
                                     index=alternativas,
                                     columns=alternativas)
 
-    matriz_condorcet = matriz_somatorio.applymap(transformacao)
+    matriz_condorcet = matriz_Scoretorio.applymap(transformacao)
     matriz_copeland = matriz_condorcet.copy()
 
-    matriz_condorcet['soma'] = matriz_condorcet.replace(-1, 0).apply(np.sum,
+    matriz_condorcet['Score'] = matriz_condorcet.replace(-1, 0).apply(np.sum,
                                                                      axis=1)
-    matriz_condorcet = matriz_condorcet.sort_values(by='soma', ascending=False)
-    matriz_condorcet['Classificação'] = matriz_condorcet['soma'].rank(
+    matriz_condorcet = matriz_condorcet.sort_values(by='Score', ascending=False)
+    matriz_condorcet['Rank'] = matriz_condorcet['Score'].rank(
         method='dense', ascending=False)
-    empatados = matriz_condorcet[matriz_condorcet['Classificação'].duplicated(
+    empatados = matriz_condorcet[matriz_condorcet['Rank'].duplicated(
         keep=False)]
-    inicio_ciclo = empatados['Classificação'].min()
-    matriz_condorcet['Classificação'] = matriz_condorcet[
-        'Classificação'].apply(lambda x: indica_ciclo(x, inicio_ciclo))
+    inicio_ciclo = empatados['Rank'].min()
+    matriz_condorcet['Rank'] = matriz_condorcet[
+        'Rank'].apply(lambda x: indica_ciclo(x, inicio_ciclo))
     matriz_condorcet.to_excel(saida, sheet_name='condorcet')
 
-    matriz_copeland['soma'] = matriz_copeland.apply(np.sum, axis=1)
-    matriz_copeland = matriz_copeland.sort_values(by='soma', ascending=False)
-    matriz_copeland['Classificação'] = matriz_copeland.soma.rank(
+    matriz_copeland['Score'] = matriz_copeland.apply(np.sum, axis=1)
+    matriz_copeland = matriz_copeland.sort_values(by='Score', ascending=False)
+    matriz_copeland['Rank'] = matriz_copeland.Score.rank(
         method='dense', ascending=False)
-    matriz_copeland['Classificação'] = matriz_copeland['Classificação'].astype(
+    matriz_copeland['Rank'] = matriz_copeland['Rank'].astype(
         int)
     matriz_copeland.to_excel(saida, sheet_name='copeland')
 
