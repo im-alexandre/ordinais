@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+{% block container %}
+
+      {% comment %}{% include 'partials/passo_a_passo.html' %}{% endcomment %}
+<h1>Projeto {{projeto.nome}}</h1>
+<hr>
+<h2>Critérios Quantitativos</h2>
+
+<div class="d-flex justify-content-center">
+    <form id="MyForm" method="post">
+         {% csrf_token %}
+        <h1>Atributos numéricos</h1>
+        <table id="alternativacriterio">
+            <tbody>
+                {% for form in forms %}
+                <tr>
+                  
+                   <td class="ml-8"></td>
+                   <td class="ml-8">{{ form.criterio.label }}</td>
+                   <td class="ml-8">{{ form.alternativa.label }}</td>
+                   <td class="ml-8">Valor</td>
+                </tr>
+                <tr>
+                   <td class="ml-8">{{ form.projeto }}</td>
+                   <td class="ml-8">{{ form.criterio }}</td>
+                   <td class="ml-8">{{ form.alternativa }}</td>
+                   <td class="ml-8">{{ form.nota }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {{ forms.management_form }}
+
+        <input type="submit" class="btn btn-outline-primary" value="Salvar valores">
+    </form>
+</div>
+
+{% endblock %}

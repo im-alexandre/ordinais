@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+{% block container %}
+<h1>Cadastrar Projeto</h1>
+
+<br>
+
+<form method="post">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {% comment %}<table>{% endcomment %}
+            {% comment %}<tbody>{% endcomment %}
+            {% comment %}<tr>{% endcomment %}
+                {% comment %}<td class="ml-8">Nome do projeto</td>{% endcomment %}
+                {% comment %}<td class="ml-8">{{ form.nome }}</td>{% endcomment %}
+            {% comment %}</tr>{% endcomment %}
+            {% comment %}<tr>{% endcomment %}
+                {% comment %}<td class="ml-8">Quantidade de classes do problema</td>{% endcomment %}
+                {% comment %}<td class="ml-8">{{ form.qtde_classes }}</td>{% endcomment %}
+            {% comment %}</tr>{% endcomment %}
+            {% comment %}<tr>{% endcomment %}
+                {% comment %}<td class="ml-8">Descrição do projeto</td>{% endcomment %}
+                {% comment %}<td class="ml-8">{{ form.descricao }}</td>{% endcomment %}
+            {% comment %}</tr>{% endcomment %}
+            {% comment %}<tr>{% endcomment %}
+                {% comment %}<td class="ml-8">Lâmbda</td>{% endcomment %}
+                {% comment %}<td class="ml-8">{{ form.lamb }}</td>{% endcomment %}
+            {% comment %}</tr>{% endcomment %}
+            {% comment %}</tbody>{% endcomment %}
+        {% comment %}</table>{% endcomment %}
+    <input type="submit" class="btn btn-outline-primary" value="Cadastrar">
+</form>
+
+{% if projetos %}
+
+<hr>
+
+<h2>Projetos:</h2>
+
+<br>
+
+<table class="table table-striped" style="width: 70%; margin:0 auto">
+    <thead>
+        <tr>
+        <th scope="col">#</th>
+        <th scope="col">Projetos</th>
+        <th scope="col"></th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for projeto in projetos %}
+            <tr>
+                <th scope="row">{{projeto.id}}</th>
+                <td>{{projeto.nome}}</td>
+                <td><a href="{% url 'projeto' projeto.id %}">Acessar</a></td>
+        
+            </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+{% endif %}
+
+{% endblock %}

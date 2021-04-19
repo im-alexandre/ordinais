@@ -1,0 +1,95 @@
+{% extends "base.html" %}
+{% block container %}
+
+<h1 class="edit" id="projeto:{{projeto.id}}" name="">{{projeto.nome}}</h1>
+
+<hr>
+
+{% if decisores %}
+<div>
+    <h2>Decisores</h2>
+
+    <table class="table table-striped" style="width: 70%; margin:0 auto">
+        <thead>
+            <tr>
+            <th scope="col">#</th>
+            <th scope="col">Decisores</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for decisor in decisores %}
+                <tr>
+                    <th scope="row">{{decisor.id}}</th>
+                    <td><span class="edit" id="decisor:{{decisor.id}}" name="">{{decisor.nome}}</span></td>
+            
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<br>
+
+{% if alternativas %}
+<div>
+    <h2>Alternativas</h2>
+
+    <table class="table table-striped" style="width: 70%; margin:0 auto">
+        <thead>
+            <tr>
+            <th scope="col">#</th>
+            <th scope="col">Alternativas</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for alternativa in alternativas %}
+                <tr>
+                    <th scope="row">{{alternativa.id}}</th>
+                    <td><span class="edit" id="alternativa:{{alternativa.id}}" name="">{{alternativa.nome}}</span></td>
+            
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<br>
+
+{% if criterios %}
+<div>
+    <h2>Criterios</h2>
+
+    <table class="table table-striped" style="width: 70%; margin:0 auto">
+        <thead>
+            <tr>
+            <th scope="col">#</th>
+            <th scope="col">Criterios</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for criterio in criterios %}
+                <tr>
+                    <th scope="row">{{criterio.id}}</th>
+                    <td><span class="edit" id="criterio:{{criterio.id}}" name="">{{criterio.nome}}</span></td>
+                </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endif %}
+
+<hr>
+
+{% if projeto.avaliado %}
+    <a href="{% url 'resultado' projeto_id=projeto.id %}" class="btn btn-success btn-lg btn-block">Ver resultado</a>
+
+{% else %}
+    <a href="{% url 'avaliarcriterios' projeto_id=projeto.id %}" class="btn btn-warning btn-lg btn-block">Avaliar projeto</a>
+
+{% endif %}
+
+
+
+{% endblock %}

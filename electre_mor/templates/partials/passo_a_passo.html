@@ -1,0 +1,11 @@
+<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+    <ul class="navbar-nav ml-auto">
+        <a class="nav-link" href="{% url 'cadastradecisores' projeto.id %}">cadastradecisores</a>
+        <a class="nav-link" href="{% url 'avaliarcriterios' projeto.id %}">avaliarcriterios</a>
+        <a class="nav-link" href="{% url 'avaliaralternativas' projeto.id %}">avaliaralternativas</a>
+        <a class="nav-link" href="{% url 'alternativacriterio' projeto.id %}">alternativacriterio</a>
+        <a class="nav-link" href="{% url 'resultadosapevo' projeto.id %}">resultadosapevo</a>
+    </ul>
+  </div>
+</nav>
