@@ -188,6 +188,8 @@ def alternativacriterio(request, projeto_id):
     alternativa_criterio_queryset = list(
         AlternativaCriterio.objects.filter(projeto=projeto))
     formset = formset_factory(form=AlternativaCriterioForm, extra=0)
+    if len(criterios) == 0:
+        return redirect('avaliarcriterios', projeto_id=projeto_id)
     if request.method == 'GET':
         if alternativa_criterio_queryset:
             forms = formset(initial=[{
@@ -385,8 +387,9 @@ def resultado_sapevo(request, projeto_id):
             df_alternativas = matriz.avaliacoes['alternativas'].to_html()
             print(df_alternativas)
             pontuacao_alternativas = matriz.pontuacao_alternativas.to_html()
-        pontuacao_alternativas = None
-        df_alternativas = None
+        else:
+            pontuacao_alternativas = None
+            df_alternativas = None
 
     if request.method == 'POST':
         CriterioParametro.objects.filter(projeto=projeto).delete()
@@ -448,7 +451,7 @@ def resultado(request, projeto_id):
                                      parametros,
                                      lamb=lamb,
                                      bn=bn,
-                                     method='quantil',
+                                     method='range',
                                      id_projeto=projeto.id)
         df_cla_quantil = electre_quantil.renderizar()
         otimista_quantil, pessimista_quantil = electre_quantil.otimista(
@@ -464,7 +467,7 @@ def resultado(request, projeto_id):
                              parametros,
                              lamb=lamb,
                              bn=bn,
-                             method='range',
+                             method='quantil',
                              id_projeto=projeto.id)
 
         df_cla = electre.renderizar()

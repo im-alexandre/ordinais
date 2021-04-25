@@ -1,6 +1,6 @@
 $('#baixa_planilha').on('click', function () {
     $.ajax({
-        url: 'http://127.0.0.1:8000/download/' + $(this).data('id'),
+        url: 'http://www.electremor.com/download/' + $(this).data('id'),
         method: 'GET',
         xhrFields: {
             responseType: 'blob'

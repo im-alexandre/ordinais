@@ -1,20 +1,19 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-File: electre_tri.py
+File: Electrepy.py
 Author: Alexandre Castro
 Email: im.alexandre07@gmail.com
 Github: https://www.github.com/im-alexandre
 Description: Implementação do electre_tri em python
 """
 import warnings
-# +
 from itertools import product
 
 import numpy as np
 import pandas as pd
 
-warnings.filterwarnings('ignore')
+# warnings.filterwarnings('ignore')
 
 
 class ElectreTri():
@@ -102,33 +101,37 @@ class ElectreTri():
     def __pessimista(self, credibilidade: pd.DataFrame):
         """Classificação pessimista das alternativas"""
         cla = credibilidade.reset_index()
-        cla = cla[cla['comparacao'].isin(['x I b', 'x > b'])]
         qtde_classes = cla.shape[0] + 1
-        cla = cla.drop_duplicates(subset=['alternativa'])
-        index = list(cla.index.values)[0] + 1
-        numero_da_classe = 'Classe ' + str(qtde_classes - (index + 1))
+        cla = cla[cla['comparacao'].isin(['x I b', 'x > b'])]
+        try:
+            index = len(list(cla.index.values))
+        except IndexError:
+            index = 1
+        numero_da_classe = 'Classe ' + str(qtde_classes - (index))
         return numero_da_classe
 
     def pessimista(self):
         """docstring for pessimista"""
-        df = self.credibilidade_df.groupby(
-            level='alternativa').apply(lambda x: self.__pessimista(x))
+        df = self.credibilidade_df.groupby(level='alternativa').apply(
+            self.__pessimista)
         return df
 
     def __otimista(self, credibilidade: pd.DataFrame):
         """Classificação otimista das alternativas"""
         cla = credibilidade.reset_index()
-        cla = cla[cla['comparacao'].isin(['x I b', 'x R b', 'x > b'])]
         qtde_classes = cla.shape[0] + 1
-        cla = cla.drop_duplicates(subset=['alternativa'])
-        index = list(cla.index.values)[0] + 1
-        numero_da_classe = 'Classe ' + str(qtde_classes - (index + 1))
+        cla = cla[cla['comparacao'].isin(['x I b', 'x R b', 'x > b'])]
+        try:
+            index = len(list(cla.index.values))
+        except IndexError:
+            index = 1
+        numero_da_classe = 'Classe ' + str(qtde_classes - (index))
         return numero_da_classe
 
     def otimista(self):
         """docstring for otimista"""
-        df = self.credibilidade_df.groupby(
-            level='alternativa').apply(lambda x: self.__otimista(x))
+        df = self.credibilidade_df.groupby(level='alternativa').apply(
+            self.__otimista)
         return df
 
     def renderizar(self, ):
@@ -137,8 +140,9 @@ class ElectreTri():
 
         if self.method == 'quantil':
             self.cla_df = pd.DataFrame(
-                self.entrada.quantile(q=np.arange(0, 1, 1 / (self.bn - 1)),
-                                      interpolation='lower'))
+                self.entrada.quantile(q=np.arange(0, 1, 1 / self.bn),
+                                      interpolation='higher').values[1:],
+                columns=self.entrada.columns)
             self.cla = [f'b{i}' for i in range(1, self.cla_df.shape[0] + 1)]
             self.cla_df.index = self.cla
 

@@ -7,57 +7,37 @@
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
-    {% comment %}<table>{% endcomment %}
-            {% comment %}<tbody>{% endcomment %}
-            {% comment %}<tr>{% endcomment %}
-                {% comment %}<td class="ml-8">Nome do projeto</td>{% endcomment %}
-                {% comment %}<td class="ml-8">{{ form.nome }}</td>{% endcomment %}
-            {% comment %}</tr>{% endcomment %}
-            {% comment %}<tr>{% endcomment %}
-                {% comment %}<td class="ml-8">Quantidade de classes do problema</td>{% endcomment %}
-                {% comment %}<td class="ml-8">{{ form.qtde_classes }}</td>{% endcomment %}
-            {% comment %}</tr>{% endcomment %}
-            {% comment %}<tr>{% endcomment %}
-                {% comment %}<td class="ml-8">Descrição do projeto</td>{% endcomment %}
-                {% comment %}<td class="ml-8">{{ form.descricao }}</td>{% endcomment %}
-            {% comment %}</tr>{% endcomment %}
-            {% comment %}<tr>{% endcomment %}
-                {% comment %}<td class="ml-8">Lâmbda</td>{% endcomment %}
-                {% comment %}<td class="ml-8">{{ form.lamb }}</td>{% endcomment %}
-            {% comment %}</tr>{% endcomment %}
-            {% comment %}</tbody>{% endcomment %}
-        {% comment %}</table>{% endcomment %}
     <input type="submit" class="btn btn-outline-primary" value="Cadastrar">
 </form>
 
-{% if projetos %}
+{% comment %}{% if projetos %}{% endcomment %}
 
-<hr>
+{% comment %}<hr>{% endcomment %}
 
-<h2>Projetos:</h2>
+{% comment %}<h2>Projetos:</h2>{% endcomment %}
 
-<br>
+{% comment %}<br>{% endcomment %}
 
-<table class="table table-striped" style="width: 70%; margin:0 auto">
-    <thead>
-        <tr>
-        <th scope="col">#</th>
-        <th scope="col">Projetos</th>
-        <th scope="col"></th>
-        </tr>
-    </thead>
-    <tbody>
-        {% for projeto in projetos %}
-            <tr>
-                <th scope="row">{{projeto.id}}</th>
-                <td>{{projeto.nome}}</td>
-                <td><a href="{% url 'projeto' projeto.id %}">Acessar</a></td>
+{% comment %}<table class="table table-striped" style="width: 70%; margin:0 auto">{% endcomment %}
+    {% comment %}<thead>{% endcomment %}
+        {% comment %}<tr>{% endcomment %}
+        {% comment %}<th scope="col">#</th>{% endcomment %}
+        {% comment %}<th scope="col">Projetos</th>{% endcomment %}
+        {% comment %}<th scope="col"></th>{% endcomment %}
+        {% comment %}</tr>{% endcomment %}
+    {% comment %}</thead>{% endcomment %}
+    {% comment %}<tbody>{% endcomment %}
+        {% comment %}{% for projeto in projetos %}{% endcomment %}
+            {% comment %}<tr>{% endcomment %}
+                {% comment %}<th scope="row">{{projeto.id}}</th>{% endcomment %}
+                {% comment %}<td>{{projeto.nome}}</td>{% endcomment %}
+                {% comment %}<td><a href="{% url 'projeto' projeto.id %}">Acessar</a></td>{% endcomment %}
         
-            </tr>
-        {% endfor %}
-    </tbody>
-</table>
+            {% comment %}</tr>{% endcomment %}
+        {% comment %}{% endfor %}{% endcomment %}
+    {% comment %}</tbody>{% endcomment %}
+{% comment %}</table>{% endcomment %}
 
-{% endif %}
+{% comment %}{% endif %}{% endcomment %}
 
 {% endblock %}

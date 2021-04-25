@@ -21,12 +21,12 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = '@6g^=4svgho-1ai&jvl$d3&++(h*iaj7d(2d%_$9e@_nfl7l2f'
+SECRET_KEY = os.environ.get('SECRET_KEY', default="xpto")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = int(os.environ.get("DEBUG", default=1))
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 # Application definition
 
@@ -73,21 +73,21 @@ WSGI_APPLICATION = 'electre_mor_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/2.1/ref/settings/#databases
 DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': 'mydatabase'
+    "default": {
+        "ENGINE":
+        os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
+        "NAME":
+        os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
+        "USER":
+        os.environ.get("SQL_USER", "user"),
+        "PASSWORD":
+        os.environ.get("SQL_PASSWORD", "password"),
+        "HOST":
+        os.environ.get("SQL_HOST", "localhost"),
+        "PORT":
+        os.environ.get("SQL_PORT", "5432"),
     }
 }
-# DATABASES = {
-#   'default': {
-#        'ENGINE': 'django.db.backends.postgresql',
-#        'NAME': 'postgres',
-#        'USER': 'postgres',
-#        'PASSWORD': 'postgres',
-#        'HOST': '127.0.0.1',
-#        'PORT': 15432
-#    }
-# }
 # Password validation
 # https://docs.djangoproject.com/en/2.1/ref/settings/#auth-password-validators
 
@@ -126,6 +126,8 @@ USE_TZ = True
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
 
-STATIC_ROOT = os.path.join(BASE_DIR, 'static')
-STATIC_URL = "/static/"
-django_heroku.settings(locals())
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
+STATIC_ROOT = os.path.join(BASE_DIR, "staticfiles_electre_mor")
+STATIC_URL = "/staticfiles/"

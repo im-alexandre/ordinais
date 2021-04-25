@@ -1,0 +1,83 @@
+
+.centraliza   {
+    padding: 4rem 1.5rem;
+    text-align: center;
+}
+.navbar-brand {
+    font-size: 1.40rem;
+}
+.navbar-brand small {
+    display:block;
+    font-size:10px;
+}
+
+.navbar-brand small .letter-featured {
+    font-weight: bold;
+    font-size: 1.13em;
+}
+
+.navbar-toggle {top:10px}
+
+.edit {
+    cursor: pointer;
+}
+
+.edit input{
+    margin: 0 10px;
+}
+
+.edit button{
+    margin: 0 3px;
+}
+
+.sapevoweb-footer {
+    padding: 1rem 0 0.1rem;
+    color: #999;
+    text-align: center;
+    background-color: #f9f9f9;
+    border-top: .05rem solid #e5e5e5;
+}
+
+.sapevoweb-footer p{
+    font-size: 12px;
+}
+
+.sapevoweb-footer img.icones-sapevo {
+    padding: 0 20px;
+    width: 80px;
+}
+
+.sapevoweb-footer img#casnav {
+    width: 75px;
+}
+.sapevoweb-footer img#uff {
+    width: 95px;
+}
+.visitas {
+    color: #343a40!important;
+    font-size: 14px;
+}
+
+label[for=id_numerico] {
+    text-align: center;
+    padding-bottom:5px;
+}
+
+#id_numerico {
+    top:20px;
+    height: 15px;
+    width: 25px;
+    background-color: #eee;
+}
+
+@media (min-width:768px) {
+
+    .navbar-brand {
+        padding-top:20px;
+    }
+
+    .nav.navbar-nav a {
+        padding-top:30px;
+        padding-bottom:30px;
+    }
+}

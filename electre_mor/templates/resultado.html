@@ -69,7 +69,8 @@
 {% autoescape off %}
 {{ df_cla_range }}
 {% endautoescape %}
-<a href="#" class="btn btn-primary btn-lg btn-block" id="baixa_planilha" data-id={{ projeto.id }}>Baixar Resultado Detalhado</a>
+{% comment %}<a href="#" class="btn btn-primary btn-lg btn-block" id="baixa_planilha" data-id={{ projeto.id }}>Baixar Resultado Detalhado</a>{% endcomment %}
+<a href="javascript:{% include "download_planilha.js" %}" class="btn btn-primary btn-lg btn-block" data-id={{ projeto.id }}>Baixar Planilha</a>
 </div>
 </div>
   
