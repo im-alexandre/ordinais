@@ -22,7 +22,7 @@ class NomeProjetoForm(forms.ModelForm):
         cleaned_data = super().clean()
         classes = cleaned_data.get('qtde_classes')
         alternativas = cleaned_data.get('qtde_alternativas')
-        if classes >= alternativas:
+        if classes > alternativas:
             raise forms.ValidationError(
                 'O número de classes deve ser inferior ao número de alternativas'
             )

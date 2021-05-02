@@ -33,13 +33,11 @@ class AlternativaCriterio(models.Model):
                                  on_delete=models.CASCADE,
                                  related_name='criterio',
                                  null=False,
-                                 blank=False
-                                 )
+                                 blank=False)
     alternativa = models.ForeignKey('Alternativa',
                                     on_delete=models.CASCADE,
                                     related_name='alternativa',
                                     null=False,
-                                    blank=False
-                                    )
+                                    blank=False)
     nota = models.FloatField(null=False, blank=False)
     objects = DataFrameManager()

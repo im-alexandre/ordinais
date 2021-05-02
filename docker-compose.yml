@@ -1,63 +1,60 @@
 version: '3.7'
 
 services:
-  web:
-    #build:
-      #context: ./app
-      #dockerfile: Dockerfile.prod
-    image: alexandre07/ordinais_web
-    command: gunicorn project.wsgi:application --bind 0.0.0.0:8000
-    volumes:
-      - static_volume:/usr/src/app/staticfiles
-    expose:
-      - 8000
-    env_file:
-      - ./.env.prod
-    depends_on:
-      - db
-  db:
+  db_ordinais:
     image: postgres:12.0-alpine
     volumes:
       - postgres_data:/var/lib/postgresql/data/
     env_file:
-      - ./.env.prod.db
+      - ./app/env.ordinais
+
+  ordinais:
+    #build:
+      #context: ./app
+    image: alexandre07/ordinais_web
+    command: './entrypoint_ordinais.sh'
+    volumes:
+      - ./app:/usr/src/app
+    expose:
+      - 8000
+    env_file:
+      - ./app/env.ordinais
+    depends_on:
+      - db_ordinais
 
 
-  db2:
+  db_electre:
     image: postgres:12.0-alpine
     volumes:
       - postgres_data_electre_mor:/var/lib/postgresql/data/
     env_file:
-      - ./.env.electre.db
+      - ./electre_mor/env.electre
 
   electre_mor:
     #build:
       #context: ./electre_mor
-      #dockerfile: Dockerfile.prod
     image: alexandre07/electre_mor
-    command: gunicorn electre_mor_project.wsgi:application --bind 0.0.0.0:8000
+    entrypoint: './entrypoint_electre.sh'
     volumes:
-      - static_volume_electre_mor:/usr/src/app/staticfiles_electre_mor
+      - ./electre_mor:/usr/src/app
     expose:
       - 8000
     env_file:
-      - ./.env.electre
+      - ./electre_mor/env.electre
     depends_on:
-      - db
+      - db_electre
         
   nginx:
     build: ./nginx
     volumes:
-      - static_volume:/usr/app/src/staticfiles
-      - static_volume_electre_mor:/usr/app/src/staticfiles_electre_mor
+      - ./app/staticfiles:/usr/app/src/staticfiles
+      - ./electre_mor/staticfiles_electre_mor:/usr/app/src/staticfiles_electre_mor
     ports:
       - 80:80
     depends_on:
-      - web
+      - ordinais
       - electre_mor
 
 volumes:
   postgres_data:
   postgres_data_electre_mor:
-  static_volume:
-  static_volume_electre_mor:

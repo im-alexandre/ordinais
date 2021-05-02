@@ -19,10 +19,3 @@ RUN pip install --upgrade pip
 # install dependencies
 COPY ./requirements.txt .
 RUN pip install -r requirements.txt
-
-
-
-# create the appropriate directories
-
-# copy project
-COPY . .

@@ -7,3 +7,4 @@ document.querySelectorAll("select").forEach(function(valor){
 document.querySelectorAll("input").forEach(function(valor){
     valor.setAttribute("required", " ");
 });
+console.log('foi');

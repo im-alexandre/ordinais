@@ -96,15 +96,17 @@ def cadastradecisores(request, projeto_id):
 
     decisoresformset = modelformset_factory(model=Decisor,
                                             fields=('nome', ),
-                                            extra=projeto.qtde_decisores)
+                                            extra=projeto.qtde_decisores -
+                                            projeto.decisores.count())
 
-    criteriosformset = modelformset_factory(model=Criterio,
-                                            fields=('nome', 'numerico',
-                                                    'monotonico'),
-                                            extra=projeto.qtde_criterios)
-    alternativasformset = modelformset_factory(model=Alternativa,
-                                               fields=('nome', ),
-                                               extra=projeto.qtde_alternativas)
+    criteriosformset = modelformset_factory(
+        model=Criterio,
+        fields=('nome', 'numerico', 'monotonico'),
+        extra=projeto.qtde_criterios - projeto.criterios.count())
+    alternativasformset = modelformset_factory(
+        model=Alternativa,
+        fields=('nome', ),
+        extra=projeto.qtde_alternativas - projeto.criterios.count())
 
     criterio_form_set = criteriosformset(
         queryset=criterios,

@@ -12,8 +12,6 @@ https://docs.djangoproject.com/en/2.1/ref/settings/
 
 import os
 
-import django_heroku
-
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
@@ -24,9 +22,10 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 SECRET_KEY = os.environ.get('SECRET_KEY', default="xpto")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = int(os.environ.get("DEBUG", default=1))
+# DEBUG = int(os.environ.get("DEBUG", default=1))
+DEBUG = int(os.environ.get("DEBUG", default=0))
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = ['electremor.com', 'www.electremor.com']
 
 # Application definition
 
@@ -76,16 +75,16 @@ DATABASES = {
     "default": {
         "ENGINE":
         os.environ.get("SQL_ENGINE", "django.db.backends.sqlite3"),
-        "NAME":
-        os.environ.get("SQL_DATABASE", os.path.join(BASE_DIR, "db.sqlite3")),
-        "USER":
-        os.environ.get("SQL_USER", "user"),
-        "PASSWORD":
-        os.environ.get("SQL_PASSWORD", "password"),
         "HOST":
         os.environ.get("SQL_HOST", "localhost"),
         "PORT":
         os.environ.get("SQL_PORT", "5432"),
+        "USER":
+        os.environ.get("POSTGRES_PASSWORD", "user"),
+        "PASSWORD":
+        os.environ.get("POSTGRES_PASSWORD", "password"),
+        "NAME":
+        os.environ.get("POSTGRES_DB", os.path.join(BASE_DIR, "db.sqlite3")),
     }
 }
 # Password validation
