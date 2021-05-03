@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import ugettext_lazy as _
 
 from core.models import (Alternativa, AlternativaCriterio,
                          AvaliacaoAlternativas, AvaliacaoCriterios, Criterio,
@@ -17,6 +18,15 @@ class NomeProjetoForm(forms.ModelForm):
             'qtde_alternativas',
             'lamb',
         )
+        labels = {
+            'nome': _('Insira o nome do projeto'),
+            'descricao': _('Insira a descrição do projeto'),
+            'qtde_classes': _('Defina o número de classes'),
+            'qtde_criterios': _('Defina o número de critérios'),
+            'qtde_decisores': _('Defina o número de decisores'),
+            'qtde_alternativas': _('Defina o número de alternativas'),
+            'lamb': _('Defina o valor do nível de corte (λ)'),
+        }
 
     def clean(self):
         cleaned_data = super().clean()
@@ -52,6 +62,11 @@ class AlternativaCriterioForm(forms.ModelForm):
     class Meta:
         model = AlternativaCriterio
         fields = ('projeto', 'alternativa', 'criterio', 'nota')
+        widgets = {
+            'projeto': forms.HiddenInput(),
+            'decisor': forms.Select(attrs={'readonly': 'readonly'}),
+            'criterio': forms.Select(attrs={'readonly': 'readonly'})
+        }
 
 
 class AvaliacaoCriteriosForm(forms.ModelForm):
@@ -61,12 +76,16 @@ class AvaliacaoCriteriosForm(forms.ModelForm):
         fields = ('projeto', 'decisor', 'criterioA', 'criterioB', 'nota')
         widgets = {
             'nota':
-            forms.TextInput(attrs={
-                'type': 'range',
-                'min': -2,
-                'max': 2,
-                'step': 1
-            })
+            forms.TextInput(
+                attrs={
+                    'type': 'range',
+                    'min': -2,
+                    'max': 2,
+                    'step': 1,
+                    'onchange': 'muda_valor(this)'
+                }),
+            'projeto':
+            forms.HiddenInput(),
         }
 
 
@@ -77,12 +96,16 @@ class AvaliacaoAlternativasForm(forms.ModelForm):
                   'alternativaB', 'nota')
         widgets = {
             'nota':
-            forms.TextInput(attrs={
-                'type': 'range',
-                'min': -2,
-                'max': 2,
-                'step': 1
-            })
+            forms.TextInput(
+                attrs={
+                    'type': 'range',
+                    'min': -2,
+                    'max': 2,
+                    'step': 1,
+                    'onchange': 'muda_valor(this)'
+                }),
+            'projeto':
+            forms.HiddenInput(),
         }
 
 

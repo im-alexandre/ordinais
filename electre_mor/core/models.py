@@ -92,7 +92,7 @@ class AvaliacaoCriterios(models.Model):
     criterioB = models.ForeignKey('Criterio',
                                   on_delete=models.CASCADE,
                                   related_name='criterioB')
-    nota = models.IntegerField(null=True)
+    nota = models.IntegerField(null=False, default=0)
     objects = DataFrameManager()
 
 

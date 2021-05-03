@@ -2,7 +2,6 @@
 {% block container %}
 
 
-      {% comment %}{% include 'partials/passo_a_passo.html' %}{% endcomment %}
 <h1>Projeto {{projeto.nome}}</h1>
 <hr>
 <h1>Avaliação de critérios</h1>
@@ -10,7 +9,6 @@
 <div class="d-flex justify-content-center">
     <form method="POST">
          {% csrf_token %}
-        <h1> numéricos</h1>
         <table>
             <tbody>
                 {% for form in forms %}
@@ -25,8 +23,16 @@
                    <td class="ml-8">{{ form.projeto }}</td>
                    <td class="ml-8">{{ form.decisor }}</td>
                    <td class="ml-8">{{ form.criterioB }}</td>
-                   <td class="ml-8">{{ form.nota }}</td>
+                    <td>
+                        <p class="descricao_nota" id="paragrafo_{{ form.nota.auto_id }}"></p>
+                    </td>
                    <td class="ml-8">{{ form.criterioA }}</td>
+                </tr>
+                <tr>
+                        <td class="ml-8"></td>
+                        <td class="ml-8"></td>
+                        <td class="ml-8"></td>
+                   <td class="ml-8">{{ form.nota }}</td>
                 </tr>
                 {% endfor %}
             </tbody>

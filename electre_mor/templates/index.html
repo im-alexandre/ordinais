@@ -1,43 +1,11 @@
 {% extends "base.html" %}
 {% block container %}
-<h1>Projeto</h1>
-
-<br>
+<h1>Informações do Projeto</h1>
+<hr>
 
 <form method="post">
     {% csrf_token %}
     {{ form.as_p }}
     <input type="submit" class="btn btn-outline-primary" value="Cadastrar">
 </form>
-
-{% comment %}{% if projetos %}{% endcomment %}
-
-{% comment %}<hr>{% endcomment %}
-
-{% comment %}<h2>Projetos:</h2>{% endcomment %}
-
-{% comment %}<br>{% endcomment %}
-
-{% comment %}<table class="table table-striped" style="width: 70%; margin:0 auto">{% endcomment %}
-    {% comment %}<thead>{% endcomment %}
-        {% comment %}<tr>{% endcomment %}
-        {% comment %}<th scope="col">#</th>{% endcomment %}
-        {% comment %}<th scope="col">Projetos</th>{% endcomment %}
-        {% comment %}<th scope="col"></th>{% endcomment %}
-        {% comment %}</tr>{% endcomment %}
-    {% comment %}</thead>{% endcomment %}
-    {% comment %}<tbody>{% endcomment %}
-        {% comment %}{% for projeto in projetos %}{% endcomment %}
-            {% comment %}<tr>{% endcomment %}
-                {% comment %}<th scope="row">{{projeto.id}}</th>{% endcomment %}
-                {% comment %}<td>{{projeto.nome}}</td>{% endcomment %}
-                {% comment %}<td><a href="{% url 'projeto' projeto.id %}">Acessar</a></td>{% endcomment %}
-        
-            {% comment %}</tr>{% endcomment %}
-        {% comment %}{% endfor %}{% endcomment %}
-    {% comment %}</tbody>{% endcomment %}
-{% comment %}</table>{% endcomment %}
-
-{% comment %}{% endif %}{% endcomment %}
-
 {% endblock %}
