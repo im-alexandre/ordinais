@@ -19,7 +19,8 @@ from django.urls import path
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', views.index, name='/'),
+    path('', views.landing_page, name='index'),
+    path('form_projeto/', views.index, name='projeto_form'),
     path('metodo/', views.metodo, name='metodo'),
     path('projeto/<projeto_id>/', views.projeto, name='projeto'),
     path('cadastradecisores/<projeto_id>/',

@@ -1,4 +1,5 @@
 {% extends "base.html" %}
+{% load static %}
 {% block container %}
 
 
@@ -62,4 +63,8 @@
 </div>
 <br>
 
+{% endblock %}
+{% block custom_js %}
+    
+    <script src="{% static 'js/input_select.js' %}"></script>
 {% endblock %}

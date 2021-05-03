@@ -1,18 +1,16 @@
 import mimetypes
-import os
 import warnings
 import zipfile
-from itertools import combinations, permutations, product
+from itertools import combinations, product
 
 import pandas as pd
-from django.forms import HiddenInput, formset_factory, modelformset_factory
-from django.http import HttpResponse, HttpResponseRedirect
-from django.shortcuts import redirect, render, reverse
+from django.forms import formset_factory, modelformset_factory
+from django.http import HttpResponse
+from django.shortcuts import redirect, render
 
-from core.forms import (AlternativaCriterioForm, AlternativaForm,
-                        AvaliacaoAlternativas, AvaliacaoAlternativasForm,
-                        AvaliacaoCriteriosForm, CriterioForm,
-                        CriterioParametroForm, DecisorForm, NomeProjetoForm)
+from core.forms import (AlternativaCriterioForm, AvaliacaoAlternativasForm,
+                        AvaliacaoCriteriosForm, CriterioParametroForm,
+                        NomeProjetoForm)
 from core.models import (Alternativa, AlternativaCriterio,
                          AvaliacaoAlternativas, AvaliacaoCriterios, Criterio,
                          CriterioParametro, Decisor, Projeto)
@@ -22,6 +20,11 @@ from .method import MatrizProjeto
 
 warnings.filterwarnings('ignore')
 pd.options.display.float_format = '{:,.4f}'.format
+
+
+def landing_page(request):
+    """docstring"""
+    return render(request, 'landing_page.html')
 
 
 def index(request):
@@ -507,7 +510,7 @@ def download_file(request, projeto_id):
     filename = f'resultados/resultado{projeto_id}.zip'
 
     # opening the 'Zip' in writing mode
-    with zipfile.ZipFile(fl_path, 'a') as file:
+    with zipfile.ZipFile(fl_path, 'w') as file:
         # append mode adds files to the 'Zip'
         # you have to create the files which you have to add to the 'Zip'
         file.write(f'resultados/resultado_range{projeto_id}.xlsx')
