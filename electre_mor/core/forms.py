@@ -27,6 +27,7 @@ class NomeProjetoForm(forms.ModelForm):
             'qtde_alternativas': _('Defina o número de alternativas'),
             'lamb': _('Defina o valor do nível de corte (λ)'),
         }
+        widgets = {'descricao': forms.Textarea(attrs={'rows': 4, 'cols': 15})}
 
     def clean(self):
         cleaned_data = super().clean()
