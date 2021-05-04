@@ -4,6 +4,7 @@ import zipfile
 from itertools import combinations, product
 
 import pandas as pd
+from django import forms
 from django.forms import formset_factory, modelformset_factory
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
@@ -105,7 +106,14 @@ def cadastradecisores(request, projeto_id):
     criteriosformset = modelformset_factory(
         model=Criterio,
         fields=('nome', 'numerico', 'monotonico'),
-        extra=projeto.qtde_criterios - projeto.criterios.count())
+        extra=projeto.qtde_criterios - projeto.criterios.count(),
+        widgets={
+            'numerico':
+            forms.CheckboxInput(attrs={
+                'onchange': 'esconde_monotonico(this)',
+                'class': 'check'
+            })
+        })
     alternativasformset = modelformset_factory(
         model=Alternativa,
         fields=('nome', ),

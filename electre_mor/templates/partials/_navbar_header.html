@@ -1,37 +1,8 @@
 
-{% comment %}<nav class="navbar navbar-expand-lg navbar-dark bg-dark">{% endcomment %}
-  {% comment %}<!-- Logo do sapevo à esquerda -->{% endcomment %}
-  {% comment %}<a class="navbar-brand p-0" href="/">Electre Mor{% endcomment %}
-  {% comment %}</a>{% endcomment %}
-  {% comment %}<button class="navbar-toggler" type="button" data-toggle="collapse" {% endcomment %}
-                                               {% comment %}data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" {% endcomment %}
-                                                                                     {% comment %}aria-expanded="false" aria-label="Toggle navigation">{% endcomment %}
-    {% comment %}<span class="navbar-toggler-icon"></span>{% endcomment %}
-  {% comment %}</button>{% endcomment %}
-  {% comment %}<div class="collapse navbar-collapse" id="navbarSupportedContent">{% endcomment %}
-    {% comment %}<ul class="navbar-nav ml-auto">{% endcomment %}
-      {% comment %}{% url '/' as current_url %}{% endcomment %}
-      {% comment %}<li class="nav-item {% if request.get_full_path == current_url %}active{% endif %}">{% endcomment %}
-        {% comment %}<a class="nav-link" href="/">Home <span class="sr-only">(current)</span></a>{% endcomment %}
-      {% comment %}</li>{% endcomment %}
-      {% comment %}{% url 'metodo' as current_url %}{% endcomment %}
-      {% comment %}<li class="nav-item {% if request.get_full_path == current_url %}active{% endif %}">{% endcomment %}
-        {% comment %}<a class="nav-link" href="#">Método <span class="sr-only">(current)</span></a>{% endcomment %}
-      {% comment %}</li>{% endcomment %}
-      {% comment %}<li class="nav-item">{% endcomment %}
-        {% comment %}<a class="nav-link" href="#" {% endcomment %}
-                            {% comment %}target="_blank">Tutorial {% endcomment %}
-                            {% comment %}<span class="sr-only">(current)</span>{% endcomment %}
-        {% comment %}</a>{% endcomment %}
-      {% comment %}</li>{% endcomment %}
-    {% comment %}</ul>{% endcomment %}
-  {% comment %}</div>{% endcomment %}
-{% comment %}</nav>{% endcomment %}
-
       <!-- Navigation-->
       <nav class="navbar navbar-expand-lg navbar-dark p-3" id="mainNav">
         <div class="container">
-          <a class="navbar-brand js-scroll-trigger" href="{% url "index"%}">Electre Mor</a>
+          <a class="navbar-brand js-scroll-trigger" href="{% url "index"%}">ELECTRE-MOr</a>
           <button class="navbar-toggler navbar-toggler-right" type="button" data-toggle="collapse" data-target="#navbarResponsive" aria-controls="navbarResponsive" aria-expanded="false" aria-label="Toggle navigation">
             Menu
             <i class="fas fa-bars ml-1"></i>
