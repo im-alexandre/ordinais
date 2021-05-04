@@ -1,17 +1,18 @@
 {% extends "base.html" %}
-{% load static %}
 {% block container %}
+{% load static %}
 
       {% comment %}{% include 'partials/passo_a_passo.html' %}{% endcomment %}
-<h1>Projeto {{projeto.nome}}</h1>
+<form method="POST" class="mt-5" id="MyForm">
+    <main role="main" class="d-flex flex-row justify-content-center mt-5">
+        <div class="p-2 bd-highlight">
+<h1 class="d-flex justify-content-center">Projeto {{projeto.nome}}</h1>
 <hr>
 <h2>Avaliação em relação aos critérios qualitativos</h2>
 
 <br>
-
-    <form method="POST">
          {% csrf_token %}
-        <table>
+        <table class="d-flex justify-content-center">
             <tbody>
                 {% for form in forms %}
                 <tr>
@@ -19,7 +20,7 @@
                    <td class="ml-8"></td>
                    <td class="ml-8"></td>
                    <td class="ml-8"></td>
-                   <td class="ml-8">Valor</td>
+                   <td class="ml-8 d-flex justify-content-center">Valor</td>
                 </tr>
                 <tr>
                    <td class="ml-8">{{ form.projeto }}</td>
@@ -40,9 +41,14 @@
                 {% endfor %}
             </tbody>
         </table>
+        </div>
+    </main>
         {{ forms.management_form }}
 
+    <div class="d-flex justify-content-center">
+
         <input type="submit" class="btn btn-outline-primary" value="Salvar valores">
+    </div>
     </form>
 
 {% endblock %}

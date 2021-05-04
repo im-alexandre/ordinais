@@ -2,76 +2,49 @@
 {% block container %}
 
 
-      {% comment %}{% include 'partials/passo_a_passo.html' %}{% endcomment %}
-<h1>Classificação do projeto "{{projeto.nome}}"</h1>
+<h1 class="d-flex justify-content-center">Classificação do projeto "{{projeto.nome}}"</h1>
 
 <hr>
-{% comment %}<h3>Resultado detalhado</br>{% endcomment %}
-{% comment %}</h3>{% endcomment %}
-
-{% comment %}<div class="m-0 p-0 container">{% endcomment %}
-  {% comment %}<h3>Avaliação dos Critérios</h3>{% endcomment %}
-{% comment %}<div class="m-0 p-0 row justify-content-center">{% endcomment %}
-{% comment %}{% autoescape off %}{% endcomment %}
-
-{% comment %}{{ df_criterios }}{% endcomment %}
-{% comment %}{% endautoescape %}{% endcomment %}
-{% comment %}</div>{% endcomment %}
-{% comment %}</div>{% endcomment %}
-
-{% comment %}<div class="m-0 p-0 container">{% endcomment %}
-  {% comment %}<h3>Avaliação das alternativas</h3>{% endcomment %}
-{% comment %}<div class="m-0 p-0 row justify-content-center">{% endcomment %}
-{% comment %}{% autoescape off %}{% endcomment %}
-
-{% comment %}{{ df_alternativas }}{% endcomment %}
-{% comment %}{% endautoescape %}{% endcomment %}
-
-{% comment %}</div>{% endcomment %}
-{% comment %}</div>{% endcomment %}
-
-
 {% if pesos %}
-<div class="m-0 p-0 container">
-<h1>Pesos totais dos critérios</h1>
+<h1 class="d-flex justify-content-center">Pesos totais dos critérios</h1>
 <div class="m-0 p-0 row justify-content-center">
 {% autoescape off %}
 {{ pesos }}
 {% endautoescape %}
 </div>
-</div>
 {% endif %}
+<hr>
 
 {% if pontuacao_alternativas %}
-<div class="m-0 p-0 container">
-<h1>Pontuação alternativas</h1>
+<h1 class="d-flex justify-content-center">Pontuação alternativas</h1>
 <div class="m-0 p-0 row justify-content-center">
 {% autoescape off %}
 {{ pontuacao_alternativas }}
 {% endautoescape %}
 </div>
-</div>
 {% endif %}
+<hr>
 
 
-<div class="m-0 p-0 container">
-  <h3>Classificação das alternativas (Bh)</h3>
+  <h3 class="d-flex justify-content-center">Classificação das alternativas (Bh)</h3>
 <div class="m-0 p-0 row justify-content-center">
 {% autoescape off %}
 {{ df_cla_quantil }}
 {% endautoescape %}
 </div>
-</div>
+<hr>
 
-<div class="m-0 p-0 container">
-  <h3>Classificação das alternativas (Bn)</h3>
+<h3 class="d-flex justify-content-center">Classificação das alternativas (Bn)</h3>
 <div class="m-0 p-0 row justify-content-center">
 {% autoescape off %}
 {{ df_cla_range }}
 {% endautoescape %}
 {% comment %}<a href="#" class="btn btn-primary btn-lg btn-block" id="baixa_planilha" data-id={{ projeto.id }}>Baixar Resultado Detalhado</a>{% endcomment %}
-<a href="javascript:{% include "download_planilha.js" %}" class="btn btn-outline-primary" data-id={{ projeto.id }}>Baixar Planilha</a>
 </div>
+</div>
+<hr>
+<div class="d-flex justify-content-center">
+<a href="javascript:{% include "download_planilha.js" %}" class="btn btn-outline-primary" data-id={{ projeto.id }}>Baixar Planilha</a>
 </div>
   
 
