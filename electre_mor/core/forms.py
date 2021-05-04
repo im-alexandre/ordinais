@@ -83,7 +83,7 @@ class AvaliacaoCriteriosForm(forms.ModelForm):
                     'min': -2,
                     'max': 2,
                     'step': 1,
-                    'onchange': 'muda_valor(this)'
+                    'onchange': 'muda_valor_alternativa(this)'
                 }),
             'projeto':
             forms.HiddenInput(),
