@@ -170,8 +170,6 @@ def cadastradecisores(request, projeto_id):
                     criterio_novo.save()
 
             return redirect('alternativacriterio', projeto_id=projeto.id)
-        print(decisor_form_set.errors, alternativa_form_set.errors,
-              criterios_form_set.errors)
     return render(
         request, template_name, {
             'decisor_form_set': decisor_form_set,
@@ -387,7 +385,6 @@ def resultado_sapevo(request, projeto_id):
     if alternativas:
         if len(criterios_quali) > 0:
             df_alternativas = matriz.avaliacoes['alternativas'].to_html()
-            print(df_alternativas)
             pontuacao_alternativas = matriz.pontuacao_alternativas.to_html()
         else:
             pontuacao_alternativas = None
@@ -426,10 +423,10 @@ def resultado(request, projeto_id):
     bn = projeto.qtde_classes
     lamb = projeto.lamb
 
-    print(request.POST)
 
     if request.method == 'POST':
         projeto.lamb = request.POST.get("lamb")
+        lamb = request.POST.get("lamb")
 
     pesos = matriz.pesos_criterios
     pesos.sort_values(by='peso', ascending=False, inplace=True)
@@ -453,7 +450,6 @@ def resultado(request, projeto_id):
                                                cols=['criterio'])
         parametros.loc['w'] = matriz.pesos_criterios['peso'].values
         parametros.index.rename('parametros')
-        print('Quantil*******************************\n')
         electre_quantil = ElectreTri(pontuacao_alternativas,
                                      parametros,
                                      lamb=lamb,
@@ -469,7 +465,6 @@ def resultado(request, projeto_id):
                                          right_index=True,
                                          left_index=True)
 
-        print('Range*********************************\n')
         electre = ElectreTri(pontuacao_alternativas,
                              parametros,
                              lamb=lamb,
