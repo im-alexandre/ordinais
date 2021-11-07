@@ -426,6 +426,11 @@ def resultado(request, projeto_id):
     bn = projeto.qtde_classes
     lamb = projeto.lamb
 
+    print(request.POST)
+
+    if request.method == 'POST':
+        projeto.lamb = request.POST.get("lamb")
+
     pesos = matriz.pesos_criterios
     pesos.sort_values(by='peso', ascending=False, inplace=True)
     pesos = pesos.to_html(index=False)
@@ -498,6 +503,7 @@ def resultado(request, projeto_id):
             'pontuacao_alternativas': pontuacao_alternativas,
             'df_cla_range': classificacao.to_html(),
             'df_cla_quantil': classificacao_quantil.to_html(),
+            'projeto': projeto
             # 'df_cla_quantil': df_cla_quantil,
         })
 
