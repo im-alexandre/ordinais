@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block conteudo %}
+{% load static %}
+<form action="{% url 'salva_projeto' %}" class="mt-5" method="post">
+  {% csrf_token %}
+  <main role="main" class="d-flex flex-row justify-content-center mt-5">
+    <div class="p-2 bd-highlight">
+      <h1>Problem parameters</h1>
+      <p>* A multicriteria decision problem must have at least 2 alternatives and 2 criteria</p>
+      <table id="criterio_form_set">
+        {% comment %}{{ criterio_form_set.as_table }}{% endcomment %}
+        <tbody>
+          <tr>
+            <td class="ml-8">Project's name</td>
+            <td class="ml-8">{{ form.nome }}</td>
+          </tr>
+          <tr>
+            <td class="ml-8">Number of Alternatives</td>
+            <td class="ml-8">{{ form.num_alternativas }}</td>
+          </tr>
+          <tr>
+            <td class="ml-8">Number of Criteria</td>
+            <td class="ml-8">{{ form.num_criterios }}</td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </main>
+  <div class="d-flex justify-content-center">
+    <input type="submit" class="p-3 mb-5 btn btn-outline-primary" value="Start Project">
+  </div>
+</form>
+
+{% endblock %}
+
+{% block custom_js %}
+<script src="{% static "js/obriga_campos.js" %}"></script>
+<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+<script
+         src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js"
+         integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49"
+         crossorigin="anonymous"
+         ></script>
+
+<script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.1/js/bootstrap.min.js"
+        integrity="sha384-smHYKdLADwkXOn1EmN1qk/HfnUcbVRZyYmZ4qpPea6sjB/pTJ0euyQp0Mk8ck+5T" crossorigin="anonymous">
+</script>
+
+<!-- Jeditable -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jeditable.js/2.0.6/jquery.jeditable.min.js"></script>
+<script src="http://code.jquery.com/jquery-1.3.2.min.js"></script>
+{% endblock %}

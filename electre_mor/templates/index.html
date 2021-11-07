@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block container %}
+<form method="POST" class="mt-5" id="MyForm">
+    <main role="main" class="d-flex flex-row justify-content-center mt-5">
+        <div class="p-2 bd-highlight">
+<h1 class="d-flex justify-content-center">Informações do Projeto</h1>
+<hr>
+
+    {% csrf_token %}
+    {{ form.as_p }}
+        </div>
+    </main>
+    <div class="d-flex justify-content-center">
+    <input type="submit" class="btn btn-outline-primary" value="Cadastrar">
+    </div>
+</form>
+{% endblock %}

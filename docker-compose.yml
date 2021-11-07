@@ -1,0 +1,60 @@
+version: '3.7'
+
+services:
+  db_ordinais:
+    image: postgres:12.0-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+    env_file:
+      - ./app/env.ordinais
+
+  ordinais:
+    #build:
+      #context: ./app
+    image: alexandre07/ordinais_web
+    command: './entrypoint_ordinais.sh'
+    volumes:
+      - ./app:/usr/src/app
+    expose:
+      - 8000
+    env_file:
+      - ./app/env.ordinais
+    depends_on:
+      - db_ordinais
+
+
+  db_electre:
+    image: postgres:12.0-alpine
+    volumes:
+      - postgres_data_electre_mor:/var/lib/postgresql/data/
+    env_file:
+      - ./electre_mor/env.electre
+
+  electre_mor:
+    #build:
+      #context: ./electre_mor
+    image: alexandre07/electre_mor
+    entrypoint: './entrypoint_electre.sh'
+    volumes:
+      - ./electre_mor:/usr/src/app
+    expose:
+      - 8000
+    env_file:
+      - ./electre_mor/env.electre
+    depends_on:
+      - db_electre
+        
+  nginx:
+    build: ./nginx
+    volumes:
+      - ./app/staticfiles:/usr/app/src/staticfiles
+      - ./electre_mor/staticfiles_electre_mor:/usr/app/src/staticfiles_electre_mor
+    ports:
+      - 80:80
+    depends_on:
+      - ordinais
+      - electre_mor
+
+volumes:
+  postgres_data:
+  postgres_data_electre_mor:

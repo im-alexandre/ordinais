@@ -1,0 +1,70 @@
+{% extends "base.html" %}
+{% load static %}
+{% block container %}
+
+
+      {% comment %}{% include 'partials/passo_a_passo.html' %}{% endcomment %}
+<h1 class="d-flex justify-content-center">Resultado parcial do projeto "{{projeto.nome}}"</h1>
+
+<hr>
+
+
+{% if pesos %}
+<h1 class="d-flex justify-content-center">Pesos totais dos critérios</h1>
+<div class="m-0 p-0 row justify-content-center">
+{% autoescape off %}
+{{ pesos }}
+{% endautoescape %}
+{% endif %}
+</div>
+<hr>
+
+{% if pontuacao_alternativas %}
+<h1 class="d-flex justify-content-center">Pontuação alternativas</h1>
+<div class="m-0 p-0 row justify-content-center">
+{% autoescape off %}
+{{ pontuacao_alternativas }}
+{% endautoescape %}
+</div>
+</div>
+{% endif %}
+<hr>
+
+
+<div class="d-flex justify-content-center">
+    <form id="MyForm" method="post">
+         {% csrf_token %}
+        <h1 class="d-flex justify-content-center">Parâmetros do projeto</h1>
+        <table>
+            <tbody>
+                {% for form in formsQuali %}
+                <tr>
+                  
+                   <td class="ml-8"></td>
+                   <td class="ml-8">{{ form.criterio.label }}</td>
+                   <td class="ml-8">{{ form.q.label }}</td>
+                   <td class="ml-8">{{ form.p.label }}</td>
+                   <td class="ml-8">{{ form.v.label }}</td>
+                </tr>
+                <tr>
+                   <td class="ml-8">{{ form.projeto }}</td>
+                   <td class="ml-8">{{ form.criterio }}</td>
+                   <td class="ml-8">{{ form.q }}</td>
+                   <td class="ml-8">{{ form.p }}</td>
+                   <td class="ml-8">{{ form.v }}</td>
+                </tr>
+                {% endfor %}
+        {{ formsQuali.management_form }}
+        </table>
+<div class="d-flex justify-content-center">
+        <input type="submit" class="btn btn-outline-primary" value="Obter Classificação">
+</div>
+    </form>
+</div>
+<br>
+
+{% endblock %}
+{% block custom_js %}
+    
+    <script src="{% static 'js/input_select.js' %}"></script>
+{% endblock %}

@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% load static %}
+{% block container %}
+
+
+<form method="POST" class="mt-5" id="MyForm">
+    <main role="main" class="d-flex flex-row justify-content-center mt-5">
+        <div class="p-2 bd-highlight">
+<h1 class="d-flex justify-content-center">Projeto {{projeto.nome}}</h1>
+<hr>
+<h2>Cadastro de Decisores, Critérios e Alternativas</h2>
+<hr>
+
+         {% csrf_token %}
+        <h1 class="d-flex justify-content-center">Decisores</h1>
+        <table class="d-flex justify-content-center" id="decisor_form_set">
+            <tbody>
+                {% for form in decisor_form_set.forms %}
+                {% for hidden in form.hidden_fields %}
+                  {{ hidden}}
+                  {% endfor %}
+                <tr>
+                {% comment %}<td class="ml-8">{{ form.id }}</td>{% endcomment %}
+                <td class="ml-8">{{ form.nome.label }}</td>
+                <td class="ml-8">{{ form.nome }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        {{ decisor_form_set.management_form }}
+
+        <hr>
+        <h1 class="d-flex justify-content-center">Critérios</h1>
+        <table id="criterio_form_set" class="d-flex justify-content-center">
+            {% comment %}{{ criterio_form_set.as_table }}{% endcomment %}
+            <tbody>
+            {% for form in criterio_form_set.forms %}
+              {% for hidden in form.hidden_fields %}
+              {{ hidden}}
+            {% endfor %}
+            <tr>
+                {% comment %}<td class="ml-8">{{ form.id }}</td>{% endcomment %}
+                <td class="ml-8">{{ form.nome.label }}</td>
+                <td class="ml-8">{{ form.nome }}</td>
+                <td class="ml-8">{{ form.numerico.label }}</td>
+                <td class="ml-8">{{ form.numerico }}</td>
+                <td class="ml-8">{{ form.monotonico.label }}</td>
+                <td class="ml-8">{{ form.monotonico }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        {{ criterio_form_set.management_form }}
+        </table>
+
+
+        <h1 class="d-flex justify-content-center">Alternativas</h1>
+        <table id="alternativa_form_set" class="d-flex justify-content-center">
+            <tbody>
+            {% for form in alternativa_form_set.forms %}
+                  {% for hidden in form.hidden_fields %}
+                  {{ hidden}}
+            {% endfor %}
+            <tr>
+                {% comment %}<td class="ml-8">{{ form.id }}</td>{% endcomment %}
+                <td class="ml-8">{{ form.nome.label }}</td>
+                <td class="ml-8">{{ form.nome }}</td>
+            </tr>
+            {% endfor %}
+            </tbody>
+        </table>
+        </div>
+    </main>
+        {{ alternativa_form_set.management_form }}
+    <div class="d-flex justify-content-center">
+        <input type="submit" class="btn btn-outline-primary" value="Avaliar Projeto">
+    </div>
+    </form>
+</div>
+
+{% endblock %}
+
+{% block custom_js %}
+<script src="{% static 'js/obriga_campos.js' %}"></script>
+{% endblock %}

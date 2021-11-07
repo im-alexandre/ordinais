@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% block container %}
+
+
+<h1 class="d-flex justify-content-center">Classificação do projeto "{{projeto.nome}}"</h1>
+
+<hr>
+{% if pesos %}
+<h1 class="d-flex justify-content-center">Pesos totais dos critérios</h1>
+<div class="m-0 p-0 row justify-content-center">
+{% autoescape off %}
+{{ pesos }}
+{% endautoescape %}
+</div>
+{% endif %}
+<hr>
+
+{% if pontuacao_alternativas %}
+<h1 class="d-flex justify-content-center">Pontuação alternativas</h1>
+<div class="m-0 p-0 row justify-content-center">
+{% autoescape off %}
+{{ pontuacao_alternativas }}
+{% endautoescape %}
+</div>
+{% endif %}
+<hr>
+
+
+  <h3 class="d-flex justify-content-center">Classificação das alternativas (Bh)</h3>
+<div class="m-0 p-0 row justify-content-center">
+{% autoescape off %}
+{{ df_cla_quantil }}
+{% endautoescape %}
+</div>
+<hr>
+
+<h3 class="d-flex justify-content-center">Classificação das alternativas (Bn)</h3>
+<div class="m-0 p-0 row justify-content-center">
+{% autoescape off %}
+{{ df_cla_range }}
+{% endautoescape %}
+</div>
+</div>
+<hr>
+<div class="d-flex justify-content-center">
+<a href="javascript:{% include "download_planilha.js" %}" class="btn btn-outline-primary" data-id={{ projeto.id }}>Baixar Planilha</a>
+</div>
+  
+
+<br>
+
+{% endblock %}

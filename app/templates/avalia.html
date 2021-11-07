@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block conteudo %}
+{% load static %}
+<form action="{% url 'resultado' %}" class="mt-5" method="post">
+  {% csrf_token %}
+  <main role="main" class="d-flex flex-row justify-content-center mt-5">
+    <div class="bd-highlight">
+      <h1 class="p-2">Insert values of attributes</h1>
+      <table id="criterio_form_set">
+        {% comment %}{{ criterio_form_set.as_table }}{% endcomment %}
+        <tbody>
+          <tr>
+            <td class="ml-8"></td>
+            <td class="ml-8" style="text-align:center">Alternative</td>
+            <td class="ml-8" style="text-align:center">Attribute</td>
+            <td class="ml-8" style="text-align:center">Value</td>
+          </tr>
+          {% for form in avalia_formset.forms %}
+          <tr>
+            <td class="ml-8">{{ form.nome }}</td>
+            <td class="ml-8">{{ form.alternativa }}</td>
+            <td class="ml-8">{{ form.criterio }}</td>
+            <td class="ml-8">{{ form.nota }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        {{ avalia_formset.management_form }}
+      </table>
+    </div>
+  </main>
+  <div class="d-flex justify-content-center">
+    <input type="submit" class="p-3 mb-5 btn btn-outline-primary" value="Calculate">
+  </div>
+</form>
+
+
+{% endblock %}
+
+{% block custom_js %}
+<script src="{% static "js/obriga_campos.js" %}"></script>
+  
+</script>
+{% endblock %}
+

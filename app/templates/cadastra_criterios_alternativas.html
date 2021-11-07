@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+{% block conteudo %}
+{% load static %}
+<form action="{% url 'salva_criterios_alternativas' %}" class="mt-5" method="post">
+  {% csrf_token %}
+  <main role="main" class="d-flex flex-row justify-content-center mt-5">
+    <div class="p-2 bd-highlight">
+      <h1>Criteria</h1>
+      <table id="criterio_form_set">
+        {% comment %}{{ criterio_form_set.as_table }}{% endcomment %}
+        <tbody>
+          {% for form in criterio_form_set.forms %}
+          <tr>
+            <td class="ml-8">Name</td>
+            <td class="ml-8">{{ form.nome }}</td>
+            <td class="ml-8">Monotonicity</td>
+            <td class="ml-8">{{ form.monotonico }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+        {{ criterio_form_set.management_form }}
+      </table>
+    </div>
+
+
+    <div class="p-2 bd-highlight">
+      <h1>Alternatives</h1>
+      <table id="alternativa_form_set">
+        <tbody>
+          {% for form in alternativa_form_set.forms %}
+          <tr>
+            <td class="ml-8">Name</td>
+            <td class="ml-8">{{ form.nome }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+      {{ alternativa_form_set.management_form }}
+    </div>
+    </div>
+  </main>
+  <div class="d-flex justify-content-center">
+    <input type="submit" class="p-3 mb-5 btn btn-outline-primary" value="Evaluate">
+  </div>
+</form>
+
+{% endblock %}
+{% block custom_js %}
+<script>
+document.querySelectorAll("input").forEach(function(valor){
+    valor.setAttribute("required", " ");
+});
+</script>
+{% endblock %}
+

@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% block container %}
+{% load static %}
+
+
+<form method="POST" class="mt-5">
+    <main role="main" class="d-flex flex-row justify-content-center mt-5">
+        <div class="p-2 bd-highlight">
+
+            <h1 class="d-flex justify-content-center">Projeto {{projeto.nome}}</h1>
+            <hr>
+            <h1 class="d-flex justify-content-center">Avaliação de critérios</h1>
+            <hr>
+
+            {% csrf_token %}
+            <table class="d-flex justify-content-center">
+                <tbody>
+                    {% for form in forms %}
+                    <tr>
+                        <td class="ml-8"></td>
+                        <td class="ml-8"></td>
+                        <td class="ml-8"></td>
+                        <td class="ml-8 d-flex justify-content-center">Valor</td>
+                        <td class="ml-8"></td>
+                    </tr>
+                    <tr>
+                        <td class="ml-8">{{ form.projeto }}</td>
+                        <td class="ml-8">{{ form.decisor }}</td>
+                        <td class="ml-8">{{ form.criterioB }}</td>
+                        <td>
+                            <p class="descricao_nota" id="paragrafo_{{ form.nota.auto_id }}">É Tão importante quanto</p>
+                        </td>
+                        <td class="ml-8">{{ form.criterioA }}</td>
+                    </tr>
+                    <tr>
+                        <td class="ml-8"></td>
+                        <td class="ml-8"></td>
+                        <td class="ml-8"></td>
+                        <td class="ml-8">{{ form.nota }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    {{ forms.management_form }}
+
+    <div class="d-flex justify-content-center">
+
+        <input type="submit" class="btn btn-outline-primary" value="Salvar valores">
+    </div>
+</form>
+</div>
+
+{% endblock %}
+{% block custom_js %}
+
+<script src="{% static 'js/input_select.js' %}"></script>
+{% endblock %}

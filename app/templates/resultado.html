@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block conteudo %}
+{% load static %}
+<div class="mt-5" method="post">
+  {% csrf_token %}
+  <main role="main" class="d-flex flex-row justify-content-center mt-5">
+    <div class="p-2 bd-highlight">
+      <h1>BORDA</h1>
+{% autoescape off %}
+{{ df_borda }}
+{% endautoescape %}
+    </div>
+
+    <div class="p-2 bd-highlight">
+      <h1>CONDORCET</h1>
+{% autoescape off %}
+{{ df_condorcet }}
+{% endautoescape %}
+    </div>
+    <div class="p-2 bd-highlight">
+      <h1>COPELAND</h1>
+{% autoescape off %}
+{{ df_copeland }}
+{% endautoescape %}
+    </div>
+  </main>
+  <div class="mt-5 d-flex justify-content-center">
+  <a href="{% url 'relatorio' %}" class="btn btn-primary">Download Results</a>
+  </div>
+</div>
+  </main>
+
+
+{% endblock %}

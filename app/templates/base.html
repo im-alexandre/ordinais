@@ -1,0 +1,74 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no" />
+    <meta name="description" content="" />
+    <meta name="author" content="" />
+    <title>PROA 2.0</title>
+    <link rel="icon" type="image/x-icon" href="{% static "assets/img/favicon.ico" %}" />
+    <!-- Font Awesome icons (free version)-->
+    <script src="https://use.fontawesome.com/releases/v5.13.0/js/all.js" crossorigin="anonymous"></script>
+    <!-- Google fonts-->
+    <link href="https://fonts.googleapis.com/css?family=Montserrat:400,700" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Droid+Serif:400,700,400italic,700italic" rel="stylesheet" type="text/css" />
+    <link href="https://fonts.googleapis.com/css?family=Roboto+Slab:400,100,300,700" rel="stylesheet" type="text/css" />
+    <!-- Core theme CSS (includes Bootstrap)-->
+    <link href="{% static "css/styles.css" %}" rel="stylesheet" />
+  </head>
+  <body id="page-top">
+
+    {% include 'partials/_navbar.html' %}
+
+    {% block conteudo %}{% endblock %}
+
+    <!-- Team-->
+    <section class="page-section bg-light" id="team">
+      <div class="container">
+        <div class="text-center">
+          <h2 class="section-heading text-uppercase">Our Team</h2>
+        </div>
+        <div class="row">
+          <div class="col-lg-6">
+            <div class="team-member">
+              <img class="mx-auto rounded-circle" src="{% static "assets/img/team/2.jpg" %}" alt="" />
+              <h4>Alexandre Castro</h4>
+              <p class="text-muted">Developer</p>
+              <a class="btn btn-dark btn-social mx-2" href="https://github.com/im-alexandre"><i class="fab fa-github"></i></a>
+              <a class="btn btn-dark btn-social mx-2" href="https://www.linkedin.com/in/alexandre-castro-45593415a/"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+          </div>
+          <div class="col-lg-6">
+            <div class="team-member">
+              <img class="mx-auto rounded-circle" src="{% static "assets/img/team/3.jpg" %}" alt="" />
+              <h4>Prof. Dr. Marcos dos Santos</h4>
+              <p class="text-muted">Advisor</p>
+              <a href="http://lattes.cnpq.br/5534398558592175"><img class="lattes" src="{% static "assets/img/logos/Lattes-1-100x100.png" %}"></img></a>
+              <a class="btn btn-dark btn-social mx-2" href="https://www.linkedin.com/in/prof-dr-marcos-santos-67035b1b4/"><i class="fab fa-linkedin-in"></i></a>
+            </div>
+          </div>
+        </div>
+        <div class="row justify-content-center">
+          <p class="citacao"><b>To cite this software:</b> 
+          Castro Junior, Marcos Alexandre Pinto de; SANTOS, Marcos dos; PROA Software (v.2), 2020.</p>
+          <p class="citacao">"All rights reserved. The non-commercial (academic) use of this software is free of charge. The only thing that is asked in return is to cite this software when results are used in publications."</p>
+        </div>
+      </div>
+    </section>
+
+  </body>
+  <!-- Bootstrap core JS-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/js/bootstrap.bundle.min.js"></script>
+  <!-- Third party plugin JS-->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-easing/1.4.1/jquery.easing.min.js"></script>
+  <!-- Contact form JS-->
+  <script src="{% static "assets/mail/jqBootstrapValidation.js" %}"></script>
+  <script src="{% static "assets/mail/contact_me.js" %}"></script>
+  </script>
+  <!-- Core theme JS-->
+  <script src="{% static "js/scripts.js" %}"></script>
+  {% block custom_js %}{% endblock %}
+  </body>
+</html>
