@@ -45,7 +45,7 @@
 <div class="m-0 p-0 row justify-content-center">
 <form action="{% url 'resultado' projeto_id=projeto.id %}" method="POST">
     {% csrf_token %}
-    <input type="number" name="lamb" id="lamb" placeholder="{{ projeto.lamb }}" min="0.5" max="1">
+    <input type="number" name="lamb" id="lamb" placeholder="{{ projeto.lamb }}" min="0.5" max="1" step="0.01">
     <button type="submit">Alterar Lambda</button>    
 </form>
 </div>

@@ -425,8 +425,8 @@ def resultado(request, projeto_id):
 
 
     if request.method == 'POST':
-        projeto.lamb = request.POST.get("lamb")
-        lamb = request.POST.get("lamb")
+        projeto.lamb = float(request.POST.get("lamb"))
+        lamb = float(request.POST.get("lamb"))
 
     pesos = matriz.pesos_criterios
     pesos.sort_values(by='peso', ascending=False, inplace=True)
