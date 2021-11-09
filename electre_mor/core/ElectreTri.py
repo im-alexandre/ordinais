@@ -102,7 +102,7 @@ class ElectreTri():
         """Classificação pessimista das alternativas"""
         cla = credibilidade.reset_index()
         qtde_classes = cla.shape[0] + 1
-        cla = cla[cla['comparative'].isin(['x I b', 'x > b'])]
+        cla = cla[cla['relationship'].isin(['x I b', 'x > b'])]
         try:
             index = len(list(cla.index.values))
         except IndexError:
@@ -120,7 +120,7 @@ class ElectreTri():
         """Classificação otimista das alternativas"""
         cla = credibilidade.reset_index()
         qtde_classes = cla.shape[0] + 1
-        cla = cla[cla['comparative'].isin(['x I b', 'x R b', 'x > b'])]
+        cla = cla[cla['relationship'].isin(['x I b', 'x R b', 'x > b'])]
         try:
             index = len(list(cla.index.values))
         except IndexError:
@@ -215,7 +215,7 @@ class ElectreTri():
         ],
             axis=1)
 
-        self.credibilidade_df['comparative'] = self.credibilidade_df.apply(
+        self.credibilidade_df['relationship'] = self.credibilidade_df.apply(
             self.comparacao, axis=1)
 
         self.credibilidade_df['lambda'] = self.lamb
