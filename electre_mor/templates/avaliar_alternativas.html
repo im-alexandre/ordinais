@@ -6,7 +6,7 @@
 <form method="POST" class="mt-5" id="MyForm">
     <main role="main" class="d-flex flex-row justify-content-center mt-5">
         <div class="p-2 bd-highlight">
-<h1 class="d-flex justify-content-center">Projeto {{projeto.nome}}</h1>
+<h1 class="d-flex justify-content-center">Project -  "{{projeto.nome}}"</h1>
 <hr>
 <h2>Avaliação das alternativas em relação aos critérios qualitativos</h2>
 
@@ -20,7 +20,7 @@
                    <td class="ml-8"></td>
                    <td class="ml-8"></td>
                    <td class="ml-8"></td>
-                   <td class="ml-8 d-flex justify-content-center">Valor</td>
+                   <td class="ml-8 d-flex justify-content-center">Value</td>
                 </tr>
                 <tr>
                    <td class="ml-8">{{ form.projeto }}</td>
@@ -28,7 +28,7 @@
                    <td class="ml-8">{{ form.criterio }}</td>
                    <td class="ml-8">{{ form.alternativaA }}</td>
                     <td>
-                        <p class="descricao_nota" id="paragrafo_{{ form.nota.auto_id }}">É equivalente a</p>
+                        <p class="descricao_nota" id="paragrafo_{{ form.nota.auto_id }}">is as important as</p>
                     </td>
                    <td class="ml-8">{{ form.alternativaB }}</td>
                 </tr>
@@ -47,7 +47,7 @@
 
     <div class="d-flex justify-content-center">
 
-        <input type="submit" class="btn btn-outline-primary" value="Salvar valores">
+        <input type="submit" class="btn btn-outline-primary" value="Continue">
     </div>
     </form>
 

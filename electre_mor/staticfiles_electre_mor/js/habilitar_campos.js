@@ -1,11 +1,11 @@
 // Habilitar campos com o Radio de PF e PJ
 function muda_valor(elemento) {
     var dicionario = {
-        '-2': 'É muito mais importante que',
-        '-1': 'É mais importante que',
-        '0': 'É Tão importante quanto',
-        '1': 'É menos importante que',
-        '2': 'É muito menos importante que',
+        '-2': 'is much more important than',
+        '-1': 'is more important than',
+        '0': 'is as important as',
+        '1': 'is less important than',
+        '2': 'is mush less important than',
     }
     var paragrafo = document.getElementById('paragrafo_' + elemento.id)
     paragrafo.textContent = dicionario[elemento.value]
