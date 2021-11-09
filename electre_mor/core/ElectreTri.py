@@ -234,9 +234,3 @@ class ElectreTri():
         tab.save()
 
         return self.credibilidade_df
-
-
-if __name__ == '__main__':
-    entrada = pd.read_excel('electre.xlsx', sheet_name='alternativas')
-    parametros = pd.read_excel('electre.xlsx', sheet_name='parametros')
-    ElectreTri(entrada, parametros, 0.75).renderizar()
