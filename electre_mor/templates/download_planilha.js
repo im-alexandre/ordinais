@@ -9,7 +9,7 @@ $(function () {
             var a = document.createElement('a');
             var url = window.URL.createObjectURL(data);
             a.href = url;
-            a.download = 'resultado.zip';
+            a.download = 'result.zip';
             document.body.append(a);
             a.click();
             a.remove();

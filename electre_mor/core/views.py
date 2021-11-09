@@ -515,7 +515,7 @@ def download_file(request, projeto_id):
         # append mode adds files to the 'Zip'
         # you have to create the files which you have to add to the 'Zip'
         file.write(f'resultados/result_range{projeto_id}.xlsx')
-        file.write(f'resultados/result_quantil{projeto_id}.xlsx')
+        file.write(f'resultados/result_quantile{projeto_id}.xlsx')
 
     fl = open(fl_path, 'rb')
     mime_type, _ = mimetypes.guess_type(fl_path)
