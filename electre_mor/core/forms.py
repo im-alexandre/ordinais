@@ -21,11 +21,11 @@ class NomeProjetoForm(forms.ModelForm):
         labels = {
             'nome': _('Insert the project name:'),
             'descricao': _('Project description:'),
-            'qtde_classes': _('Set the number of classes:'),
-            'qtde_criterios': _('Set the number of criteria:'),
-            'qtde_decisores': _('Set the number of Decision-makers:'),
-            'qtde_alternativas': _('Set the number of alternatives:'),
-            'lamb': _('Set the cutoff level value (λ):'),
+            'qtde_classes': _('Number of classes:'),
+            'qtde_criterios': _('Number of criteria:'),
+            'qtde_decisores': _('Number of Decision-makers:'),
+            'qtde_alternativas': _('Number of alternatives:'),
+            'lamb': _('Cutoff level value (λ):'),
         }
         widgets = {'descricao': forms.Textarea(attrs={'rows': 5, 'cols': 25})}
 
