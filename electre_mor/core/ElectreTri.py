@@ -27,7 +27,7 @@ class ElectreTri():
         lamb,
         bn,
         id_projeto,
-        method='quantil',
+        method='quantile',
     ):
         self.entrada = entrada
         self.parametros = parametros
@@ -102,17 +102,17 @@ class ElectreTri():
         """Classificação pessimista das alternativas"""
         cla = credibilidade.reset_index()
         qtde_classes = cla.shape[0] + 1
-        cla = cla[cla['comparacao'].isin(['x I b', 'x > b'])]
+        cla = cla[cla['comparative'].isin(['x I b', 'x > b'])]
         try:
             index = len(list(cla.index.values))
         except IndexError:
             index = 1
-        numero_da_classe = 'Classe ' + str(qtde_classes - (index))
+        numero_da_classe = 'Class ' + str(qtde_classes - (index))
         return numero_da_classe
 
     def pessimista(self):
         """docstring for pessimista"""
-        df = self.credibilidade_df.groupby(level='alternativa').apply(
+        df = self.credibilidade_df.groupby(level='alternative').apply(
             self.__pessimista)
         return df
 
@@ -120,17 +120,17 @@ class ElectreTri():
         """Classificação otimista das alternativas"""
         cla = credibilidade.reset_index()
         qtde_classes = cla.shape[0] + 1
-        cla = cla[cla['comparacao'].isin(['x I b', 'x R b', 'x > b'])]
+        cla = cla[cla['comparative'].isin(['x I b', 'x R b', 'x > b'])]
         try:
             index = len(list(cla.index.values))
         except IndexError:
             index = 1
-        numero_da_classe = 'Classe ' + str(qtde_classes - (index))
+        numero_da_classe = 'Class ' + str(qtde_classes - (index))
         return numero_da_classe
 
     def otimista(self):
         """docstring for otimista"""
-        df = self.credibilidade_df.groupby(level='alternativa').apply(
+        df = self.credibilidade_df.groupby(level='alternative').apply(
             self.__otimista)
         return df
 
@@ -138,7 +138,7 @@ class ElectreTri():
         """docstring for renderizar"""
         alternativas = list(self.entrada.index)
 
-        if self.method == 'quantil':
+        if self.method == 'quantile':
             self.cla_df = pd.DataFrame(
                 self.entrada.quantile(q=np.arange(0, 1, 1 / self.bn),
                                       interpolation='higher').values[1:],
@@ -155,8 +155,8 @@ class ElectreTri():
             [self.entrada, self.cla_df, self.parametros],
             axis=0,
         )
-        self.index = pd.MultiIndex.from_product(
-            [alternativas, self.cla], names=['alternativa', 'classe'])
+        self.index = pd.MultiIndex.from_product([alternativas, self.cla],
+                                                names=['alternative', 'class'])
         self.df = pd.DataFrame(None,
                                index=self.index,
                                columns=self.entrada.columns)
@@ -215,7 +215,7 @@ class ElectreTri():
         ],
             axis=1)
 
-        self.credibilidade_df['comparacao'] = self.credibilidade_df.apply(
+        self.credibilidade_df['comparative'] = self.credibilidade_df.apply(
             self.comparacao, axis=1)
 
         self.credibilidade_df['lambda'] = self.lamb

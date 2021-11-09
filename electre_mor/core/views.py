@@ -472,7 +472,7 @@ def resultado(request, projeto_id):
                              parametros,
                              lamb=lamb,
                              bn=bn,
-                             method='quantil',
+                             method='quantile',
                              id_projeto=projeto.id)
 
         df_cla = electre.renderizar()
