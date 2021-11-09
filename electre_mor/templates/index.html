@@ -3,7 +3,9 @@
 <form method="POST" class="mt-5" id="MyForm">
     <main role="main" class="d-flex flex-row justify-content-center mt-5">
         <div class="p-2 bd-highlight">
-<h1 class="d-flex justify-content-center">Informações do Projeto</h1>
+<h1 class="d-flex justify-content-center">
+    Project setup:
+</h1>
 <hr>
 
     {% csrf_token %}
@@ -11,7 +13,7 @@
         </div>
     </main>
     <div class="d-flex justify-content-center">
-    <input type="submit" class="btn btn-outline-primary" value="Cadastrar">
+    <input type="submit" class="btn btn-outline-primary" value="Continue">
     </div>
 </form>
 {% endblock %}

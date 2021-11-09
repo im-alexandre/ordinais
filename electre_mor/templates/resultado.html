@@ -2,11 +2,15 @@
 {% block container %}
 
 
-<h1 class="d-flex justify-content-center">Classificação do projeto "{{projeto.nome}}"</h1>
+<h1 class="d-flex justify-content-center">
+    Final result of Project - "{{projeto.nome}}"
+</h1>
 
 <hr>
 {% if pesos %}
-<h1 class="d-flex justify-content-center">Pesos totais dos critérios</h1>
+<h1 class="d-flex justify-content-center">
+    Weights of the criteria
+</h1>
 <div class="m-0 p-0 row justify-content-center">
 {% autoescape off %}
 {{ pesos }}
@@ -16,7 +20,7 @@
 <hr>
 
 {% if pontuacao_alternativas %}
-<h1 class="d-flex justify-content-center">Pontuação alternativas</h1>
+<h1 class="d-flex justify-content-center">Scores of the alternatives</h1>
 <div class="m-0 p-0 row justify-content-center">
 {% autoescape off %}
 {{ pontuacao_alternativas }}
@@ -26,7 +30,9 @@
 <hr>
 
 
-  <h3 class="d-flex justify-content-center">Classificação das alternativas (Bh)</h3>
+  <h3 class="d-flex justify-content-center">
+      Classification through bh procedure
+  </h3>
 <div class="m-0 p-0 row justify-content-center">
 {% autoescape off %}
 {{ df_cla_quantil }}
@@ -34,7 +40,9 @@
 </div>
 <hr>
 
-<h3 class="d-flex justify-content-center">Classificação das alternativas (Bn)</h3>
+<h3 class="d-flex justify-content-center">
+    Classification through bn procedure
+</h3>
 <div class="m-0 p-0 row justify-content-center">
 {% autoescape off %}
 {{ df_cla_range }}
@@ -43,15 +51,20 @@
 </div>
 <hr>
 <div class="m-0 p-0 row justify-content-center">
+<h3 class="d-flex justify-content-center">
+    Sensitivity analysis by varying cutoff level (λ)
+</h3>
 <form action="{% url 'resultado' projeto_id=projeto.id %}" method="POST">
     {% csrf_token %}
     <input type="number" name="lamb" id="lamb" placeholder="{{ projeto.lamb }}" min="0.5" max="1" step="0.01">
-    <button type="submit">Alterar Lambda</button>    
+    <button type="submit">Set new cutoff level</button>    
 </form>
 </div>
 <hr>
 <div class="d-flex justify-content-center">
-<a href="javascript:{% include "download_planilha.js" %}" class="btn btn-outline-primary" data-id={{ projeto.id }}>Baixar Planilha</a>
+<a href="javascript:{% include "download_planilha.js" %}" class="btn btn-outline-primary" data-id={{ projeto.id }}>
+    Download summary
+</a>
 </div>
   
 

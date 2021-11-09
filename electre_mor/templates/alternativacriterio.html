@@ -6,22 +6,23 @@
 <form method="POST" class="mt-5" id="MyForm">
     <main role="main" class="d-flex flex-row justify-content-center mt-5">
         <div class="p-2 bd-highlight">
-            <h1 class="d-flex justify-content-center">Projeto {{projeto.nome}}</h1>
+            <h1 class="d-flex justify-content-center">Project - "{{projeto.nome}}"</h1>
             <hr>
-            <h2>Defina os valores numéricos dos atributos das alternativas</h2>
+            {% comment %}<h2>Set the performance values of the alternatives in the numerical criteria</h2>{% endcomment %}
+            <h2>Set numeric attributes of each alternative</h2>
             <hr>
 
             {% csrf_token %}
-            <h1 class="d-flex justify-content-center">Atributos numéricos</h1>
+            {% comment %}<h1 class="d-flex justify-content-center">Atributos numéricos</h1>{% endcomment %}
             <table class="d-flex justify-content-center" id="alternativacriterio">
                 <tbody>
                     {% for form in forms %}
                     <tr>
 
                         <td class="ml-8"></td>
-                        <td class="ml-8">{{ form.criterio.label }}</td>
-                        <td class="ml-8">{{ form.alternativa.label }}</td>
-                        <td class="ml-8">Valor</td>
+                        <td class="ml-8">Criterion</td>
+                        <td class="ml-8">Alternative</td>
+                        <td class="ml-8">Attribute's value</td>
                     </tr>
                     <tr>
                         <td class="ml-8">{{ form.projeto }}</td>
@@ -37,7 +38,7 @@
     {{ forms.management_form }}
     <div class="d-flex justify-content-center">
 
-        <input type="submit" class="btn btn-outline-primary" value="Salvar valores">
+        <input type="submit" class="btn btn-outline-primary" value="Continue">
     </div>
 </form>
 </div>

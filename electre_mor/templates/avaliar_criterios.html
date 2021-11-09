@@ -7,9 +7,16 @@
     <main role="main" class="d-flex flex-row justify-content-center mt-5">
         <div class="p-2 bd-highlight">
 
-            <h1 class="d-flex justify-content-center">Projeto {{projeto.nome}}</h1>
+            <h1 class="d-flex justify-content-center">
+                Project - "{{projeto.nome}}"
+            </h1>
             <hr>
-            <h1 class="d-flex justify-content-center">Avaliação de critérios</h1>
+            <h1 class="d-flex justify-content-center">
+                Pairwise comparison between criteria
+            </h1>
+            <h2>
+                Slide the bar towards the most important criterion
+            </h2>
             <hr>
 
             {% csrf_token %}
@@ -20,7 +27,7 @@
                         <td class="ml-8"></td>
                         <td class="ml-8"></td>
                         <td class="ml-8"></td>
-                        <td class="ml-8 d-flex justify-content-center">Valor</td>
+                        <td class="ml-8 d-flex justify-content-center">Value</td>
                         <td class="ml-8"></td>
                     </tr>
                     <tr>
@@ -28,7 +35,7 @@
                         <td class="ml-8">{{ form.decisor }}</td>
                         <td class="ml-8">{{ form.criterioB }}</td>
                         <td>
-                            <p class="descricao_nota" id="paragrafo_{{ form.nota.auto_id }}">É Tão importante quanto</p>
+                            <p class="descricao_nota" id="paragrafo_{{ form.nota.auto_id }}">is as important as</p>
                         </td>
                         <td class="ml-8">{{ form.criterioA }}</td>
                     </tr>
@@ -48,7 +55,7 @@
 
     <div class="d-flex justify-content-center">
 
-        <input type="submit" class="btn btn-outline-primary" value="Salvar valores">
+        <input type="submit" class="btn btn-outline-primary" value="Continue">
     </div>
 </form>
 </div>

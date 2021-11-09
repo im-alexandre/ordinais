@@ -3,14 +3,15 @@
 {% block container %}
 
 
-      {% comment %}{% include 'partials/passo_a_passo.html' %}{% endcomment %}
-<h1 class="d-flex justify-content-center">Resultado parcial do projeto "{{projeto.nome}}"</h1>
+<h1 class="d-flex justify-content-center">
+    Partial result of Project - "{{projeto.nome}}"
+</h1>
 
 <hr>
 
 
 {% if pesos %}
-<h1 class="d-flex justify-content-center">Pesos totais dos critérios</h1>
+<h1 class="d-flex justify-content-center">Weights of the criteria</h1>
 <div class="m-0 p-0 row justify-content-center">
 {% autoescape off %}
 {{ pesos }}
@@ -20,7 +21,7 @@
 <hr>
 
 {% if pontuacao_alternativas %}
-<h1 class="d-flex justify-content-center">Pontuação alternativas</h1>
+<h1 class="d-flex justify-content-center">Performance matrix</h1>
 <div class="m-0 p-0 row justify-content-center">
 {% autoescape off %}
 {{ pontuacao_alternativas }}
@@ -34,17 +35,18 @@
 <div class="d-flex justify-content-center">
     <form id="MyForm" method="post">
          {% csrf_token %}
-        <h1 class="d-flex justify-content-center">Parâmetros do projeto</h1>
+        <h1 class="d-flex justify-content-center">Project's parameters</h1>
+        <h3>Set Weak preference (q), strict preference (p) and veto (v) thresholds</h3>
         <table>
             <tbody>
                 {% for form in formsQuali %}
                 <tr>
                   
                    <td class="ml-8"></td>
-                   <td class="ml-8">{{ form.criterio.label }}</td>
-                   <td class="ml-8">{{ form.q.label }}</td>
-                   <td class="ml-8">{{ form.p.label }}</td>
-                   <td class="ml-8">{{ form.v.label }}</td>
+                   <td class="ml-8">Criterion</td>
+                   <td class="ml-8">q</td>
+                   <td class="ml-8">p</td>
+                   <td class="ml-8">v</td>
                 </tr>
                 <tr>
                    <td class="ml-8">{{ form.projeto }}</td>
@@ -57,7 +59,7 @@
         {{ formsQuali.management_form }}
         </table>
 <div class="d-flex justify-content-center">
-        <input type="submit" class="btn btn-outline-primary" value="Obter Classificação">
+        <input type="submit" class="btn btn-outline-primary" value="Continue">
 </div>
     </form>
 </div>

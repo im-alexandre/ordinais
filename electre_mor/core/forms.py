@@ -19,13 +19,13 @@ class NomeProjetoForm(forms.ModelForm):
             'lamb',
         )
         labels = {
-            'nome': _('Insira o nome do projeto'),
-            'descricao': _('Insira a descrição do projeto'),
-            'qtde_classes': _('Defina o número de classes'),
-            'qtde_criterios': _('Defina o número de critérios'),
-            'qtde_decisores': _('Defina o número de decisores'),
-            'qtde_alternativas': _('Defina o número de alternativas'),
-            'lamb': _('Defina o valor do nível de corte (λ)'),
+            'nome': _('Insert the project name:'),
+            'descricao': _('Project description:'),
+            'qtde_classes': _('Set the number of classes:'),
+            'qtde_criterios': _('Set the number of criteria:'),
+            'qtde_decisores': _('Set the number of Decision-makers:'),
+            'qtde_alternativas': _('Set the number of alternatives:'),
+            'lamb': _('Set the cutoff level value (λ):'),
         }
         widgets = {'descricao': forms.Textarea(attrs={'rows': 5, 'cols': 25})}
 

@@ -102,30 +102,34 @@ def cadastradecisores(request, projeto_id):
     decisoresformset = modelformset_factory(model=Decisor,
                                             fields=('nome', ),
                                             extra=projeto.qtde_decisores -
-                                            projeto.decisores.count())
+                                            projeto.decisores.count(),
+                                            labels={'nome': 'Name'})
 
     criteriosformset = modelformset_factory(
         model=Criterio,
         fields=('nome', 'numerico', 'monotonico'),
         extra=projeto.qtde_criterios - projeto.criterios.count(),
         labels={
-            'numerico': _('Tipo de critério: '),
+            'numerico': _("Criterion's type: "),
+            'nome': 'Name: ',
+            'monotonico': 'Monotonicity: '
         },
         widgets={
             'numerico':
-            forms.Select(choices=((True, "Numérico"), (False, "Qualitativo")),
+            forms.Select(choices=((True, "Numeric"), (False, "Qualitative")),
                          attrs={
                              'onchange': 'esconde_monotonico(this)',
                              'class': 'check'
             }),
             'monotonico':
-            forms.Select(choices=((1, "Lucro"), (2, "Custo")),
+            forms.Select(choices=((1, "Benefit"), (2, "Cost")),
                          attrs={'class': 'monotonico'})
         })
     alternativasformset = modelformset_factory(
         model=Alternativa,
         fields=('nome', ),
-        extra=projeto.qtde_alternativas - projeto.criterios.count())
+        extra=projeto.qtde_alternativas - projeto.criterios.count(),
+        labels={'nome': 'Name: '})
 
     criterio_form_set = criteriosformset(
         queryset=criterios,
@@ -423,7 +427,6 @@ def resultado(request, projeto_id):
     bn = projeto.qtde_classes
     lamb = projeto.lamb
 
-
     if request.method == 'POST':
         projeto.lamb = float(request.POST.get("lamb"))
         lamb = float(request.POST.get("lamb"))
@@ -504,15 +507,15 @@ def resultado(request, projeto_id):
 
 
 def download_file(request, projeto_id):
-    fl_path = f'resultados/resultado{projeto_id}.zip'
-    filename = f'resultados/resultado{projeto_id}.zip'
+    fl_path = f'resultados/result{projeto_id}.zip'
+    filename = f'resultados/result{projeto_id}.zip'
 
     # opening the 'Zip' in writing mode
     with zipfile.ZipFile(fl_path, 'w') as file:
         # append mode adds files to the 'Zip'
         # you have to create the files which you have to add to the 'Zip'
-        file.write(f'resultados/resultado_range{projeto_id}.xlsx')
-        file.write(f'resultados/resultado_quantil{projeto_id}.xlsx')
+        file.write(f'resultados/result_range{projeto_id}.xlsx')
+        file.write(f'resultados/result_quantil{projeto_id}.xlsx')
 
     fl = open(fl_path, 'rb')
     mime_type, _ = mimetypes.guess_type(fl_path)

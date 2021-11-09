@@ -221,16 +221,16 @@ class ElectreTri():
         self.credibilidade_df['lambda'] = self.lamb
 
         tab = pd.ExcelWriter(
-            f'resultados/resultado_{self.method}{self.id_projeto}.xlsx')
-        self.cla_df.to_excel(tab, 'bhs')
-        self.parametros.to_excel(tab, 'parametros')
-        self.df_concordancia_x_b.to_excel(tab, 'concordancia_x_b')
-        self.df_concordancia_b_x.to_excel(tab, 'concordancia_b_x')
-        self.df_discordancia_b_x.to_excel(tab, 'discordancia_b_x')
-        self.df_discordancia_x_b.to_excel(tab, 'discordancia_x_b')
-        self.df_credibilidade_b_x.to_excel(tab, 'credibilidade_b_x')
-        self.df_credibilidade_x_b.to_excel(tab, 'credibilidade_x_b')
-        self.credibilidade_df.to_excel(tab, 'classificações')
+            f'resultados/result_{self.method}{self.id_projeto}.xlsx')
+        self.cla_df.to_excel(tab, 'bh')
+        self.parametros.to_excel(tab, 'parameters')
+        self.df_concordancia_x_b.to_excel(tab, 'concordance_x_b')
+        self.df_concordancia_b_x.to_excel(tab, 'concordance_b_x')
+        self.df_discordancia_b_x.to_excel(tab, 'discordance_b_x')
+        self.df_discordancia_x_b.to_excel(tab, 'discordance_x_b')
+        self.df_credibilidade_b_x.to_excel(tab, 'credibility_b_x')
+        self.df_credibilidade_x_b.to_excel(tab, 'credibility_x_b')
+        self.credibilidade_df.to_excel(tab, 'Results')
         tab.save()
 
         return self.credibilidade_df
