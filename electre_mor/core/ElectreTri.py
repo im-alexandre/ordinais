@@ -222,7 +222,7 @@ class ElectreTri():
 
         tab = pd.ExcelWriter(
             f'resultados/result_{self.method}{self.id_projeto}.xlsx')
-        self.cla_df.to_excel(tab, 'bh')
+        self.cla_df.to_excel(tab, self.method)
         self.parametros.to_excel(tab, 'parameters')
         self.df_concordancia_x_b.to_excel(tab, 'concordance_x_b')
         self.df_concordancia_b_x.to_excel(tab, 'concordance_b_x')
