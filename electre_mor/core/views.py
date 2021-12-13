@@ -525,15 +525,15 @@ def resultado(request, projeto_id):
 
 
 def download_file(request, projeto_id):
-    fl_path = f'resultados/result{projeto_id}.zip'
-    filename = f'resultados/result{projeto_id}.zip'
+    fl_path = f'resultados/result_{projeto_id}.zip'
+    filename = f'result_{projeto_id}.zip'
 
     # opening the 'Zip' in writing mode
     with zipfile.ZipFile(fl_path, 'w') as file:
         # append mode adds files to the 'Zip'
         # you have to create the files which you have to add to the 'Zip'
-        file.write(f'resultados/result_range{projeto_id}.xlsx')
-        file.write(f'resultados/result_quantile{projeto_id}.xlsx')
+        file.write(f'resultados/result_bh_{projeto_id}.xlsx')
+        file.write(f'resultados/result_bn_{projeto_id}.xlsx')
 
     fl = open(fl_path, 'rb')
     mime_type, _ = mimetypes.guess_type(fl_path)
