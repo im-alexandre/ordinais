@@ -91,6 +91,7 @@ class AvaliacaoCriteriosForm(forms.ModelForm):
 
 
 class AvaliacaoAlternativasForm(forms.ModelForm):
+
     class Meta:
         model = AvaliacaoAlternativas
         fields = ('projeto', 'decisor', 'criterio', 'alternativaA',

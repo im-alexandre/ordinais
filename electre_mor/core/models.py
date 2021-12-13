@@ -106,17 +106,6 @@ class AvaliacaoCriterios(models.Model):
 
 
 class AvaliacaoAlternativas(models.Model):
-    def get_form(self, *args, **kwargs):
-        form = super(AvaliacaoAlternativas, self).get_form(*args, **kwargs)
-        form.fields['decisor'].queryset = form.fields[
-            'decisor'].queryset.filter(projeto=self.projeto)
-        form.fields['criterio'].queryset = form.fields[
-            'criterio'].queryset.filter(projeto=self.projeto)
-        form.fields['alternativaA'].queryset = form.fields[
-            'alternativaA'].queryset.filter(projeto=self.projeto)
-        form.fields['alternativaB'].queryset = form.fields[
-            'alternativaB'].queryset.filter(projeto=self.projeto)
-
     projeto = models.ForeignKey('Projeto',
                                 on_delete=models.CASCADE,
                                 related_name='avaliacaoalternativas')
