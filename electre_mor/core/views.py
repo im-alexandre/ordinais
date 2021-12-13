@@ -498,6 +498,12 @@ def resultado(request, projeto_id):
     else:
         pontuacao_alternativas = None
 
+    classificacao_quantil.rename(columns={
+        'Otimista': 'Optimist',
+        'Pessimista': 'Pessimist'
+    },
+        inplace=True)
+
     classificacao.rename(columns={
         'Otimista': 'Optimist',
         'Pessimista': 'Pessimist'
