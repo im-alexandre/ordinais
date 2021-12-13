@@ -433,7 +433,13 @@ def resultado(request, projeto_id):
 
     pesos = matriz.pesos_criterios
     pesos.sort_values(by='peso', ascending=False, inplace=True)
+    pesos.rename(columns={
+        'Critério': 'Criteria',
+        'peso': 'Weight'
+    },
+        inplace=True)
     pesos = pesos.to_html(index=False)
+
     valores = AlternativaCriterio.objects.filter(projeto=projeto)
     valores = valores.to_dataframe().to_html()
 
@@ -491,6 +497,12 @@ def resultado(request, projeto_id):
 
     else:
         pontuacao_alternativas = None
+
+    classificacao.rename(columns={
+        'Otimista': 'Optimist',
+        'Pessimista': 'Pessimist'
+    },
+        inplace=True)
 
     return render(
         request,
