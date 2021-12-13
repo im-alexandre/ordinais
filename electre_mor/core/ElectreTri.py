@@ -104,7 +104,8 @@ class ElectreTri():
     def __pessimista(self, credibilidade: pd.DataFrame):
         """Classificação pessimista das alternativas"""
         cla = credibilidade.reset_index()
-        qtde_classes = cla.shape[0] + 1
+        # qtde_classes = cla.shape[0]
+        qtde_classes = self.bn
         cla = cla[cla['relationship'].isin(['x I b', 'x > b'])]
         try:
             index = len(list(cla.index.values))
@@ -122,7 +123,8 @@ class ElectreTri():
     def __otimista(self, credibilidade: pd.DataFrame):
         """Classificação otimista das alternativas"""
         cla = credibilidade.reset_index()
-        qtde_classes = cla.shape[0] + 1
+        # qtde_classes = cla.shape[0] + 1
+        qtde_classes = self.bn
         cla = cla[cla['relationship'].isin(['x I b', 'x R b', 'x > b'])]
         try:
             index = len(list(cla.index.values))
