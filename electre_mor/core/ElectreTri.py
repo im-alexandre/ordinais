@@ -37,8 +37,11 @@ class ElectreTri():
         self.id_projeto = id_projeto
 
     def _escalona(self, coluna):
-        escala = (max(coluna) - min(coluna)) / (self.bn)
-        coluna_escalonada = np.arange(min(coluna), max(coluna), escala)[1:]
+        try:
+            escala = (max(coluna) - min(coluna)) / (self.bn)
+            coluna_escalonada = np.arange(min(coluna), max(coluna), escala)[1:]
+        except ZeroDivisionError:
+            coluna_escalonada = [max(coluna)]
         return coluna_escalonada
 
     def comparacao(self, row):
