@@ -37,7 +37,7 @@ function muda_valor_alternativa(elemento) {
     var dicionario_alternativas = {
         '-2': 'is much better than',
         '-1': 'is better than',
-        '0': 'is as equivalent as',
+        '0': 'is equivalent to',
         '1': 'is worse than',
         '2': 'is much worse than',
     }

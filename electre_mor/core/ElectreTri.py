@@ -128,10 +128,9 @@ class ElectreTri():
         cla = cla[cla['relationship'].isin(['x I b', 'x R b', 'x > b'])]
         try:
             index = len(list(cla.index.values))
-            numero_da_classe = 'Class ' + str(qtde_classes - (index))
         except IndexError:
             index = 1
-            numero_da_classe = 'Class ' + str(qtde_classes)
+        numero_da_classe = 'Class ' + str(qtde_classes - (index))
         return numero_da_classe
 
     def otimista(self):
