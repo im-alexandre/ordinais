@@ -5,7 +5,7 @@ function muda_valor(elemento) {
         '-1': 'is more important than',
         '0': 'is as important as',
         '1': 'is less important than',
-        '2': 'is mush less important than',
+        '2': 'is much less important than',
     }
     var paragrafo = document.getElementById('paragrafo_' + elemento.id)
     paragrafo.textContent = dicionario[elemento.value]
@@ -35,11 +35,11 @@ for (let item of chequebox){
 }
 function muda_valor_alternativa(elemento) {
     var dicionario_alternativas = {
-        '-2': 'É muito melhor que',
-        '-1': 'É melhor que',
-        '0': 'É equivalente a',
-        '1': 'É pior que',
-        '2': 'É muito pior que',
+        '-2': 'is much better than',
+        '-1': 'is better than',
+        '0': 'is as equivalent as',
+        '1': 'is less worse than',
+        '2': 'is much worse than',
     }
     var paragrafo = document.getElementById('paragrafo_' + elemento.id)
     paragrafo.textContent = dicionario_alternativas[elemento.value]
