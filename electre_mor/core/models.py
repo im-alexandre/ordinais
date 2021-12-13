@@ -1,6 +1,7 @@
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django_pandas.managers import DataFrameManager
+from django.utils import timezone
 
 
 class Decisor(models.Model):
@@ -38,8 +39,14 @@ class Projeto(models.Model):
         validators=[MinValueValidator(0.5),
                     MaxValueValidator(1)])
 
+    data = models.DateTimeField(auto_now_add=True)
+
     def __str__(self):
         return self.nome
+
+    def delete_old(self):
+        two_days_ago = timezone.now() - datetime.timedelta(days=7)
+        self.filter(date__lt=seven_days_ago).delete()
 
 
 class Alternativa(models.Model):
