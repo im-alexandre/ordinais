@@ -66,7 +66,7 @@ class Criterio(models.Model):
                                     name='unique_criterio')
         ]
 
-    escolhas = ((1, "lucro"), (2, "custo"))
+    escolhas = ((1, "increasing"), (2, "decreasing"))
     projeto = models.ForeignKey('Projeto',
                                 related_name='criterios',
                                 on_delete=models.CASCADE,
