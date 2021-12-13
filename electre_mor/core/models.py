@@ -1,7 +1,9 @@
+import datetime
+
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
-from django_pandas.managers import DataFrameManager
 from django.utils import timezone
+from django_pandas.managers import DataFrameManager
 
 
 class Decisor(models.Model):
@@ -46,7 +48,7 @@ class Projeto(models.Model):
 
     def delete_old(self):
         two_days_ago = timezone.now() - datetime.timedelta(days=7)
-        self.filter(date__lt=seven_days_ago).delete()
+        self.filter(data__lt=two_days_ago).delete()
 
 
 class Alternativa(models.Model):
@@ -104,13 +106,16 @@ class AvaliacaoCriterios(models.Model):
 
 
 class AvaliacaoAlternativas(models.Model):
-    def get_fields(self, *args, **kwargs):
-        fields = super(AvaliacaoAlternativas, self).get_fields(*args, **kwargs)
-        fields['decisor'].queryset = fields['decisor'].queryset.filter(projeto=self.projeto)
-        fields['criterio'].queryset = fields['criterio'].queryset.filter(projeto=self.projeto)
-        fields['alternativaA'].queryset = fields['alternativaA'].queryset.filter(projeto=self.projeto)
-        fields['alternativaB'].queryset = fields['alternativaB'].queryset.filter(projeto=self.projeto)
-
+    def get_form(self, *args, **kwargs):
+        form = super(AvaliacaoAlternativas, self).get_form(*args, **kwargs)
+        form.fields['decisor'].queryset = form.fields[
+            'decisor'].queryset.filter(projeto=self.projeto)
+        form.fields['criterio'].queryset = form.fields[
+            'criterio'].queryset.filter(projeto=self.projeto)
+        form.fields['alternativaA'].queryset = form.fields[
+            'alternativaA'].queryset.filter(projeto=self.projeto)
+        form.fields['alternativaB'].queryset = form.fields[
+            'alternativaB'].queryset.filter(projeto=self.projeto)
 
     projeto = models.ForeignKey('Projeto',
                                 on_delete=models.CASCADE,
