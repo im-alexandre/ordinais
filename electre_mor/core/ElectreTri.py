@@ -223,7 +223,7 @@ class ElectreTri():
 
         self.credibilidade_df['lambda'] = self.lamb
 
-        if self.method == 'quantil':
+        if self.method == 'quantile':
             self.nome_tabela = 'bh'
         elif self.method == 'range':
             self.nome_tabela = 'bn'
