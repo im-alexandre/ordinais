@@ -223,9 +223,13 @@ class ElectreTri():
 
         self.credibilidade_df['lambda'] = self.lamb
 
+        if self.method == 'quantil':
+            self.nome_tabela = 'bh'
+        elif self.method == 'range':
+            self.nome_tabela = 'bn'
+
         tab = pd.ExcelWriter(
-            f'resultados/result_{self.method}{self.id_projeto}.xlsx')
-        self.cla_df.to_excel(tab, self.method)
+            f'resultados/result_{self.nome_tabela}_{self.id_projeto}.xlsx')
         self.parametros.to_excel(tab, 'parameters')
         self.df_concordancia_x_b.to_excel(tab, 'concordance_x_b')
         self.df_concordancia_b_x.to_excel(tab, 'concordance_b_x')
