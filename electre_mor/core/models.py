@@ -104,6 +104,14 @@ class AvaliacaoCriterios(models.Model):
 
 
 class AvaliacaoAlternativas(models.Model):
+    def get_fields(self, *args, **kwargs):
+        fields = super(AvaliacaoAlternativas, self).get_fields(*args, **kwargs)
+        fields['decisor'].queryset = fields['decisor'].queryset.filter(projeto=self.projeto)
+        fields['criterio'].queryset = fields['criterio'].queryset.filter(projeto=self.projeto)
+        fields['alternativaA'].queryset = fields['alternativaA'].queryset.filter(projeto=self.projeto)
+        fields['alternativaB'].queryset = fields['alternativaB'].queryset.filter(projeto=self.projeto)
+
+
     projeto = models.ForeignKey('Projeto',
                                 on_delete=models.CASCADE,
                                 related_name='avaliacaoalternativas')
