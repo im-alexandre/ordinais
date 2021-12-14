@@ -19,7 +19,7 @@ function esconde_monotonico(e){
         var display = 'none';
     }
     var pai = e.parentElement.parentElement;
-    var seleciona = pai.getElementsByClassName('monotonico');
+    var seleciona = pai.getElementsByClassName('monotonicity');
     seleciona[0].parentElement.setAttribute('style', 'display:' + display);
     var monotonico = pai.getElementsByTagName('td');
     for (let item of monotonico) {
