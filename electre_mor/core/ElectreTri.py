@@ -225,9 +225,9 @@ class ElectreTri():
         self.credibilidade_df['lambda'] = self.lamb
 
         if self.method == 'quantile':
-            self.nome_tabela = 'bh'
-        elif self.method == 'range':
             self.nome_tabela = 'bn'
+        elif self.method == 'range':
+            self.nome_tabela = 'bh'
 
         tab = pd.ExcelWriter(
             f'resultados/result_{self.nome_tabela}_{self.id_projeto}.xlsx')
