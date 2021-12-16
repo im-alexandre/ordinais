@@ -23,7 +23,7 @@ function esconde_monotonico(e){
     seleciona[0].parentElement.setAttribute('style', 'display:' + display);
     var monotonico = pai.getElementsByTagName('td');
     for (let item of monotonico) {
-        if (item.innerHTML == 'Monotonicity:'){
+        if (item.innerHTML == 'Monotonicity: '){
             item.setAttribute('style', 'display:'+display);
         }
     }
