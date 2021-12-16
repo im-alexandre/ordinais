@@ -19,11 +19,11 @@ function esconde_monotonico(e){
         var display = 'none';
     }
     var pai = e.parentElement.parentElement;
-    var seleciona = pai.getElementsByClassName('monotonicity');
+    var seleciona = pai.getElementsByClassName('monotonico');
     seleciona[0].parentElement.setAttribute('style', 'display:' + display);
     var monotonico = pai.getElementsByTagName('td');
     for (let item of monotonico) {
-        if (item.innerHTML == 'Monotonico'){
+        if (item.innerHTML == 'Monotonicity'){
             item.setAttribute('style', 'display:'+display);
         }
     }
