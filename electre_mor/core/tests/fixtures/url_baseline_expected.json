@@ -32,6 +32,7 @@
     }
   ],
   "notes": [
-    "Resultado e partial_result_tresholds podem depender de dados completos de avaliacao; baseline inicial apenas exige comportamento observavel."
+    "Resultado e partial_result_tresholds podem depender de dados completos de avaliacao; baseline inicial apenas exige comportamento observavel.",
+    "US1 validada com consultas ORM nativas e conversoes tabulares sem django-pandas; as rotas legadas continuam respondendo com a mesma semantica visivel."
   ]
 }

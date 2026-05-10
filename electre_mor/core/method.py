@@ -8,6 +8,7 @@ from sklearn.preprocessing import MinMaxScaler
 from core.models import (Alternativa, AlternativaCriterio,
                          AvaliacaoAlternativas, AvaliacaoCriterios, Criterio,
                          Decisor, Projeto)
+from core.tabular import queryset_para_dataframe
 
 warnings.filterwarnings('ignore')
 
@@ -28,12 +29,15 @@ class MatrizProjeto:
     def avaliacoes(self):
 
         if self.projeto.avaliacaoalternativas.all():
-            df_alternativas = self.avaliacoes_alternativas.to_pivot_table(
+            df_alternativas = queryset_para_dataframe(
+                self.avaliacoes_alternativas,
+                ('decisor', 'criterio', 'alternativaB', 'alternativaA',
+                 'nota'))
+            df_alternativas = df_alternativas.pivot_table(
                 values='nota',
-                rows=['decisor', 'criterio', 'alternativaB'],
-                cols=[
-                    'alternativaA',
-                ])
+                index=['decisor', 'criterio', 'alternativaB'],
+                columns=['alternativaA'],
+                aggfunc='first')
             df_alternativas.fillna(0, inplace=True)
             df_alternativas = pd.concat([
                 self._matriz_decisao(x)
@@ -45,8 +49,14 @@ class MatrizProjeto:
         else:
             df_alternativas = None
 
-        df_criterios = self.avaliacoes_criterios.to_pivot_table(
-            values='nota', rows='decisor criterioA'.split(), cols='criterioB')
+        df_criterios = queryset_para_dataframe(
+            self.avaliacoes_criterios,
+            ('decisor', 'criterioA', 'criterioB', 'nota'))
+        df_criterios = df_criterios.pivot_table(
+            values='nota',
+            index=['decisor', 'criterioA'],
+            columns=['criterioB'],
+            aggfunc='first')
         df_criterios.fillna(0, inplace=True)
         lista_criterios = list()
         for _, x in df_criterios.groupby(level=[0]):
@@ -103,6 +113,7 @@ class MatrizProjeto:
         # .rename(
         # columns={'alternativaB': 'alternativa'}
         # )
+        pontuacao = None
         try:
             pontuacao = self.avaliacoes['alternativas']
             pontuacao = pontuacao.unstack(level=1)
@@ -116,12 +127,15 @@ class MatrizProjeto:
             pass
 
         try:
-            df_alt_crit = self.alternativas_criterios.to_pivot_table(
-                values='nota', rows='alternativa', cols='criterio')
-            pontuacao = pd.concat([
-                pontuacao,
-                df_alt_crit,
-            ], axis=1)
+            df_alt_crit = queryset_para_dataframe(
+                self.alternativas_criterios,
+                ('alternativa', 'criterio', 'nota'))
+            df_alt_crit = df_alt_crit.pivot_table(
+                values='nota',
+                index='alternativa',
+                columns='criterio',
+                aggfunc='first')
+            pontuacao = pd.concat([pontuacao, df_alt_crit], axis=1) if pontuacao is not None else df_alt_crit
         except:
             pass
 

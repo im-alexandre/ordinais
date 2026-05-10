@@ -48,19 +48,19 @@
 
 ### Tests for User Story 1
 
-- [ ] T020 [P] [US1] Criar teste de compatibilidade para landing page e pagina de metodo em electre_mor/core/tests/test_legacy_public_routes.py
-- [ ] T021 [P] [US1] Criar teste de compatibilidade para criacao e cadastro de projeto em electre_mor/core/tests/test_legacy_project_flow.py
-- [ ] T022 [P] [US1] Criar teste de compatibilidade para avaliacao e resultado em electre_mor/core/tests/test_legacy_result_flow.py
-- [ ] T023 [P] [US1] Criar teste de regressao para download de resultado em electre_mor/core/tests/test_legacy_download.py
+- [X] T020 [P] [US1] Criar teste de compatibilidade para landing page e pagina de metodo em electre_mor/core/tests/test_legacy_public_routes.py
+- [X] T021 [P] [US1] Criar teste de compatibilidade para criacao e cadastro de projeto em electre_mor/core/tests/test_legacy_project_flow.py
+- [X] T022 [P] [US1] Criar teste de compatibilidade para avaliacao e resultado em electre_mor/core/tests/test_legacy_result_flow.py
+- [X] T023 [P] [US1] Criar teste de regressao para download de resultado em electre_mor/core/tests/test_legacy_download.py
 
 ### Implementation for User Story 1
 
-- [ ] T024 [US1] Atualizar views legadas para Django 5.2 mantendo respostas baseline em electre_mor/core/views.py
-- [ ] T025 [US1] Substituir usos de DataFrameManager nos modelos por manager nativo em electre_mor/core/models.py
-- [ ] T026 [US1] Substituir to_dataframe e to_pivot_table por utilitarios nativos em electre_mor/core/method.py
-- [ ] T027 [US1] Ajustar calculo Electre para entradas tabulares atualizadas em electre_mor/core/ElectreTri.py
-- [ ] T028 [US1] Atualizar templates legados ainda cobertos pelo baseline em electre_mor/templates/
-- [ ] T029 [US1] Executar suite US1 e atualizar equivalencias justificadas em electre_mor/core/tests/fixtures/url_baseline_expected.json
+- [X] T024 [US1] Atualizar views legadas para Django 5.2 mantendo respostas baseline em electre_mor/core/views.py
+- [X] T025 [US1] Substituir usos de DataFrameManager nos modelos por manager nativo em electre_mor/core/models.py
+- [X] T026 [US1] Substituir to_dataframe e to_pivot_table por utilitarios nativos em electre_mor/core/method.py
+- [X] T027 [US1] Ajustar calculo Electre para entradas tabulares atualizadas em electre_mor/core/ElectreTri.py
+- [X] T028 [US1] Atualizar templates legados ainda cobertos pelo baseline em electre_mor/templates/
+- [X] T029 [US1] Executar suite US1 e atualizar equivalencias justificadas em electre_mor/core/tests/fixtures/url_baseline_expected.json
 
 **Checkpoint**: US1 deve passar antes de qualquer agente integrar API ou frontend.
 

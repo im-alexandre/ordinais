@@ -8,7 +8,7 @@ from django import forms
 from django.forms import formset_factory, modelformset_factory
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from core.forms import (AlternativaCriterioForm, AvaliacaoAlternativasForm,
                         AvaliacaoCriteriosForm, CriterioParametroForm,
@@ -16,6 +16,7 @@ from core.forms import (AlternativaCriterioForm, AvaliacaoAlternativasForm,
 from core.models import (Alternativa, AlternativaCriterio,
                          AvaliacaoAlternativas, AvaliacaoCriterios, Criterio,
                          CriterioParametro, Decisor, Projeto)
+from core.tabular import queryset_para_dataframe
 
 from .ElectreTri import ElectreTri
 from .method import MatrizProjeto
@@ -390,8 +391,10 @@ def resultado_sapevo(request, projeto_id):
     pesos = matriz.pesos_criterios
     pesos.sort_values(by='peso', ascending=False, inplace=True)
     pesos = pesos.to_html(index=False)
-    valores = AlternativaCriterio.objects.filter(projeto=projeto)
-    valores = valores.to_dataframe().to_html()
+    valores = queryset_para_dataframe(
+        AlternativaCriterio.objects.filter(projeto=projeto),
+        ('projeto', 'criterio', 'alternativa', 'nota'))
+    valores = valores.to_html(index=False)
     alternativas = Alternativa.objects.filter(projeto=projeto_id)
     criterios_quali = list(projeto.criterios.filter(numerico=False))
     df_criterios = matriz.avaliacoes['criterios'].to_html()
@@ -468,8 +471,10 @@ def resultado(request, projeto_id):
         inplace=True)
     pesos = pesos.to_html(index=False)
 
-    valores = AlternativaCriterio.objects.filter(projeto=projeto)
-    valores = valores.to_dataframe().to_html()
+    valores = queryset_para_dataframe(
+        AlternativaCriterio.objects.filter(projeto=projeto),
+        ('projeto', 'criterio', 'alternativa', 'nota'))
+    valores = valores.to_html(index=False)
 
     if alternativas:
         pontuacao_alternativas = matriz.pontuacao_alternativas
@@ -482,11 +487,12 @@ def resultado(request, projeto_id):
                                   index='p q v w'.split(),
                                   columns=matriz.pesos_criterios['Critério'])
 
-        parametros = CriterioParametro.objects.filter(projeto=projeto)
-        parametros = parametros.to_pivot_table(values=['p', 'q', 'v'],
-                                               cols=['criterio'])
+        parametros = queryset_para_dataframe(
+            CriterioParametro.objects.filter(projeto=projeto),
+            ('criterio', 'p', 'q', 'v'))
+        parametros = parametros.set_index('criterio')[['p', 'q', 'v']].T
         parametros.loc['w'] = matriz.pesos_criterios['peso'].values
-        parametros.index.rename('parametros')
+        parametros.index.rename('parametros', inplace=True)
         electre_quantil = ElectreTri(pontuacao_alternativas,
                                      parametros,
                                      lamb=lamb,

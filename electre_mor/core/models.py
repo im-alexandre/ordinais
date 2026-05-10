@@ -3,7 +3,6 @@ import datetime
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
-from django_pandas.managers import DataFrameManager
 
 
 class Decisor(models.Model):
@@ -102,7 +101,6 @@ class AvaliacaoCriterios(models.Model):
                                   on_delete=models.CASCADE,
                                   related_name='criterioB')
     nota = models.IntegerField(null=False, default=0)
-    objects = DataFrameManager()
 
 
 class AvaliacaoAlternativas(models.Model):
@@ -123,8 +121,6 @@ class AvaliacaoAlternativas(models.Model):
                                      related_name='alternativaB')
     nota = models.IntegerField(null=True)
 
-    objects = DataFrameManager()
-
 
 class AlternativaCriterio(models.Model):
     projeto = models.ForeignKey('Projeto',
@@ -139,8 +135,6 @@ class AlternativaCriterio(models.Model):
 
     nota = models.FloatField(null=True)
 
-    objects = DataFrameManager()
-
 
 class CriterioParametro(models.Model):
     projeto = models.ForeignKey('Projeto',
@@ -152,5 +146,3 @@ class CriterioParametro(models.Model):
     p = models.FloatField()
     q = models.FloatField()
     v = models.FloatField()
-
-    objects = DataFrameManager()

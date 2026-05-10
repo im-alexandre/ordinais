@@ -14,6 +14,10 @@
   - Uso: confirmar a serie 3.17.x como base compatível.
 - Django REST framework routers: https://www.django-rest-framework.org/api-guide/routers/
   - Uso: scaffolding inicial de `core.api.urls` com `DefaultRouter`.
+- Django 5.2 QuerySet API reference: https://docs.djangoproject.com/en/5.2/ref/models/querysets/
+  - Uso: substituir `to_dataframe()`/`to_pivot_table()` por `values()`/`pivot_table()` nativos.
+- Django 5.2 making queries: https://docs.djangoproject.com/en/5.2/topics/db/queries/
+  - Uso: confirmar comportamento de `QuerySet` lazy e composição ao remover `django-pandas`.
 
 ## Execucoes
 
@@ -25,3 +29,6 @@
 - 2026-05-10: dependencias atualizadas com `python -m pip install -r requirements.txt`; ambiente local passou a ter Django 5.2.3 e DRF 3.17.1 instalados.
 - 2026-05-10: T019 executado com `python manage.py check`; bloqueio residual em `core.models` por `ModuleNotFoundError: No module named 'django_pandas'`, que ainda sera removido em fase posterior.
 - 2026-05-10: validacao sintatica dos arquivos alterados com `python -m py_compile electre_mor/electre_mor_project/settings.py electre_mor/electre_mor_project/urls.py electre_mor/core/forms.py electre_mor/core/api/__init__.py electre_mor/core/api/urls.py electre_mor/core/tabular.py`.
+- 2026-05-10: T020-T028 implementadas para US1 com testes legados, views/modelos/matriz tabular e ajuste do `ElectreTri` para `pandas` 2.x (`ExcelWriter.close()`).
+- 2026-05-10: `python manage.py check` executado com sucesso após a remocao de `django_pandas` e a migracao do import legado `ugettext_lazy`.
+- 2026-05-10: `python manage.py test core.tests.test_url_baseline core.tests.test_url_flow_baseline core.tests.test_legacy_public_routes core.tests.test_legacy_project_flow core.tests.test_legacy_result_flow core.tests.test_legacy_download` executado com sucesso.
