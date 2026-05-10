@@ -9,12 +9,12 @@
 
 **Purpose**: Criar a linha de base por URLs antes de qualquer mudanca funcional.
 
-- [ ] T001 Criar pacote de testes em electre_mor/core/tests/__init__.py
-- [ ] T002 [P] Criar fixtures minimas de projeto, decisores, criterios e alternativas em electre_mor/core/tests/fixtures/baseline_project.json
-- [ ] T003 Criar testes exploratorios de GET das URLs existentes em electre_mor/core/tests/test_url_baseline.py
-- [ ] T004 Criar testes exploratorios de POST e redirecionamentos dos fluxos existentes em electre_mor/core/tests/test_url_flow_baseline.py
-- [ ] T005 Executar baseline inicial e registrar comportamento esperado em electre_mor/core/tests/fixtures/url_baseline_expected.json
-- [ ] T006 Criar registro de documentacao consultada para implementacao em specs/001-api-react-refactor/implementation-notes.md
+- [X] T001 Criar pacote de testes em electre_mor/core/tests/__init__.py
+- [X] T002 [P] Criar fixtures minimas de projeto, decisores, criterios e alternativas em electre_mor/core/tests/fixtures/baseline_project.json
+- [X] T003 Criar testes exploratorios de GET das URLs existentes em electre_mor/core/tests/test_url_baseline.py
+- [X] T004 Criar testes exploratorios de POST e redirecionamentos dos fluxos existentes em electre_mor/core/tests/test_url_flow_baseline.py
+- [X] T005 Executar baseline inicial e registrar comportamento esperado em electre_mor/core/tests/fixtures/url_baseline_expected.json
+- [X] T006 Criar registro de documentacao consultada para implementacao em specs/001-api-react-refactor/implementation-notes.md
 
 ---
 
