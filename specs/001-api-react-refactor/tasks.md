@@ -74,23 +74,23 @@
 
 ### Tests for User Story 3
 
-- [ ] T030 [P] [US3] Criar testes de contrato para /api/v1/projects/ em electre_mor/core/tests/test_api_projects.py
-- [ ] T031 [P] [US3] Criar testes de contrato para /api/v1/projects/{projectId}/participants/ em electre_mor/core/tests/test_api_participants.py
-- [ ] T032 [P] [US3] Criar testes de contrato para avaliacoes e parametros em electre_mor/core/tests/test_api_evaluations.py
-- [ ] T033 [P] [US3] Criar testes de contrato para /api/v1/projects/{projectId}/result/ em electre_mor/core/tests/test_api_result.py
+- [X] T030 [P] [US3] Criar testes de contrato para /api/v1/projects/ em electre_mor/core/tests/test_api_projects.py
+- [X] T031 [P] [US3] Criar testes de contrato para /api/v1/projects/{projectId}/participants/ em electre_mor/core/tests/test_api_participants.py
+- [X] T032 [P] [US3] Criar testes de contrato para avaliacoes e parametros em electre_mor/core/tests/test_api_evaluations.py
+- [X] T033 [P] [US3] Criar testes de contrato para /api/v1/projects/{projectId}/result/ em electre_mor/core/tests/test_api_result.py
 
 ### Implementation for User Story 3
 
-- [ ] T034 [P] [US3] Criar serializers de Projeto, Decisor, Criterio e Alternativa em electre_mor/core/api/serializers.py
-- [ ] T035 [P] [US3] Criar serializers de avaliacoes, parametros e resultado em electre_mor/core/api/evaluation_serializers.py
-- [ ] T036 [P] [US3] Criar servico de persistencia de projetos e participantes em electre_mor/core/services/project_service.py
-- [ ] T037 [P] [US3] Criar servico de avaliacoes e parametros em electre_mor/core/services/evaluation_service.py
-- [ ] T038 [P] [US3] Criar servico de calculo de resultado para API em electre_mor/core/services/result_service.py
-- [ ] T039 [US3] Implementar ViewSets e actions DRF de projetos em electre_mor/core/api/views.py
-- [ ] T040 [US3] Conectar routers DRF e endpoints planejados em electre_mor/core/api/urls.py
-- [ ] T041 [US3] Incluir rotas /api/v1/ no roteador principal em electre_mor/electre_mor_project/urls.py
-- [ ] T042 [US3] Atualizar contrato OpenAPI conforme implementacao real em specs/001-api-react-refactor/contracts/openapi.yaml
-- [ ] T043 [US3] Executar testes de contrato da API em electre_mor/core/tests/test_api_contracts.py
+- [X] T034 [P] [US3] Criar serializers de Projeto, Decisor, Criterio e Alternativa em electre_mor/core/api/serializers.py
+- [X] T035 [P] [US3] Criar serializers de avaliacoes, parametros e resultado em electre_mor/core/api/evaluation_serializers.py
+- [X] T036 [P] [US3] Criar servico de persistencia de projetos e participantes em electre_mor/core/services/project_service.py
+- [X] T037 [P] [US3] Criar servico de avaliacoes e parametros em electre_mor/core/services/evaluation_service.py
+- [X] T038 [P] [US3] Criar servico de calculo de resultado para API em electre_mor/core/services/result_service.py
+- [X] T039 [US3] Implementar ViewSets e actions DRF de projetos em electre_mor/core/api/views.py
+- [X] T040 [US3] Conectar routers DRF e endpoints planejados em electre_mor/core/api/urls.py
+- [X] T041 [US3] Incluir rotas /api/v1/ no roteador principal em electre_mor/electre_mor_project/urls.py
+- [X] T042 [US3] Atualizar contrato OpenAPI conforme implementacao real em specs/001-api-react-refactor/contracts/openapi.yaml
+- [X] T043 [US3] Executar testes de contrato da API em electre_mor/core/tests/test_api_contracts.py
 
 **Checkpoint**: US3 entrega API consumivel independentemente do frontend.
 

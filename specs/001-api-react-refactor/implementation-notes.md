@@ -10,10 +10,16 @@
   - Uso: `STATIC_URL`, `STATIC_ROOT`, `STATICFILES_DIRS` e `STORAGES` com WhiteNoise.
 - Django REST framework home: https://www.django-rest-framework.org/
   - Uso: confirmar suporte a Django 5.2/Python 3.13 antes de adicionar `rest_framework`.
+- Django REST framework serializers: https://www.django-rest-framework.org/api-guide/serializers/
+  - Uso: priorizar `ModelSerializer` e serializers declarativos para os recursos de projeto.
+- Django REST framework viewsets: https://www.django-rest-framework.org/api-guide/viewsets/
+  - Uso: expor CRUD de projeto e actions aninhadas com `ModelViewSet` e `@action`.
 - Django REST framework release notes: https://www.django-rest-framework.org/community/release-notes/
   - Uso: confirmar a serie 3.17.x como base compatível.
 - Django REST framework routers: https://www.django-rest-framework.org/api-guide/routers/
   - Uso: scaffolding inicial de `core.api.urls` com `DefaultRouter`.
+- Django REST framework testing: https://www.django-rest-framework.org/api-guide/testing/
+  - Uso: estruturar testes de contrato com `APITestCase` e `APIClient`.
 - Django 5.2 QuerySet API reference: https://docs.djangoproject.com/en/5.2/ref/models/querysets/
   - Uso: substituir `to_dataframe()`/`to_pivot_table()` por `values()`/`pivot_table()` nativos.
 - Django 5.2 making queries: https://docs.djangoproject.com/en/5.2/topics/db/queries/
@@ -32,3 +38,5 @@
 - 2026-05-10: T020-T028 implementadas para US1 com testes legados, views/modelos/matriz tabular e ajuste do `ElectreTri` para `pandas` 2.x (`ExcelWriter.close()`).
 - 2026-05-10: `python manage.py check` executado com sucesso após a remocao de `django_pandas` e a migracao do import legado `ugettext_lazy`.
 - 2026-05-10: `python manage.py test core.tests.test_url_baseline core.tests.test_url_flow_baseline core.tests.test_legacy_public_routes core.tests.test_legacy_project_flow core.tests.test_legacy_result_flow core.tests.test_legacy_download` executado com sucesso.
+- 2026-05-10: T030-T043 implementadas para US3 com serializers, services, viewset DRF, routers, contrato OpenAPI e testes `core.tests.test_api_*`.
+- 2026-05-10: validacao da API executada com sucesso via `python manage.py test core.tests.test_api_projects core.tests.test_api_participants core.tests.test_api_evaluations core.tests.test_api_result core.tests.test_api_contracts`.

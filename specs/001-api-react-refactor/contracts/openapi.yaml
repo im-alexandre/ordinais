@@ -12,6 +12,12 @@ paths:
       responses:
         "200":
           description: Lista de projetos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProjectResponse"
     post:
       summary: Cria um projeto de avaliacao
       requestBody:
@@ -23,6 +29,10 @@ paths:
       responses:
         "201":
           description: Projeto criado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
         "400":
           description: Dados invalidos
   /projects/{projectId}/:
@@ -33,6 +43,10 @@ paths:
       responses:
         "200":
           description: Projeto encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
         "404":
           description: Projeto inexistente
     delete:
@@ -56,6 +70,10 @@ paths:
       responses:
         "200":
           description: Participantes atualizados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParticipantsResponse"
         "400":
           description: Dados invalidos
   /projects/{projectId}/numeric-scores/:
@@ -72,6 +90,10 @@ paths:
       responses:
         "200":
           description: Notas atualizadas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NumericScoresResponse"
         "400":
           description: Dados invalidos
   /projects/{projectId}/criteria-comparisons/:
@@ -88,6 +110,10 @@ paths:
       responses:
         "200":
           description: Comparacoes atualizadas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CriteriaComparisonsResponse"
         "400":
           description: Dados invalidos
   /projects/{projectId}/alternative-comparisons/:
@@ -104,6 +130,10 @@ paths:
       responses:
         "200":
           description: Comparacoes atualizadas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlternativeComparisonsResponse"
         "400":
           description: Dados invalidos
   /projects/{projectId}/parameters/:
@@ -120,6 +150,10 @@ paths:
       responses:
         "200":
           description: Parametros atualizados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParametersResponse"
         "400":
           description: Dados invalidos
   /projects/{projectId}/result/:
@@ -130,6 +164,10 @@ paths:
       responses:
         "200":
           description: Resultado calculado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResultResponse"
         "409":
           description: Projeto ainda nao possui dados suficientes
 components:
@@ -279,3 +317,163 @@ components:
                 type: number
               v:
                 type: number
+    ProjectResponse:
+      allOf:
+        - $ref: "#/components/schemas/ProjectCreate"
+        - type: object
+          required: [id, data]
+          properties:
+            id:
+              type: integer
+            data:
+              type: string
+              format: date-time
+    ParticipantsResponse:
+      type: object
+      required: [project, decisores, criterios, alternativas]
+      properties:
+        project:
+          $ref: "#/components/schemas/ProjectResponse"
+        decisores:
+          type: array
+          items:
+            $ref: "#/components/schemas/NamedResponse"
+        criterios:
+          type: array
+          items:
+            $ref: "#/components/schemas/CriterioResponse"
+        alternativas:
+          type: array
+          items:
+            $ref: "#/components/schemas/NamedResponse"
+    NumericScoresResponse:
+      type: object
+      required: [project_id, scores]
+      properties:
+        project_id:
+          type: integer
+        scores:
+          type: array
+          items:
+            $ref: "#/components/schemas/NumericScoreItem"
+    CriteriaComparisonsResponse:
+      type: object
+      required: [project_id, comparisons]
+      properties:
+        project_id:
+          type: integer
+        comparisons:
+          type: array
+          items:
+            $ref: "#/components/schemas/CriteriaComparisonItem"
+    AlternativeComparisonsResponse:
+      type: object
+      required: [project_id, comparisons]
+      properties:
+        project_id:
+          type: integer
+        comparisons:
+          type: array
+          items:
+            $ref: "#/components/schemas/AlternativeComparisonItem"
+    ParametersResponse:
+      type: object
+      required: [project_id, parameters]
+      properties:
+        project_id:
+          type: integer
+        parameters:
+          type: array
+          items:
+            $ref: "#/components/schemas/ParameterItem"
+    ResultResponse:
+      type: object
+      required: [project, pesos_criterios, pontuacao_alternativas, classificacao_range, classificacao_quantile]
+      properties:
+        project:
+          $ref: "#/components/schemas/ProjectResponse"
+        pesos_criterios:
+          type: array
+          items:
+            type: object
+        pontuacao_alternativas:
+          type: array
+          nullable: true
+          items:
+            type: object
+        classificacao_range:
+          type: array
+          items:
+            type: object
+        classificacao_quantile:
+          type: array
+          items:
+            type: object
+    NamedResponse:
+      type: object
+      required: [id, nome]
+      properties:
+        id:
+          type: integer
+        nome:
+          type: string
+    CriterioResponse:
+      type: object
+      required: [id, nome, numerico, monotonico]
+      properties:
+        id:
+          type: integer
+        nome:
+          type: string
+        numerico:
+          type: boolean
+        monotonico:
+          type: integer
+    NumericScoreItem:
+      type: object
+      required: [criterio_id, alternativa_id, nota]
+      properties:
+        criterio_id:
+          type: integer
+        alternativa_id:
+          type: integer
+        nota:
+          type: number
+    CriteriaComparisonItem:
+      type: object
+      required: [decisor_id, criterio_a_id, criterio_b_id, nota]
+      properties:
+        decisor_id:
+          type: integer
+        criterio_a_id:
+          type: integer
+        criterio_b_id:
+          type: integer
+        nota:
+          type: integer
+    AlternativeComparisonItem:
+      type: object
+      required: [decisor_id, criterio_id, alternativa_a_id, alternativa_b_id, nota]
+      properties:
+        decisor_id:
+          type: integer
+        criterio_id:
+          type: integer
+        alternativa_a_id:
+          type: integer
+        alternativa_b_id:
+          type: integer
+        nota:
+          type: integer
+    ParameterItem:
+      type: object
+      required: [criterio_id, p, q, v]
+      properties:
+        criterio_id:
+          type: integer
+        p:
+          type: number
+        q:
+          type: number
+        v:
+          type: number
