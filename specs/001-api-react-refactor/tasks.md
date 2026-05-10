@@ -22,19 +22,19 @@
 
 **Purpose**: Modernizar a base tecnica depois que o baseline estiver versionado.
 
-- [ ] T007 Atualizar runtime Python para 3.13 em electre_mor/runtime.txt
-- [ ] T008 Atualizar dependencias para Django 5.2, DRF 3.17, psycopg 3, gunicorn e whitenoise em electre_mor/requirements.txt
-- [ ] T009 Remover dependencia django-pandas de electre_mor/requirements.txt
-- [ ] T010 Atualizar imagem e instalacao do container para Python 3.13 em electre_mor/Dockerfile
-- [ ] T011 Atualizar PostgreSQL para versao compativel com Django 5.2 preservando labels Traefik em docker-compose.yml
-- [ ] T012 Atualizar imports de traducao removidos/depreciados em electre_mor/core/forms.py
-- [ ] T013 Atualizar configuracoes Django 5.2, DRF, staticfiles e WhiteNoise em electre_mor/electre_mor_project/settings.py
-- [ ] T014 Atualizar roteamento raiz para separar rotas legadas, API e fallback frontend em electre_mor/electre_mor_project/urls.py
-- [ ] T015 Criar pacote de API em electre_mor/core/api/__init__.py
-- [ ] T016 Criar modulo de URLs da API em electre_mor/core/api/urls.py
-- [ ] T017 Criar utilitarios de substituicao do django-pandas em electre_mor/core/tabular.py
-- [ ] T018 Atualizar notas de documentacao para decisoes Django 5.2 e DRF em specs/001-api-react-refactor/implementation-notes.md
-- [ ] T019 Executar python manage.py check e registrar resultado em specs/001-api-react-refactor/implementation-notes.md
+- [X] T007 Atualizar runtime Python para 3.13 em electre_mor/runtime.txt
+- [X] T008 Atualizar dependencias para Django 5.2, DRF 3.17, psycopg 3, gunicorn e whitenoise em electre_mor/requirements.txt
+- [X] T009 Remover dependencia django-pandas de electre_mor/requirements.txt
+- [X] T010 Atualizar imagem e instalacao do container para Python 3.13 em electre_mor/Dockerfile
+- [X] T011 Atualizar PostgreSQL para versao compativel com Django 5.2 preservando labels Traefik em docker-compose.yml
+- [X] T012 Atualizar imports de traducao removidos/depreciados em electre_mor/core/forms.py
+- [X] T013 Atualizar configuracoes Django 5.2, DRF, staticfiles e WhiteNoise em electre_mor/electre_mor_project/settings.py
+- [X] T014 Atualizar roteamento raiz para separar rotas legadas, API e fallback frontend em electre_mor/electre_mor_project/urls.py
+- [X] T015 Criar pacote de API em electre_mor/core/api/__init__.py
+- [X] T016 Criar modulo de URLs da API em electre_mor/core/api/urls.py
+- [X] T017 Criar utilitarios de substituicao do django-pandas em electre_mor/core/tabular.py
+- [X] T018 Atualizar notas de documentacao para decisoes Django 5.2 e DRF em specs/001-api-react-refactor/implementation-notes.md
+- [X] T019 Executar python manage.py check e registrar resultado em specs/001-api-react-refactor/implementation-notes.md
 
 **Checkpoint**: A base modernizada carrega sem alterar ainda os contratos de negocio finais.
 
