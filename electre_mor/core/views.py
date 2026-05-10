@@ -24,6 +24,26 @@ warnings.filterwarnings('ignore')
 pd.options.display.float_format = '{:,.4f}'.format
 
 
+def _configure_avaliacao_criterios_form(form, projeto):
+    form.fields['decisor'].queryset = projeto.decisores.all()
+    form.fields['criterioA'].queryset = projeto.criterios.all()
+    form.fields['criterioB'].queryset = projeto.criterios.all()
+    form.fields['decisor'].disabled = True
+    form.fields['criterioA'].disabled = True
+    form.fields['criterioB'].disabled = True
+
+
+def _configure_avaliacao_alternativas_form(form, projeto):
+    form.fields['decisor'].queryset = projeto.decisores.all()
+    form.fields['criterio'].queryset = projeto.criterios.filter(numerico=False)
+    form.fields['alternativaA'].queryset = projeto.alternativas.all()
+    form.fields['alternativaB'].queryset = projeto.alternativas.all()
+    form.fields['decisor'].disabled = True
+    form.fields['criterio'].disabled = True
+    form.fields['alternativaA'].disabled = True
+    form.fields['alternativaB'].disabled = True
+
+
 def landing_page(request):
     """docstring"""
     return render(request, 'landing_page.html')
@@ -260,9 +280,13 @@ def avaliarcriterios(request, projeto_id):
             } for decisor, (
                 alternativa,
                 criterio) in product(decisores, criterios_combinados)])
+        for form in forms:
+            _configure_avaliacao_criterios_form(form, projeto)
 
     if request.method == 'POST':
         avaliacao_criterios_formset = formset(request.POST)
+        for form in avaliacao_criterios_formset:
+            _configure_avaliacao_criterios_form(form, projeto)
         if avaliacao_criterios_formset.is_valid():
             AvaliacaoCriterios.objects.filter(projeto=projeto).delete()
             for aval_crit in avaliacao_criterios_formset:
@@ -327,9 +351,13 @@ def avaliaralternativas(request, projeto_id):
                 'alternativaB': alternativaB,
             } for decisor, criterio, (alternativaA, alternativaB) in product(
                 decisores, criterios, alternativas_combinadas)])
+        for form in forms:
+            _configure_avaliacao_alternativas_form(form, projeto)
 
     if request.method == 'POST':
         avaliacao_criterios_formset = formset(request.POST)
+        for form in avaliacao_criterios_formset:
+            _configure_avaliacao_alternativas_form(form, projeto)
         if avaliacao_criterios_formset.is_valid():
             AvaliacaoAlternativas.objects.filter(projeto=projeto).delete()
             for aval_crit in avaliacao_criterios_formset:
