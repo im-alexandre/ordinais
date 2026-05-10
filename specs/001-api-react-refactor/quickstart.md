@@ -15,7 +15,7 @@ Antes de modificar qualquer view, modelo, URL ou dependencia, criar e executar a
 
 ```powershell
 cd D:\ordinais\electre_mor
-python manage.py test core.tests.test_url_baseline
+python manage.py test core.tests.test_url_baseline core.tests.test_url_flow_baseline
 ```
 
 A suite deve chamar URLs por `django.test.Client`, registrar status, redirecionamentos, templates e marcadores de conteudo, e falhar se o comportamento conhecido mudar sem justificativa.
@@ -39,7 +39,7 @@ Depois de implementar `core/api/`, validar os contratos planejados:
 
 ```powershell
 cd D:\ordinais\electre_mor
-python manage.py test core.tests.test_api_contracts
+python manage.py test core.tests.test_api_projects core.tests.test_api_participants core.tests.test_api_evaluations core.tests.test_api_result core.tests.test_api_contracts
 ```
 
 ## 5. Validar frontend
@@ -47,10 +47,18 @@ python manage.py test core.tests.test_api_contracts
 ```powershell
 cd D:\ordinais\electre_mor\frontend
 npm install
+npm run test
 npm run build
 ```
 
 O build deve ser copiado ou coletado para assets servidos pelo Django. A rota raiz deve carregar a interface React e preservar a inscricao da landing page com o acronimo em destaque.
+
+Validar tambem a pagina estatica servida pelo Django:
+
+```powershell
+cd D:\ordinais\electre_mor
+python manage.py test core.tests.test_frontend_static
+```
 
 ## 6. Validar container e proxy
 
@@ -68,7 +76,20 @@ Verificar:
 - `/` serve o frontend.
 - `/api/v1/projects/` responde pelo backend.
 
-## 7. Evidencia de documentacao
+## 7. Executar localmente
+
+```powershell
+cd D:\ordinais\electre_mor
+python manage.py migrate
+python manage.py runserver 127.0.0.1:8000
+```
+
+Acessar:
+
+- Interface: http://127.0.0.1:8000/
+- API de projetos: http://127.0.0.1:8000/api/v1/projects/
+
+## 8. Evidencia de documentacao
 
 Para cada modificacao de classe, override ou API de Django/DRF, registrar no commit ou em notas de implementacao a documentacao oficial consultada. Fontes base iniciais:
 

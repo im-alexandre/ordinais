@@ -133,14 +133,14 @@
 
 **Purpose**: Validar integracao completa, documentacao e deploy.
 
-- [ ] T061 [P] Atualizar quickstart com comandos reais finais em specs/001-api-react-refactor/quickstart.md
-- [ ] T062 [P] Atualizar README operacional do projeto em README.md
-- [ ] T063 Executar suite Django completa e registrar resultado em specs/001-api-react-refactor/implementation-notes.md
-- [ ] T064 Executar testes e build do frontend e registrar resultado em specs/001-api-react-refactor/implementation-notes.md
-- [ ] T065 Executar docker compose build validando Coolify/Traefik em docker-compose.yml
-- [ ] T066 Executar verificacao final de ausencia de django-pandas em electre_mor/requirements.txt
-- [ ] T067 Executar smoke manual ou Playwright de desktop/mobile e registrar evidencia em specs/001-api-react-refactor/implementation-notes.md
-- [ ] T068 Revisar tarefas concluidas e marcar pendencias finais em specs/001-api-react-refactor/tasks.md
+- [X] T061 [P] Atualizar quickstart com comandos reais finais em specs/001-api-react-refactor/quickstart.md
+- [X] T062 [P] Atualizar README operacional do projeto em README.md
+- [X] T063 Executar suite Django completa e registrar resultado em specs/001-api-react-refactor/implementation-notes.md
+- [X] T064 Executar testes e build do frontend e registrar resultado em specs/001-api-react-refactor/implementation-notes.md
+- [X] T065 Executar docker compose build validando Coolify/Traefik em docker-compose.yml
+- [X] T066 Executar verificacao final de ausencia de django-pandas em electre_mor/requirements.txt
+- [X] T067 Executar smoke manual ou Playwright de desktop/mobile e registrar evidencia em specs/001-api-react-refactor/implementation-notes.md
+- [X] T068 Revisar tarefas concluidas e marcar pendencias finais em specs/001-api-react-refactor/tasks.md
 
 ---
 
