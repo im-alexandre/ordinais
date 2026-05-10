@@ -24,6 +24,18 @@
   - Uso: substituir `to_dataframe()`/`to_pivot_table()` por `values()`/`pivot_table()` nativos.
 - Django 5.2 making queries: https://docs.djangoproject.com/en/5.2/topics/db/queries/
   - Uso: confirmar comportamento de `QuerySet` lazy e composição ao remover `django-pandas`.
+- React `createRoot`: https://react.dev/reference/react-dom/client/createRoot
+  - Uso: inicializacao do app React em `frontend/src/main.tsx`.
+- React TypeScript: https://react.dev/learn/typescript
+  - Uso: tipagem de componentes, props e servicos do frontend.
+- Vite guide: https://vite.dev/guide/
+  - Uso: estrutura do projeto, scripts e ambiente de desenvolvimento.
+- Vite build: https://vite.dev/guide/build
+  - Uso: configuracao do build estatico em `frontend/vite.config.ts`.
+- Vitest guide: https://vitest.dev/guide/
+  - Uso: configuracao de ambiente `jsdom`, setup e mocks de testes.
+- Django 5.2 static files: https://docs.djangoproject.com/en/5.2/howto/static-files/
+  - Uso: template de fallback da SPA e resolucao de assets estaticos.
 
 ## Execucoes
 
@@ -40,3 +52,6 @@
 - 2026-05-10: `python manage.py test core.tests.test_url_baseline core.tests.test_url_flow_baseline core.tests.test_legacy_public_routes core.tests.test_legacy_project_flow core.tests.test_legacy_result_flow core.tests.test_legacy_download` executado com sucesso.
 - 2026-05-10: T030-T043 implementadas para US3 com serializers, services, viewset DRF, routers, contrato OpenAPI e testes `core.tests.test_api_*`.
 - 2026-05-10: validacao da API executada com sucesso via `python manage.py test core.tests.test_api_projects core.tests.test_api_participants core.tests.test_api_evaluations core.tests.test_api_result core.tests.test_api_contracts`.
+- 2026-05-10: T044-T060 implementadas para US2 com frontend React/Vite, cliente API, layout premium, view Django de fallback e build coletado em `static/frontend/`.
+- 2026-05-10: frontend validado com `npm install`, `npm run test` e `npm run build` em `electre_mor/frontend`.
+- 2026-05-10: fallback Django validado com `python manage.py test core.tests.test_frontend_static`.

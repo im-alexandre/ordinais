@@ -3,11 +3,12 @@
 from django.contrib import admin
 from django.urls import include, path
 
+from core import frontend_views
 from core import views
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-    path("", views.landing_page, name="index"),
+    path("", frontend_views.frontend_app, name="index"),
     path("api/v1/", include(("core.api.urls", "api"), namespace="v1")),
     path("project_setup/", views.index, name="projeto_form"),
     path("metodo/", views.metodo, name="metodo"),

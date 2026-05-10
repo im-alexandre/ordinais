@@ -104,26 +104,26 @@
 
 ### Tests for User Story 2
 
-- [ ] T044 [P] [US2] Criar teste Django para servir index estatico do frontend em electre_mor/core/tests/test_frontend_static.py
-- [ ] T045 [P] [US2] Criar testes de componentes da landing page em electre_mor/frontend/src/App.test.tsx
-- [ ] T046 [P] [US2] Criar testes de cliente API do frontend em electre_mor/frontend/src/services/api.test.ts
-- [ ] T047 [P] [US2] Criar teste de fluxo principal de avaliacao no frontend em electre_mor/frontend/src/pages/EvaluationFlow.test.tsx
+- [X] T044 [P] [US2] Criar teste Django para servir index estatico do frontend em electre_mor/core/tests/test_frontend_static.py
+- [X] T045 [P] [US2] Criar testes de componentes da landing page em electre_mor/frontend/src/App.test.tsx
+- [X] T046 [P] [US2] Criar testes de cliente API do frontend em electre_mor/frontend/src/services/api.test.ts
+- [X] T047 [P] [US2] Criar teste de fluxo principal de avaliacao no frontend em electre_mor/frontend/src/pages/EvaluationFlow.test.tsx
 
 ### Implementation for User Story 2
 
-- [ ] T048 [US2] Inicializar projeto React com Vite e TypeScript em electre_mor/frontend/package.json
-- [ ] T049 [P] [US2] Configurar Vite para build estatico consumido pelo Django em electre_mor/frontend/vite.config.ts
-- [ ] T050 [P] [US2] Criar cliente HTTP para endpoints /api/v1 em electre_mor/frontend/src/services/api.ts
-- [ ] T051 [P] [US2] Criar tokens visuais claros e premium em electre_mor/frontend/src/styles/theme.css
-- [ ] T052 [P] [US2] Criar componentes base de formulario e feedback em electre_mor/frontend/src/components/
-- [ ] T053 [US2] Criar landing page com nome do metodo e acronimo em destaque em electre_mor/frontend/src/pages/LandingPage.tsx
-- [ ] T054 [US2] Criar fluxo de criacao de projeto e participantes em electre_mor/frontend/src/pages/ProjectSetup.tsx
-- [ ] T055 [US2] Criar fluxo de avaliacoes numericas e pareadas em electre_mor/frontend/src/pages/EvaluationFlow.tsx
-- [ ] T056 [US2] Criar visualizacao de resultado em electre_mor/frontend/src/pages/ResultView.tsx
-- [ ] T057 [US2] Integrar rotas React e estados de validacao em electre_mor/frontend/src/App.tsx
-- [ ] T058 [US2] Criar template Django que serve o build React em electre_mor/templates/frontend_index.html
-- [ ] T059 [US2] Criar view Django de fallback para SPA em electre_mor/core/frontend_views.py
-- [ ] T060 [US2] Copiar ou coletar build do frontend em electre_mor/static/frontend/
+- [X] T048 [US2] Inicializar projeto React com Vite e TypeScript em electre_mor/frontend/package.json
+- [X] T049 [P] [US2] Configurar Vite para build estatico consumido pelo Django em electre_mor/frontend/vite.config.ts
+- [X] T050 [P] [US2] Criar cliente HTTP para endpoints /api/v1 em electre_mor/frontend/src/services/api.ts
+- [X] T051 [P] [US2] Criar tokens visuais claros e premium em electre_mor/frontend/src/styles/theme.css
+- [X] T052 [P] [US2] Criar componentes base de formulario e feedback em electre_mor/frontend/src/components/
+- [X] T053 [US2] Criar landing page com nome do metodo e acronimo em destaque em electre_mor/frontend/src/pages/LandingPage.tsx
+- [X] T054 [US2] Criar fluxo de criacao de projeto e participantes em electre_mor/frontend/src/pages/ProjectSetup.tsx
+- [X] T055 [US2] Criar fluxo de avaliacoes numericas e pareadas em electre_mor/frontend/src/pages/EvaluationFlow.tsx
+- [X] T056 [US2] Criar visualizacao de resultado em electre_mor/frontend/src/pages/ResultView.tsx
+- [X] T057 [US2] Integrar rotas React e estados de validacao em electre_mor/frontend/src/App.tsx
+- [X] T058 [US2] Criar template Django que serve o build React em electre_mor/templates/frontend_index.html
+- [X] T059 [US2] Criar view Django de fallback para SPA em electre_mor/core/frontend_views.py
+- [X] T060 [US2] Copiar ou coletar build do frontend em electre_mor/static/frontend/
 
 **Checkpoint**: US2 entrega a experiencia visual moderna consumindo a API.
 
