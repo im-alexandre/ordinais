@@ -1,0 +1,38 @@
+{
+  "captured_at": "2026-05-10",
+  "source": "django.test.Client baseline",
+  "routes": [
+    {
+      "name": "index",
+      "path": "/",
+      "method": "GET",
+      "expected_status": 200,
+      "content_markers": ["ELECTRE"]
+    },
+    {
+      "name": "projeto_form",
+      "path": "/project_setup/",
+      "method": "GET",
+      "expected_status": 200,
+      "content_markers": ["project"]
+    },
+    {
+      "name": "projeto_form",
+      "path": "/project_setup/",
+      "method": "POST",
+      "valid_expected_status": 302,
+      "invalid_expected_status": 200
+    },
+    {
+      "name": "deletarprojeto",
+      "path": "/deletarprojeto/1/",
+      "method": "GET",
+      "expected_status": 302,
+      "expected_location": "/"
+    }
+  ],
+  "notes": [
+    "Resultado e partial_result_tresholds podem depender de dados completos de avaliacao; baseline inicial apenas exige comportamento observavel.",
+    "US1 validada com consultas ORM nativas e conversoes tabulares sem django-pandas; as rotas legadas continuam respondendo com a mesma semantica visivel."
+  ]
+}

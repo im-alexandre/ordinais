@@ -1,6 +1,5 @@
 {% extends "base.html" %}
 {% block container %}
-{% load static %}
 
 
 <form method="POST" class="mt-5" id="MyForm">
@@ -46,5 +45,5 @@
 {% endblock %}
 {% block custom_js %}
 
-<script src="{% static 'js/input_select.js' %}"></script>
+<script src="/static/js/input_select.js"></script>
 {% endblock %}

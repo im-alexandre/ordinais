@@ -1,0 +1,60 @@
+[
+  {
+    "model": "core.projeto",
+    "pk": 1,
+    "fields": {
+      "nome": "Baseline",
+      "descricao": "Projeto de baseline para testes exploratorios",
+      "qtde_classes": 2,
+      "qtde_criterios": 2,
+      "qtde_alternativas": 2,
+      "qtde_decisores": 1,
+      "lamb": 0.5,
+      "data": "2026-05-10T12:00:00Z"
+    }
+  },
+  {
+    "model": "core.decisor",
+    "pk": 1,
+    "fields": {
+      "projeto": 1,
+      "nome": "Decisor 1"
+    }
+  },
+  {
+    "model": "core.criterio",
+    "pk": 1,
+    "fields": {
+      "projeto": 1,
+      "nome": "Criterio 1",
+      "numerico": true,
+      "monotonico": 1
+    }
+  },
+  {
+    "model": "core.criterio",
+    "pk": 2,
+    "fields": {
+      "projeto": 1,
+      "nome": "Criterio 2",
+      "numerico": false,
+      "monotonico": 1
+    }
+  },
+  {
+    "model": "core.alternativa",
+    "pk": 1,
+    "fields": {
+      "projeto": 1,
+      "nome": "Alternativa 1"
+    }
+  },
+  {
+    "model": "core.alternativa",
+    "pk": 2,
+    "fields": {
+      "projeto": 1,
+      "nome": "Alternativa 2"
+    }
+  }
+]

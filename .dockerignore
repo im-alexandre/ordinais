@@ -1,0 +1,16 @@
+node_modules/
+.git/
+*.log*
+.env*
+coverage/
+__pycache__/
+*.pyc
+.venv/
+venv/
+dist/
+build/
+*.egg-info/
+db.sqlite3
+staticfiles_electre_mor/
+resultados/*.zip
+resultados/*.xlsx

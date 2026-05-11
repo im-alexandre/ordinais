@@ -1,0 +1,505 @@
+openapi: 3.1.0
+info:
+  title: Electre MOR API
+  version: 0.1.0
+  description: Contratos planejados para modernizacao da aplicacao ordinais.
+servers:
+  - url: /api/v1
+paths:
+  /projects/:
+    get:
+      summary: Lista projetos de avaliacao
+      responses:
+        "200":
+          description: Lista de projetos
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ProjectResponse"
+    post:
+      summary: Cria um projeto de avaliacao
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectCreate"
+      responses:
+        "201":
+          description: Projeto criado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
+        "400":
+          description: Dados invalidos
+  /projects/{projectId}/:
+    get:
+      summary: Recupera detalhes de um projeto
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: Projeto encontrado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
+        "404":
+          description: Projeto inexistente
+    delete:
+      summary: Remove um projeto
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "204":
+          description: Projeto removido
+  /projects/{projectId}/participants/:
+    put:
+      summary: Substitui decisores, criterios e alternativas do projeto
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ParticipantsPayload"
+      responses:
+        "200":
+          description: Participantes atualizados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParticipantsResponse"
+        "400":
+          description: Dados invalidos
+  /projects/{projectId}/numeric-scores/:
+    put:
+      summary: Substitui notas numericas de alternativas por criterio
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/NumericScoresPayload"
+      responses:
+        "200":
+          description: Notas atualizadas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NumericScoresResponse"
+        "400":
+          description: Dados invalidos
+  /projects/{projectId}/criteria-comparisons/:
+    put:
+      summary: Substitui comparacoes pareadas de criterios
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/CriteriaComparisonsPayload"
+      responses:
+        "200":
+          description: Comparacoes atualizadas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/CriteriaComparisonsResponse"
+        "400":
+          description: Dados invalidos
+  /projects/{projectId}/alternative-comparisons/:
+    put:
+      summary: Substitui comparacoes pareadas de alternativas
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/AlternativeComparisonsPayload"
+      responses:
+        "200":
+          description: Comparacoes atualizadas
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AlternativeComparisonsResponse"
+        "400":
+          description: Dados invalidos
+  /projects/{projectId}/parameters/:
+    put:
+      summary: Substitui parametros p, q e v dos criterios
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ParametersPayload"
+      responses:
+        "200":
+          description: Parametros atualizados
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ParametersResponse"
+        "400":
+          description: Dados invalidos
+  /projects/{projectId}/result/:
+    get:
+      summary: Calcula e retorna o resultado do projeto
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: Resultado calculado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResultResponse"
+        "409":
+          description: Projeto ainda nao possui dados suficientes
+components:
+  parameters:
+    ProjectId:
+      name: projectId
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+  schemas:
+    ProjectCreate:
+      type: object
+      required: [nome, descricao, qtde_classes, qtde_criterios, qtde_decisores, qtde_alternativas, lamb]
+      properties:
+        nome:
+          type: string
+          maxLength: 20
+        descricao:
+          type: string
+          maxLength: 400
+        qtde_classes:
+          type: integer
+          minimum: 2
+        qtde_criterios:
+          type: integer
+          minimum: 2
+        qtde_decisores:
+          type: integer
+          minimum: 1
+        qtde_alternativas:
+          type: integer
+          minimum: 2
+        lamb:
+          type: number
+          minimum: 0.5
+          maximum: 1
+    ParticipantsPayload:
+      type: object
+      required: [decisores, criterios, alternativas]
+      properties:
+        decisores:
+          type: array
+          items:
+            $ref: "#/components/schemas/NamedItem"
+        criterios:
+          type: array
+          items:
+            $ref: "#/components/schemas/CriterioInput"
+        alternativas:
+          type: array
+          items:
+            $ref: "#/components/schemas/NamedItem"
+    NamedItem:
+      type: object
+      required: [nome]
+      properties:
+        nome:
+          type: string
+          maxLength: 20
+    CriterioInput:
+      type: object
+      required: [nome, numerico, monotonico]
+      properties:
+        nome:
+          type: string
+          maxLength: 20
+        numerico:
+          type: boolean
+        monotonico:
+          type: integer
+          enum: [1, 2]
+    NumericScoresPayload:
+      type: object
+      required: [scores]
+      properties:
+        scores:
+          type: array
+          items:
+            type: object
+            required: [criterio_id, alternativa_id, nota]
+            properties:
+              criterio_id:
+                type: integer
+              alternativa_id:
+                type: integer
+              nota:
+                type: number
+    CriteriaComparisonsPayload:
+      type: object
+      required: [comparisons]
+      properties:
+        comparisons:
+          type: array
+          items:
+            type: object
+            required: [decisor_id, criterio_a_id, criterio_b_id, nota]
+            properties:
+              decisor_id:
+                type: integer
+              criterio_a_id:
+                type: integer
+              criterio_b_id:
+                type: integer
+              nota:
+                type: integer
+                minimum: -2
+                maximum: 2
+    AlternativeComparisonsPayload:
+      type: object
+      required: [comparisons]
+      properties:
+        comparisons:
+          type: array
+          items:
+            type: object
+            required: [decisor_id, criterio_id, alternativa_a_id, alternativa_b_id, nota]
+            properties:
+              decisor_id:
+                type: integer
+              criterio_id:
+                type: integer
+              alternativa_a_id:
+                type: integer
+              alternativa_b_id:
+                type: integer
+              nota:
+                type: integer
+                minimum: -2
+                maximum: 2
+    ParametersPayload:
+      type: object
+      required: [parameters]
+      properties:
+        parameters:
+          type: array
+          items:
+            type: object
+            required: [criterio_id, p, q, v]
+            properties:
+              criterio_id:
+                type: integer
+              p:
+                type: number
+              q:
+                type: number
+              v:
+                type: number
+    ProjectResponse:
+      allOf:
+        - $ref: "#/components/schemas/ProjectCreate"
+        - type: object
+          required: [id, data]
+          properties:
+            id:
+              type: integer
+            data:
+              type: string
+              format: date-time
+    ParticipantsResponse:
+      type: object
+      required: [project, decisores, criterios, alternativas]
+      properties:
+        project:
+          $ref: "#/components/schemas/ProjectResponse"
+        decisores:
+          type: array
+          items:
+            $ref: "#/components/schemas/NamedResponse"
+        criterios:
+          type: array
+          items:
+            $ref: "#/components/schemas/CriterioResponse"
+        alternativas:
+          type: array
+          items:
+            $ref: "#/components/schemas/NamedResponse"
+    NumericScoresResponse:
+      type: object
+      required: [project_id, scores]
+      properties:
+        project_id:
+          type: integer
+        scores:
+          type: array
+          items:
+            $ref: "#/components/schemas/NumericScoreItem"
+    CriteriaComparisonsResponse:
+      type: object
+      required: [project_id, comparisons]
+      properties:
+        project_id:
+          type: integer
+        comparisons:
+          type: array
+          items:
+            $ref: "#/components/schemas/CriteriaComparisonItem"
+    AlternativeComparisonsResponse:
+      type: object
+      required: [project_id, comparisons]
+      properties:
+        project_id:
+          type: integer
+        comparisons:
+          type: array
+          items:
+            $ref: "#/components/schemas/AlternativeComparisonItem"
+    ParametersResponse:
+      type: object
+      required: [project_id, parameters]
+      properties:
+        project_id:
+          type: integer
+        parameters:
+          type: array
+          items:
+            $ref: "#/components/schemas/ParameterItem"
+    ResultResponse:
+      type: object
+      required: [project, pesos_criterios, pontuacao_alternativas, classificacao_range, classificacao_quantile, classificacao_final]
+      properties:
+        project:
+          $ref: "#/components/schemas/ProjectResponse"
+        pesos_criterios:
+          type: array
+          items:
+            type: object
+        pontuacao_alternativas:
+          type: array
+          nullable: true
+          items:
+            type: object
+        classificacao_range:
+          type: array
+          items:
+            type: object
+        classificacao_quantile:
+          type: array
+          items:
+            type: object
+        classificacao_final:
+          type: object
+          required: [range, quantile]
+          properties:
+            range:
+              type: array
+              items:
+                $ref: "#/components/schemas/FinalClassificationItem"
+            quantile:
+              type: array
+              items:
+                $ref: "#/components/schemas/FinalClassificationItem"
+    FinalClassificationItem:
+      type: object
+      required: [alternative_id, alternative, pessimista, otimista, class]
+      properties:
+        alternative_id:
+          type: integer
+        alternative:
+          type: string
+        pessimista:
+          type: string
+        otimista:
+          type: string
+        class:
+          type: string
+    NamedResponse:
+      type: object
+      required: [id, nome]
+      properties:
+        id:
+          type: integer
+        nome:
+          type: string
+    CriterioResponse:
+      type: object
+      required: [id, nome, numerico, monotonico]
+      properties:
+        id:
+          type: integer
+        nome:
+          type: string
+        numerico:
+          type: boolean
+        monotonico:
+          type: integer
+    NumericScoreItem:
+      type: object
+      required: [criterio_id, alternativa_id, nota]
+      properties:
+        criterio_id:
+          type: integer
+        alternativa_id:
+          type: integer
+        nota:
+          type: number
+    CriteriaComparisonItem:
+      type: object
+      required: [decisor_id, criterio_a_id, criterio_b_id, nota]
+      properties:
+        decisor_id:
+          type: integer
+        criterio_a_id:
+          type: integer
+        criterio_b_id:
+          type: integer
+        nota:
+          type: integer
+    AlternativeComparisonItem:
+      type: object
+      required: [decisor_id, criterio_id, alternativa_a_id, alternativa_b_id, nota]
+      properties:
+        decisor_id:
+          type: integer
+        criterio_id:
+          type: integer
+        alternativa_a_id:
+          type: integer
+        alternativa_b_id:
+          type: integer
+        nota:
+          type: integer
+    ParameterItem:
+      type: object
+      required: [criterio_id, p, q, v]
+      properties:
+        criterio_id:
+          type: integer
+        p:
+          type: number
+        q:
+          type: number
+        v:
+          type: number

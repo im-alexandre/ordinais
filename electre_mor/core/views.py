@@ -8,7 +8,7 @@ from django import forms
 from django.forms import formset_factory, modelformset_factory
 from django.http import HttpResponse
 from django.shortcuts import redirect, render
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import gettext_lazy as _
 
 from core.forms import (AlternativaCriterioForm, AvaliacaoAlternativasForm,
                         AvaliacaoCriteriosForm, CriterioParametroForm,
@@ -16,12 +16,33 @@ from core.forms import (AlternativaCriterioForm, AvaliacaoAlternativasForm,
 from core.models import (Alternativa, AlternativaCriterio,
                          AvaliacaoAlternativas, AvaliacaoCriterios, Criterio,
                          CriterioParametro, Decisor, Projeto)
+from core.tabular import queryset_para_dataframe
 
 from .ElectreTri import ElectreTri
 from .method import MatrizProjeto
 
 warnings.filterwarnings('ignore')
 pd.options.display.float_format = '{:,.4f}'.format
+
+
+def _configure_avaliacao_criterios_form(form, projeto):
+    form.fields['decisor'].queryset = projeto.decisores.all()
+    form.fields['criterioA'].queryset = projeto.criterios.all()
+    form.fields['criterioB'].queryset = projeto.criterios.all()
+    form.fields['decisor'].disabled = True
+    form.fields['criterioA'].disabled = True
+    form.fields['criterioB'].disabled = True
+
+
+def _configure_avaliacao_alternativas_form(form, projeto):
+    form.fields['decisor'].queryset = projeto.decisores.all()
+    form.fields['criterio'].queryset = projeto.criterios.filter(numerico=False)
+    form.fields['alternativaA'].queryset = projeto.alternativas.all()
+    form.fields['alternativaB'].queryset = projeto.alternativas.all()
+    form.fields['decisor'].disabled = True
+    form.fields['criterio'].disabled = True
+    form.fields['alternativaA'].disabled = True
+    form.fields['alternativaB'].disabled = True
 
 
 def landing_page(request):
@@ -260,9 +281,13 @@ def avaliarcriterios(request, projeto_id):
             } for decisor, (
                 alternativa,
                 criterio) in product(decisores, criterios_combinados)])
+        for form in forms:
+            _configure_avaliacao_criterios_form(form, projeto)
 
     if request.method == 'POST':
         avaliacao_criterios_formset = formset(request.POST)
+        for form in avaliacao_criterios_formset:
+            _configure_avaliacao_criterios_form(form, projeto)
         if avaliacao_criterios_formset.is_valid():
             AvaliacaoCriterios.objects.filter(projeto=projeto).delete()
             for aval_crit in avaliacao_criterios_formset:
@@ -327,9 +352,13 @@ def avaliaralternativas(request, projeto_id):
                 'alternativaB': alternativaB,
             } for decisor, criterio, (alternativaA, alternativaB) in product(
                 decisores, criterios, alternativas_combinadas)])
+        for form in forms:
+            _configure_avaliacao_alternativas_form(form, projeto)
 
     if request.method == 'POST':
         avaliacao_criterios_formset = formset(request.POST)
+        for form in avaliacao_criterios_formset:
+            _configure_avaliacao_alternativas_form(form, projeto)
         if avaliacao_criterios_formset.is_valid():
             AvaliacaoAlternativas.objects.filter(projeto=projeto).delete()
             for aval_crit in avaliacao_criterios_formset:
@@ -362,8 +391,10 @@ def resultado_sapevo(request, projeto_id):
     pesos = matriz.pesos_criterios
     pesos.sort_values(by='peso', ascending=False, inplace=True)
     pesos = pesos.to_html(index=False)
-    valores = AlternativaCriterio.objects.filter(projeto=projeto)
-    valores = valores.to_dataframe().to_html()
+    valores = queryset_para_dataframe(
+        AlternativaCriterio.objects.filter(projeto=projeto),
+        ('projeto', 'criterio', 'alternativa', 'nota'))
+    valores = valores.to_html(index=False)
     alternativas = Alternativa.objects.filter(projeto=projeto_id)
     criterios_quali = list(projeto.criterios.filter(numerico=False))
     df_criterios = matriz.avaliacoes['criterios'].to_html()
@@ -440,8 +471,10 @@ def resultado(request, projeto_id):
         inplace=True)
     pesos = pesos.to_html(index=False)
 
-    valores = AlternativaCriterio.objects.filter(projeto=projeto)
-    valores = valores.to_dataframe().to_html()
+    valores = queryset_para_dataframe(
+        AlternativaCriterio.objects.filter(projeto=projeto),
+        ('projeto', 'criterio', 'alternativa', 'nota'))
+    valores = valores.to_html(index=False)
 
     if alternativas:
         pontuacao_alternativas = matriz.pontuacao_alternativas
@@ -454,11 +487,12 @@ def resultado(request, projeto_id):
                                   index='p q v w'.split(),
                                   columns=matriz.pesos_criterios['Critério'])
 
-        parametros = CriterioParametro.objects.filter(projeto=projeto)
-        parametros = parametros.to_pivot_table(values=['p', 'q', 'v'],
-                                               cols=['criterio'])
+        parametros = queryset_para_dataframe(
+            CriterioParametro.objects.filter(projeto=projeto),
+            ('criterio', 'p', 'q', 'v'))
+        parametros = parametros.set_index('criterio')[['p', 'q', 'v']].T
         parametros.loc['w'] = matriz.pesos_criterios['peso'].values
-        parametros.index.rename('parametros')
+        parametros.index.rename('parametros', inplace=True)
         electre_quantil = ElectreTri(pontuacao_alternativas,
                                      parametros,
                                      lamb=lamb,

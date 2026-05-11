@@ -1,27 +1,27 @@
 {% extends "base.html" %}
 {% block container %}
 
-<h1>SAPEVO-M - Método</h1>
-<p class="tagline">A multicriteria ranking with ordinal data.</p>
+<h1>ELECTRE-MOr - Método</h1>
+<p class="tagline">A multicriteria ordinal classification method.</p>
 
 
 <p>
-    O método SAPEVO-M (Simple Aggregation of Preferences Expressed by Ordinal Vectors –Multi Decision Makers], 
-    proposto por Gomes e Santos [2018] é uma nova versão do método original SAPEVO [Gomes e Gomes 1997], 
-    que possibilita a utilização de múltiplos decisores. Ademais, introduziu um processo de normalização das matrizes de avaliação, 
-    incrementando a sua consistência.
+    O método ELECTRE-MOr combina avaliação multicritério ordinal com procedimentos de classificação
+    inspirados na família ELECTRE, utilizando pesos dos critérios, parâmetros de preferência,
+    indiferença e veto, e um nível de corte de credibilidade (λ).
 </p>
 <p>
-    O método consiste, basicamente, em dois processos:
+    O método consiste, basicamente, em três processos:
     <br><br>
-    Primeiramente, a transformação ordinal da preferência entre critérios, expressada por um vetor representando os pesos dos critérios. 
+    Primeiramente, a transformação da preferência entre critérios, expressada por um vetor representando os pesos dos critérios.
     <br>
-    O segundo processo é a transformação ordinal da preferência entre alternativas dentro de um determinado conjunto de critérios. 
+    O segundo processo é a avaliação das alternativas, por notas numéricas ou por preferências ordinais dentro de cada critério.
     <br>
-    Ao serem agregadas as preferências para todos os critérios, neste segundo processo, é gerada uma matriz de avaliação. 
-    O vetor resultante da multiplicação entre o vetor peso e a matriz  de avaliação, indicará qual deverá ser a ordenação entre as alternativas.
+    O terceiro processo aplica os parâmetros de cada critério para calcular relações de concordância,
+    discordância e credibilidade, classificando as alternativas em classes ordinais.
     <br><br>
-    As informações de preferência são denotadas por uma série de comparações pareadas entre as alternativas. A relação entre as alternativas é expressa em uma escala de sete pontos, conforme modelo da tabela, na qual são mensuradas, relativamente, a importância entre as alternativas. A partir da avaliação entre alternativas, é obtido uma matriz com a representação numérica correspondente.
+    As informações de preferência podem ser denotadas por comparações pareadas entre critérios
+    ou alternativas. A relação é expressa em uma escala de sete pontos, conforme modelo da tabela.
 </p>
 
 <hr>
