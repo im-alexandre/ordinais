@@ -68,18 +68,27 @@ describe('App', () => {
 
     const campoLambda = screen.getByLabelText(/lambda/i);
 
-    expect(campoLambda).toHaveValue(0.65);
+    expect(campoLambda).toHaveValue(null);
 
     fireEvent.change(campoLambda, { target: { value: '1.5' } });
 
-    expect(campoLambda).toHaveValue(0.65);
+    expect(campoLambda).toHaveValue(null);
 
     fireEvent.change(campoLambda, { target: { value: '0.49' } });
 
-    expect(campoLambda).toHaveValue(0.65);
+    expect(campoLambda).toHaveValue(null);
 
     fireEvent.change(campoLambda, { target: { value: '0.6' } });
 
     expect(campoLambda).toHaveValue(0.6);
+  });
+
+  it('mantem avaliacao e resultado bloqueados ate configurar o projeto', () => {
+    render(<App />);
+
+    expect(
+      screen.getByRole('button', { name: /avaliar projeto/i }),
+    ).toBeDisabled();
+    expect(screen.getByRole('button', { name: /resultado/i })).toBeDisabled();
   });
 });

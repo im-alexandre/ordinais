@@ -21,8 +21,16 @@ export default function App() {
   const [projetoIdDireto, setProjetoIdDireto] = useState<number | null>(
     projetoIdInicial > 0 ? projetoIdInicial : null,
   );
+  const projetoConfigurado = projeto !== null;
 
   function navegar(telaDestino: Tela) {
+    if (
+      (telaDestino === 'avaliacao' || telaDestino === 'resultado') &&
+      !projetoConfigurado
+    ) {
+      return;
+    }
+
     setTela(telaDestino);
     if (telaDestino !== 'resultado') {
       window.history.replaceState({}, '', window.location.pathname);
@@ -30,6 +38,10 @@ export default function App() {
   }
 
   function abrirResultado(projetoId?: number) {
+    if (!projetoConfigurado) {
+      return;
+    }
+
     const id = projetoId ?? projeto?.projeto.id ?? projetoIdDireto;
     if (id !== null && id !== undefined) {
       setProjetoIdDireto(id);
@@ -63,6 +75,7 @@ export default function App() {
           <ActionButton
             type="button"
             className={tela === 'avaliacao' ? '' : 'acao-botao-secundario'}
+            disabled={!projetoConfigurado}
             onClick={() => navegar('avaliacao')}
           >
             Avaliar projeto
@@ -70,6 +83,7 @@ export default function App() {
           <ActionButton
             type="button"
             className={tela === 'resultado' ? '' : 'acao-botao-secundario'}
+            disabled={!projetoConfigurado}
             onClick={() => abrirResultado()}
           >
             Resultado

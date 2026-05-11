@@ -103,7 +103,7 @@ ER  -`,
   return (
     <main className="landing">
       <section className="hero">
-        <h1 className="hero-kicker">ELECTRE-MOr</h1>
+        <h1 className="hero-kicker">ELECTRE-MOr 2.0</h1>
         <p className="hero-acronimo">
           <strong>EL</strong>imination <strong>E</strong>t <strong>C</strong>hoix{' '}
           <strong>T</strong>raduisant la <strong>RE</strong>alité -{' '}

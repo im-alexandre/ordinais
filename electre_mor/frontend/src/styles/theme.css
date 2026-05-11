@@ -118,6 +118,7 @@ body::before {
 .hero > .hero-kicker {
   font-size: 3rem;
   text-align: center;
+  text-transform: none;
 }
 
 .hero h1 {
@@ -188,19 +189,26 @@ body::before {
 
 .membro h3 {
   margin: 12px 0 5px;
+  min-height: 3.125rem;
   font-size: 1.25rem;
   line-height: 1.25;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 
 .membro p {
   margin: 0;
   color: var(--texto-suave);
   font-size: 1.18rem;
+  line-height: 1.2;
+  min-height: 1.45rem;
+  white-space: nowrap;
 }
 
 .membro-links {
   display: flex;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   justify-content: center;
   gap: 7px;
   margin-top: 12px;
@@ -213,6 +221,7 @@ body::before {
   color: var(--texto);
   text-decoration: none;
   font-size: 1rem;
+  white-space: nowrap;
 }
 
 .membro-links a:hover {

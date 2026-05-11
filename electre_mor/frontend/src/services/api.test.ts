@@ -5,6 +5,7 @@ import {
   listarProjetos,
   salvarParticipantes,
 } from './api';
+import type { ParticipantesPayload } from '../types';
 
 describe('cliente da API', () => {
   afterEach(() => {
@@ -83,7 +84,7 @@ describe('cliente da API', () => {
 
     vi.stubGlobal('fetch', fetchMock);
 
-    const payload = {
+    const payload: ParticipantesPayload = {
       decisores: [{ nome: 'Decisor 1' }],
       criterios: [{ nome: 'Criterio 1', numerico: true, monotonico: 1 }],
       alternativas: [{ nome: 'Alternativa 1' }],

@@ -14,25 +14,28 @@ type ProjectSetupProps = {
 type ProjetoForm = {
   nome: string;
   descricao: string;
-  qtde_classes: number;
-  qtde_criterios: number;
-  qtde_alternativas: number;
-  qtde_decisores: number;
+  qtde_classes: string;
+  qtde_criterios: string;
+  qtde_alternativas: string;
+  qtde_decisores: string;
   lamb: string;
 };
+
+type CampoQuantidade =
+  | 'qtde_classes'
+  | 'qtde_criterios'
+  | 'qtde_alternativas'
+  | 'qtde_decisores';
 
 const projetoInicial: ProjetoForm = {
   nome: '',
   descricao: '',
-  qtde_classes: 3,
-  qtde_criterios: 3,
-  qtde_alternativas: 5,
-  qtde_decisores: 1,
-  lamb: '0.65',
+  qtde_classes: '',
+  qtde_criterios: '',
+  qtde_alternativas: '',
+  qtde_decisores: '',
+  lamb: '',
 };
-
-const nomesCriterios = ['Qualidade', 'Custo', 'Eficacia', 'Logistica', 'Risco'];
-const nomesAlternativas = ['Vacina A', 'Vacina B', 'Vacina C', 'Vacina D', 'Vacina E'];
 
 function ajustarTamanho<T>(itens: T[], tamanho: number, criar: (indice: number) => T) {
   if (itens.length === tamanho) {
@@ -48,15 +51,9 @@ function ajustarTamanho<T>(itens: T[], tamanho: number, criar: (indice: number) 
 
 export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
   const [formulario, setFormulario] = useState(projetoInicial);
-  const [decisores, setDecisores] = useState([{ nome: 'Comite' }]);
-  const [criterios, setCriterios] = useState<CriterioEntrada[]>([
-    { nome: 'Qualidade', numerico: false, monotonico: 1 },
-    { nome: 'Custo', numerico: true, monotonico: 2 },
-    { nome: 'Eficacia', numerico: true, monotonico: 1 },
-  ]);
-  const [alternativas, setAlternativas] = useState(
-    nomesAlternativas.map((nome) => ({ nome })),
-  );
+  const [decisores, setDecisores] = useState<Array<{ nome: string }>>([]);
+  const [criterios, setCriterios] = useState<CriterioEntrada[]>([]);
+  const [alternativas, setAlternativas] = useState<Array<{ nome: string }>>([]);
   const [mensagem, setMensagem] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(false);
 
@@ -64,21 +61,63 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
     () =>
       formulario.nome.trim() !== '' &&
       formulario.descricao.trim() !== '' &&
+      formulario.qtde_classes !== '' &&
+      formulario.qtde_criterios !== '' &&
+      formulario.qtde_alternativas !== '' &&
+      formulario.qtde_decisores !== '' &&
+      formulario.lamb !== '' &&
       decisores.every((item) => item.nome.trim() !== '') &&
       criterios.every((item) => item.nome.trim() !== '') &&
       alternativas.every((item) => item.nome.trim() !== ''),
-    [alternativas, criterios, decisores, formulario.descricao, formulario.nome],
+    [
+      alternativas,
+      criterios,
+      decisores,
+      formulario.descricao,
+      formulario.lamb,
+      formulario.nome,
+      formulario.qtde_alternativas,
+      formulario.qtde_classes,
+      formulario.qtde_criterios,
+      formulario.qtde_decisores,
+    ],
   );
 
-  function atualizarQuantidade(chave: keyof ProjetoForm, valor: number) {
-    const quantidade = Math.max(chave === 'qtde_decisores' ? 1 : 2, valor);
-    const proximoFormulario = { ...formulario, [chave]: quantidade };
+  function atualizarQuantidade(chave: CampoQuantidade, valorBruto: string) {
+    if (valorBruto === '') {
+      setFormulario({ ...formulario, [chave]: '' });
+
+      if (chave === 'qtde_decisores') {
+        setDecisores([]);
+      }
+
+      if (chave === 'qtde_criterios') {
+        setCriterios([]);
+      }
+
+      if (chave === 'qtde_alternativas') {
+        setAlternativas([]);
+      }
+
+      return;
+    }
+
+    const valor = Number(valorBruto);
+    if (Number.isNaN(valor)) {
+      return;
+    }
+
+    const quantidade = Math.max(
+      chave === 'qtde_decisores' ? 1 : 2,
+      Math.trunc(valor),
+    );
+    const proximoFormulario = { ...formulario, [chave]: String(quantidade) };
     setFormulario(proximoFormulario);
 
     if (chave === 'qtde_decisores') {
       setDecisores((atuais) =>
         ajustarTamanho(atuais, quantidade, (indice) => ({
-          nome: `Decisor ${indice + 1}`,
+          nome: '',
         })),
       );
     }
@@ -86,7 +125,7 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
     if (chave === 'qtde_criterios') {
       setCriterios((atuais) =>
         ajustarTamanho(atuais, quantidade, (indice) => ({
-          nome: nomesCriterios[indice] ?? `Criterio ${indice + 1}`,
+          nome: '',
           numerico: indice !== 0,
           monotonico: indice === 1 ? 2 : 1,
         })),
@@ -96,7 +135,7 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
     if (chave === 'qtde_alternativas') {
       setAlternativas((atuais) =>
         ajustarTamanho(atuais, quantidade, (indice) => ({
-          nome: nomesAlternativas[indice] ?? `Alternativa ${indice + 1}`,
+          nome: '',
         })),
       );
     }
@@ -125,7 +164,12 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
 
     try {
       const projeto = await criarProjeto({
-        ...formulario,
+        nome: formulario.nome,
+        descricao: formulario.descricao,
+        qtde_classes: Number(formulario.qtde_classes),
+        qtde_criterios: Number(formulario.qtde_criterios),
+        qtde_alternativas: Number(formulario.qtde_alternativas),
+        qtde_decisores: Number(formulario.qtde_decisores),
         lamb: Number(formulario.lamb),
       });
       const participantes = await salvarParticipantes(projeto.id, {
@@ -177,7 +221,7 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
               min="2"
               value={formulario.qtde_classes}
               onChange={(evento) =>
-                atualizarQuantidade('qtde_classes', Number(evento.target.value))
+                atualizarQuantidade('qtde_classes', evento.target.value)
               }
             />
             <TextField
@@ -186,7 +230,7 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
               min="2"
               value={formulario.qtde_criterios}
               onChange={(evento) =>
-                atualizarQuantidade('qtde_criterios', Number(evento.target.value))
+                atualizarQuantidade('qtde_criterios', evento.target.value)
               }
             />
             <TextField
@@ -195,7 +239,7 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
               min="2"
               value={formulario.qtde_alternativas}
               onChange={(evento) =>
-                atualizarQuantidade('qtde_alternativas', Number(evento.target.value))
+                atualizarQuantidade('qtde_alternativas', evento.target.value)
               }
             />
             <TextField
@@ -204,7 +248,7 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
               min="1"
               value={formulario.qtde_decisores}
               onChange={(evento) =>
-                atualizarQuantidade('qtde_decisores', Number(evento.target.value))
+                atualizarQuantidade('qtde_decisores', evento.target.value)
               }
             />
             <TextField
