@@ -3,19 +3,27 @@ services:
     image: postgres:14-alpine
     volumes:
       - postgres_data_electre_mor:/var/lib/postgresql/data/
-    env_file:
-      - ./electre_mor/env.electre
+    environment:
+      POSTGRES_USER: ${POSTGRES_USER:-electremor}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
+      POSTGRES_DB: ${POSTGRES_DB:-electremor}
 
   electre_mor:
     build:
       context: ./electre_mor
     entrypoint: './entrypoint_electre.sh'
-    volumes:
-      - ./electre_mor:/usr/src/app
     expose:
       - 80
-    env_file:
-      - ./electre_mor/env.electre
+    environment:
+      SQL_ENGINE: ${SQL_ENGINE:-django.db.backends.postgresql}
+      SQL_HOST: ${SQL_HOST:-db_electre}
+      SQL_PORT: ${SQL_PORT:-5432}
+      POSTGRES_USER: ${POSTGRES_USER:-electremor}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-change_me}
+      POSTGRES_DB: ${POSTGRES_DB:-electremor}
+      SECRET_KEY: ${SECRET_KEY:-change_me}
+      DEBUG: ${DEBUG:-1}
+      DJANGO_ALLOWED_HOSTS: ${DJANGO_ALLOWED_HOSTS:-localhost,127.0.0.1,coolify.drg.ink,electremor.drg.ink}
     depends_on:
       - db_electre
     labels:
