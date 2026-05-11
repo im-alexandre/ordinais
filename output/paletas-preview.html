@@ -1,0 +1,117 @@
+<!doctype html>
+<html lang="pt-BR">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Preview de paletas</title>
+    <style>
+      :root {
+        color-scheme: dark;
+        font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+        background: #0b1020;
+        color: #e5e7eb;
+      }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        padding: 40px;
+      }
+
+      main {
+        width: min(940px, 100%);
+        display: grid;
+        gap: 22px;
+      }
+
+      h1 {
+        margin: 0 0 8px;
+        font-size: 28px;
+      }
+
+      .palette {
+        display: grid;
+        gap: 10px;
+      }
+
+      .palette h2 {
+        margin: 0;
+        font-size: 18px;
+      }
+
+      .swatches {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(90px, 1fr));
+        overflow: hidden;
+        border: 1px solid rgba(148, 163, 184, 0.3);
+        border-radius: 14px;
+      }
+
+      .swatch {
+        min-height: 72px;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <h1>Paletas nomeadas</h1>
+
+      <section class="palette">
+        <h2>Tailwind Slate Amber</h2>
+        <div class="swatches">
+          <div class="swatch" style="background: #020617"></div>
+          <div class="swatch" style="background: #0f172a"></div>
+          <div class="swatch" style="background: #94a3b8"></div>
+          <div class="swatch" style="background: #f59e0b"></div>
+          <div class="swatch" style="background: #fb7185"></div>
+        </div>
+      </section>
+
+      <section class="palette">
+        <h2>Midnight ablaze</h2>
+        <div class="swatches">
+          <div class="swatch" style="background: #130208"></div>
+          <div class="swatch" style="background: #1f0510"></div>
+          <div class="swatch" style="background: #460e2b"></div>
+          <div class="swatch" style="background: #d53c6a"></div>
+          <div class="swatch" style="background: #ff8274"></div>
+        </div>
+      </section>
+
+      <section class="palette">
+        <h2>BLUE GLASS</h2>
+        <div class="swatches">
+          <div class="swatch" style="background: #0c0a1b"></div>
+          <div class="swatch" style="background: #222034"></div>
+          <div class="swatch" style="background: #394c62"></div>
+          <div class="swatch" style="background: #83aa9c"></div>
+          <div class="swatch" style="background: #cbdbfc"></div>
+        </div>
+      </section>
+
+      <section class="palette">
+        <h2>Darkberry</h2>
+        <div class="swatches">
+          <div class="swatch" style="background: #221228"></div>
+          <div class="swatch" style="background: #652654"></div>
+          <div class="swatch" style="background: #e56349"></div>
+          <div class="swatch" style="background: #3d65a1"></div>
+          <div class="swatch" style="background: #86dec3"></div>
+        </div>
+      </section>
+
+      <section class="palette">
+        <h2>Windswept</h2>
+        <div class="swatches">
+          <div class="swatch" style="background: #101211"></div>
+          <div class="swatch" style="background: #242b33"></div>
+          <div class="swatch" style="background: #2f4349"></div>
+          <div class="swatch" style="background: #4e615c"></div>
+          <div class="swatch" style="background: #657c6e"></div>
+        </div>
+      </section>
+    </main>
+  </body>
+</html>

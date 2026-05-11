@@ -60,3 +60,12 @@
 - 2026-05-10: frontend validado com `npm install`, `npm run test` e `npm run build` em `electre_mor/frontend`.
 - 2026-05-10: fallback Django validado com `python manage.py test core.tests.test_frontend_static`.
 - 2026-05-10: revisao final T068 concluiu com `python manage.py test` (31 testes OK), `npm run test` (5 testes OK), `npm run build` OK, `docker compose build` OK e verificacao final sem `django-pandas`.
+- 2026-05-10: correcao US2 T069-T079 executada apos identificar que T054-T056 estavam marcadas como concluidas sem cobrir o fluxo browser completo.
+  - Backend: `core.services.result_service` passou a alinhar pesos por ID de criterio, reindexar pontuacoes pelos criterios parametrizados e expor `classificacao_final` com classes pessimista/otimista por alternativa, mantendo `classificacao_range` e `classificacao_quantile` brutas.
+  - Contrato OpenAPI atualizado para documentar `classificacao_final.range` e `classificacao_final.quantile`.
+  - Teste de resultado: `python manage.py test core.tests.test_api_result core.tests.test_api_evaluations` executado com sucesso; 7 testes OK, incluindo caso misto com criterio qualitativo, custo, lucro e pesos por comparacao de criterios.
+  - Frontend: `ProjectSetup` agora cadastra decisores, criterios qualitativos/numericos, direcao custo/lucro e alternativas; `EvaluationFlow` salva parametros q/p/v, comparacoes de criterios, notas numericas e comparacoes qualitativas; `ResultView` mostra classificacoes range/quantile para as alternativas.
+  - Frontend validado com `npm run test` em `electre_mor/frontend`; 7 testes OK.
+  - Build frontend validado com `npm run build` em `electre_mor/frontend`; build OK em `electre_mor/static/frontend/`.
+  - Selenium headless validado com `python manage.py test core.tests.test_browser_e2e_vaccine_case -v 2`; 1 teste OK criando projeto pelo navegador, salvando avaliacao completa pela UI e verificando 5 alternativas classificadas no resultado.
+  - Suite Django completa validada com `python manage.py test`; 33 testes OK, incluindo o Selenium headless.

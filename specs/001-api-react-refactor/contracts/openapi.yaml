@@ -388,7 +388,7 @@ components:
             $ref: "#/components/schemas/ParameterItem"
     ResultResponse:
       type: object
-      required: [project, pesos_criterios, pontuacao_alternativas, classificacao_range, classificacao_quantile]
+      required: [project, pesos_criterios, pontuacao_alternativas, classificacao_range, classificacao_quantile, classificacao_final]
       properties:
         project:
           $ref: "#/components/schemas/ProjectResponse"
@@ -409,6 +409,32 @@ components:
           type: array
           items:
             type: object
+        classificacao_final:
+          type: object
+          required: [range, quantile]
+          properties:
+            range:
+              type: array
+              items:
+                $ref: "#/components/schemas/FinalClassificationItem"
+            quantile:
+              type: array
+              items:
+                $ref: "#/components/schemas/FinalClassificationItem"
+    FinalClassificationItem:
+      type: object
+      required: [alternative_id, alternative, pessimista, otimista, class]
+      properties:
+        alternative_id:
+          type: integer
+        alternative:
+          type: string
+        pessimista:
+          type: string
+        otimista:
+          type: string
+        class:
+          type: string
     NamedResponse:
       type: object
       required: [id, nome]

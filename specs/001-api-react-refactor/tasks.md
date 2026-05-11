@@ -144,6 +144,24 @@
 
 ---
 
+## Phase 7: Correcao US2 e gate E2E browser
+
+**Purpose**: Corrigir a entrega parcial de T054-T056 e fechar a US2 com fluxo browser completo.
+
+- [X] T069 Registrar que T054-T056 exigiam correcao por entrega parcial, pois a primeira entrega nao cobria participantes, criterios, alternativas, parametros, comparacoes qualitativas e resultado final completos pela UI.
+- [X] T070 Adicionar teste de resultado com caso misto: criterio qualitativo par-a-par, custo, lucro e pesos por comparacao de criterios em electre_mor/core/tests/test_api_result.py
+- [X] T071 Corrigir alinhamento entre pesos e criterios no calculo de resultado em electre_mor/core/services/result_service.py
+- [X] T072 Expor no resultado uma estrutura de classificacao final consumivel pela UI, preservando classificacoes brutas existentes.
+- [X] T073 Completar cliente frontend para endpoints de participantes, notas numericas, comparacoes de criterios, comparacoes qualitativas, parametros e resultado.
+- [X] T074 Completar tela de configuracao com participantes, criterios qualitativos/numericos, direcao custo/lucro e alternativas.
+- [X] T075 Completar tela de avaliacao com notas numericas, comparacoes de criterios, comparacoes qualitativas e parametros q/p/v.
+- [X] T076 Completar tela de resultado com classificacoes range/quantile, classes pessimista/otimista e alternativas.
+- [X] T077 Criar teste Selenium headless do fluxo completo em electre_mor/core/tests/test_browser_e2e_vaccine_case.py.
+- [X] T078 Rodar suite Django, Vitest, build frontend e Selenium.
+- [X] T079 Atualizar specs/001-api-react-refactor/implementation-notes.md com evidencias reais e marcar tarefas apenas apos testes.
+
+---
+
 ## Dependencies & Execution Order
 
 ### Phase Dependencies

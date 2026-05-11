@@ -12,7 +12,7 @@ class FrontendStaticTests(TestCase):
         html = response.content.decode("utf-8", errors="ignore")
         self.assertIn('id="root"', html)
         self.assertIn("ELECTRE-MOr", html)
-        self.assertIn("SAPEVO-M", html)
         self.assertIn("Start your project!", html)
+        self.assertIn("/static/favicon.svg", html)
         self.assertIn("/static/frontend/assets/index.js", html)
         self.assertIn("/static/frontend/assets/index.css", html)

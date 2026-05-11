@@ -127,3 +127,4 @@ class ResultadoSerializer(serializers.Serializer):
         child=serializers.DictField(), allow_null=True)
     classificacao_range = serializers.ListField(child=serializers.DictField())
     classificacao_quantile = serializers.ListField(child=serializers.DictField())
+    classificacao_final = serializers.DictField()

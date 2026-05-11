@@ -1,6 +1,10 @@
 import type {
+  ComparacoesAlternativasPayload,
+  ComparacoesCriteriosPayload,
   NotasNumericasPayload,
+  ParametrosPayload,
   ParticipantesPayload,
+  ParticipantesResposta,
   Projeto,
   ProjetoPayload,
   ResultadoProjeto,
@@ -52,7 +56,11 @@ export function salvarParticipantes(
   projetoId: number,
   payload: ParticipantesPayload,
 ) {
-  return requisitarJson(`/projects/${projetoId}/participants/`, 'PUT', payload);
+  return requisitarJson<ParticipantesResposta>(
+    `/projects/${projetoId}/participants/`,
+    'PUT',
+    payload,
+  );
 }
 
 export function salvarNotasNumericas(
@@ -60,6 +68,32 @@ export function salvarNotasNumericas(
   payload: NotasNumericasPayload,
 ) {
   return requisitarJson(`/projects/${projetoId}/numeric-scores/`, 'PUT', payload);
+}
+
+export function salvarComparacoesCriterios(
+  projetoId: number,
+  payload: ComparacoesCriteriosPayload,
+) {
+  return requisitarJson(
+    `/projects/${projetoId}/criteria-comparisons/`,
+    'PUT',
+    payload,
+  );
+}
+
+export function salvarComparacoesAlternativas(
+  projetoId: number,
+  payload: ComparacoesAlternativasPayload,
+) {
+  return requisitarJson(
+    `/projects/${projetoId}/alternative-comparisons/`,
+    'PUT',
+    payload,
+  );
+}
+
+export function salvarParametros(projetoId: number, payload: ParametrosPayload) {
+  return requisitarJson(`/projects/${projetoId}/parameters/`, 'PUT', payload);
 }
 
 export function obterResultado(projetoId: number) {

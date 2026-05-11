@@ -14,5 +14,5 @@ class LegacyPublicRoutesTests(TestCase):
         response = self.client.get(reverse("metodo"))
 
         self.assertEqual(response.status_code, 200)
-        self.assertContains(response, "SAPEVO-M - Método")
-        self.assertContains(response, "A multicriteria ranking with ordinal data.")
+        self.assertContains(response, "ELECTRE-MOr - Método")
+        self.assertContains(response, "A multicriteria ordinal classification method.")
