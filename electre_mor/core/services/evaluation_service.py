@@ -6,9 +6,19 @@ from core.models import (AlternativaCriterio, AvaliacaoAlternativas,
 
 @transaction.atomic
 def substituir_notas_numericas(projeto: Projeto, dados):
-    AlternativaCriterio.objects.filter(projeto=projeto).delete()
+    decisor = dados.get("decisor") or dados.get("decisor_id")
+    if decisor is None:
+        decisor = projeto.decisores.filter(ativo=True).order_by("id").first()
+
+    filtros = {"projeto": projeto}
+    if decisor is not None:
+        filtros["decisor"] = decisor
+    AlternativaCriterio.objects.filter(**filtros).delete()
+
     itens = [
-        AlternativaCriterio.objects.create(projeto=projeto, **score)
+        AlternativaCriterio.objects.create(projeto=projeto,
+                                           decisor=decisor,
+                                           **score)
         for score in dados["scores"]
     ]
     return itens

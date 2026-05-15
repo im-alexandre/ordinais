@@ -3,6 +3,7 @@ from rest_framework.test import APITestCase
 from core.models import (Alternativa, AlternativaCriterio,
                          AvaliacaoAlternativas, AvaliacaoCriterios, Criterio,
                          CriterioParametro, Decisor, Projeto)
+from core.services.evaluation_service import substituir_notas_numericas
 
 
 class ApiEvaluationsTests(APITestCase):
@@ -17,7 +18,7 @@ class ApiEvaluationsTests(APITestCase):
             lamb=0.7,
         )
         self.decisor = Decisor.objects.create(projeto=self.projeto,
-                                               nome="Decisor 1")
+                                               nome="D1")
         self.criterio_1 = Criterio.objects.create(
             projeto=self.projeto,
             nome="Criterio 1",
@@ -60,6 +61,33 @@ class ApiEvaluationsTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(AlternativaCriterio.objects.count(), 2)
+
+    def test_notas_numericas_sao_independentes_por_decisor(self):
+        decisor_2 = Decisor.objects.create(projeto=self.projeto, nome="D2")
+
+        substituir_notas_numericas(self.projeto, {
+            "decisor": self.decisor,
+            "scores": [{
+                "criterio": self.criterio_1,
+                "alternativa": self.alternativa_1,
+                "nota": 8.0,
+            }],
+        })
+        substituir_notas_numericas(self.projeto, {
+            "decisor": decisor_2,
+            "scores": [{
+                "criterio": self.criterio_1,
+                "alternativa": self.alternativa_1,
+                "nota": 4.0,
+            }],
+        })
+
+        notas = AlternativaCriterio.objects.filter(
+            projeto=self.projeto,
+            criterio=self.criterio_1,
+            alternativa=self.alternativa_1,
+        ).order_by("decisor__nome").values_list("decisor__nome", "nota")
+        self.assertEqual(list(notas), [("D1", 8.0), ("D2", 4.0)])
 
     def test_substituir_comparacoes_de_criterios(self):
         payload = {

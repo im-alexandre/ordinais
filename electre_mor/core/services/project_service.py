@@ -14,10 +14,16 @@ def substituir_participantes(projeto, dados):
     projeto.criterios.all().delete()
     projeto.alternativas.all().delete()
 
-    decisores = [
-        Decisor.objects.create(projeto=projeto, **decisor)
-        for decisor in dados["decisores"]
-    ]
+    decisores = []
+    for indice, decisor in enumerate(dados["decisores"]):
+        decisores.append(
+            Decisor.objects.create(
+                projeto=projeto,
+                is_criador=(indice == 0),
+                ativo=True,
+                status=Decisor.Status.PENDENTE,
+                **decisor,
+            ))
     criterios = [
         Criterio.objects.create(projeto=projeto, **criterio)
         for criterio in dados["criterios"]

@@ -1,11 +1,22 @@
 import datetime
+import secrets
 
 from django.core.validators import MaxValueValidator, MinValueValidator
 from django.db import models
 from django.utils import timezone
 
 
+def gerar_token_decisor():
+    return secrets.token_urlsafe(24)
+
+
 class Decisor(models.Model):
+    class Status(models.TextChoices):
+        PENDENTE = 'pendente', 'Pendente'
+        EM_EDICAO = 'em_edicao', 'Em edicao'
+        CONCLUIDO = 'concluido', 'Concluido'
+        DESATIVADO = 'desativado', 'Desativado'
+
     class Meta:
         constraints = [
             models.UniqueConstraint(fields=['nome', 'projeto'],
@@ -17,6 +28,18 @@ class Decisor(models.Model):
                                 on_delete=models.CASCADE,
                                 null=True)
     nome = models.CharField(max_length=20, blank=False, null=False)
+    token = models.CharField(max_length=64,
+                             unique=True,
+                             default=gerar_token_decisor,
+                             editable=False)
+    status = models.CharField(max_length=20,
+                              choices=Status.choices,
+                              default=Status.PENDENTE)
+    ativo = models.BooleanField(default=True)
+    is_criador = models.BooleanField(default=False)
+    criado_em = models.DateTimeField(auto_now_add=True)
+    concluido_em = models.DateTimeField(null=True, blank=True)
+    desativado_em = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.nome
@@ -126,6 +149,11 @@ class AlternativaCriterio(models.Model):
     projeto = models.ForeignKey('Projeto',
                                 on_delete=models.CASCADE,
                                 related_name='alternativacriterios')
+    decisor = models.ForeignKey('Decisor',
+                                on_delete=models.CASCADE,
+                                related_name='alternativacriterios',
+                                null=True,
+                                blank=True)
     criterio = models.ForeignKey('Criterio',
                                  on_delete=models.CASCADE,
                                  related_name='alternativacriterio')
