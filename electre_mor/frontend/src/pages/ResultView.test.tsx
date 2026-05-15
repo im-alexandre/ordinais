@@ -9,6 +9,21 @@ const mocks = vi.hoisted(() => ({
   obterResultadoMock: vi.fn(),
   gerarResultadoMock: vi.fn(),
   listarDecisoresMock: vi.fn(),
+  xlsx: {
+    bookNewMock: vi.fn(() => ({ sheets: [] })),
+    aoaToSheetMock: vi.fn((rows: unknown[][]) => ({ rows })),
+    bookAppendSheetMock: vi.fn(),
+    writeFileMock: vi.fn(),
+  },
+}));
+
+vi.mock('xlsx', () => ({
+  utils: {
+    book_new: mocks.xlsx.bookNewMock,
+    aoa_to_sheet: mocks.xlsx.aoaToSheetMock,
+    book_append_sheet: mocks.xlsx.bookAppendSheetMock,
+  },
+  writeFile: mocks.xlsx.writeFileMock,
 }));
 
 vi.mock('../services/api', () => ({
@@ -62,6 +77,10 @@ describe('ResultView', () => {
     mocks.obterResultadoMock.mockReset();
     mocks.gerarResultadoMock.mockReset();
     mocks.listarDecisoresMock.mockReset();
+    mocks.xlsx.bookNewMock.mockClear();
+    mocks.xlsx.aoaToSheetMock.mockClear();
+    mocks.xlsx.bookAppendSheetMock.mockClear();
+    mocks.xlsx.writeFileMock.mockClear();
   });
 
   it('mostra pendencias e desabilita gerar resultado enquanto faltarem decisores', async () => {
@@ -191,5 +210,31 @@ describe('ResultView', () => {
     expect(
       screen.getByRole('img', { name: /qr code de ana souza/i }),
     ).toBeInTheDocument();
+  });
+
+  it('baixa o resultado como planilha xlsx', async () => {
+    mocks.obterResultadoMock.mockResolvedValueOnce(resultadoFinal);
+    mocks.listarDecisoresMock.mockResolvedValueOnce([]);
+    const usuario = userEvent.setup();
+
+    render(<ResultView projectId={4} isCreator />);
+
+    await usuario.click(
+      await screen.findByRole('tab', { name: /resultado/i }),
+    );
+    await usuario.click(
+      screen.getByRole('button', { name: /baixar tabela para excel/i }),
+    );
+
+    expect(mocks.xlsx.writeFileMock).toHaveBeenCalledWith(
+      expect.any(Object),
+      'resultado-projeto-4.xlsx',
+      { compression: true },
+    );
+    expect(mocks.xlsx.bookAppendSheetMock).toHaveBeenCalledWith(
+      expect.any(Object),
+      expect.any(Object),
+      'Classificacoes',
+    );
   });
 });

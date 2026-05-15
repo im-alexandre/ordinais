@@ -12,37 +12,48 @@ type ResultViewProps = {
   isCreator?: boolean;
 };
 
-function escaparCsv(valor: unknown) {
-  return `"${String(valor ?? '').replace(/"/g, '""')}"`;
-}
+type XlsxModule = typeof import('xlsx');
 
-function montarCsv(resultado: ResultadoProjeto) {
-  const linhas = [
+function montarWorkbook(resultado: ResultadoProjeto, XLSX: XlsxModule) {
+  const workbook = XLSX.utils.book_new();
+  const resumo = XLSX.utils.aoa_to_sheet([
     ['Projeto', resultado.project.nome],
+    ['Descricao', resultado.project.descricao],
     ['Classes', resultado.project.qtde_classes],
-    [],
-    ['Metodo', 'Alternativa', 'Classe pessimista', 'Classe otimista'],
+    ['Criterios', resultado.project.qtde_criterios],
+    ['Alternativas', resultado.project.qtde_alternativas],
+    ['Decisores', resultado.project.qtde_decisores],
+    ['Lambda', resultado.project.lamb],
+  ]);
+  const classificacoes = XLSX.utils.aoa_to_sheet([
+    ['Metodo', 'Alternativa', 'Classe pessimista', 'Classe otimista', 'Classe'],
     ...resultado.classificacao_final.range.map((item) => [
       'range',
       item.alternative,
       item.pessimista,
       item.otimista,
+      item.class,
     ]),
     ...resultado.classificacao_final.quantile.map((item) => [
       'quantile',
       item.alternative,
       item.pessimista,
       item.otimista,
+      item.class,
     ]),
-    [],
+  ]);
+  const pesos = XLSX.utils.aoa_to_sheet([
     ['Criterio', 'Peso'],
     ...resultado.pesos_criterios.map((item) => [
       item.criterio_nome,
-      Number(item.peso).toFixed(6),
+      Number(item.peso),
     ]),
-  ];
+  ]);
 
-  return linhas.map((linha) => linha.map(escaparCsv).join(';')).join('\n');
+  XLSX.utils.book_append_sheet(workbook, resumo, 'Resumo');
+  XLSX.utils.book_append_sheet(workbook, classificacoes, 'Classificacoes');
+  XLSX.utils.book_append_sheet(workbook, pesos, 'Pesos');
+  return workbook;
 }
 
 function isPendenciaApi(erro: unknown) {
@@ -200,21 +211,16 @@ export default function ResultView({ projectId, isCreator = false }: ResultViewP
     }
   }
 
-  function baixarTabelaExcel() {
+  async function baixarTabelaExcel() {
     if (!resultado) {
       return;
     }
 
-    const csv = montarCsv(resultado);
-    const arquivo = new Blob([`\ufeff${csv}`], {
-      type: 'text/csv;charset=utf-8;',
+    const XLSX = await import('xlsx');
+    const workbook = montarWorkbook(resultado, XLSX);
+    XLSX.writeFile(workbook, `resultado-projeto-${resultado.project.id}.xlsx`, {
+      compression: true,
     });
-    const url = URL.createObjectURL(arquivo);
-    const link = document.createElement('a');
-    link.href = url;
-    link.download = `resultado-projeto-${resultado.project.id}.csv`;
-    link.click();
-    URL.revokeObjectURL(url);
   }
 
   const podeGerarResultado =
