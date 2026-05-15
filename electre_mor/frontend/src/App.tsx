@@ -104,11 +104,7 @@ export default function App() {
 
       <main className="conteudo-principal">
         {tela === 'inicio' ? (
-          <LandingPage
-            onConfigurarProjeto={() => setTela('setup')}
-            onAbrirFluxo={() => setTela('avaliacao')}
-            onAbrirResultado={() => abrirResultado()}
-          />
+          <LandingPage />
         ) : null}
 
         {tela === 'setup' ? (

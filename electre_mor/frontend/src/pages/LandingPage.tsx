@@ -1,22 +1,10 @@
 import { useState } from 'react';
 
-import { ActionButton } from '../components/ActionButton';
-
-type LandingPageProps = {
-  onConfigurarProjeto: () => void;
-  onAbrirFluxo: () => void;
-  onAbrirResultado: () => void;
-};
-
 async function copiarParaClipboard(texto: string) {
   await navigator.clipboard.writeText(texto);
 }
 
-export default function LandingPage({
-  onConfigurarProjeto,
-  onAbrirFluxo,
-  onAbrirResultado,
-}: LandingPageProps) {
+export default function LandingPage() {
   const [avisoCitacao, setAvisoCitacao] = useState('');
   const hoje = new Date();
   const dataAcessoPtBr = new Intl.DateTimeFormat('pt-BR').format(hoje);
@@ -113,11 +101,6 @@ ER  -`,
           O criador entra como primeiro decisor, adiciona convidados e segue para
           a propria avaliacao.
         </p>
-        <div className="hero-actions">
-          <ActionButton type="button" onClick={onConfigurarProjeto}>
-            Configurar projeto
-          </ActionButton>
-        </div>
       </section>
 
       <section className="equipe" aria-labelledby="equipe-titulo">
