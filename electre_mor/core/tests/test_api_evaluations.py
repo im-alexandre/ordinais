@@ -1,3 +1,4 @@
+from django.core.cache import cache
 from rest_framework.test import APITestCase
 
 from core.models import (Alternativa, AlternativaCriterio,
@@ -195,6 +196,12 @@ class ApiEvaluationsTests(APITestCase):
         )
         self.assertEqual(gerar_response.status_code, 200)
 
+        cache.clear()
+
+        consulta_response = self.client.get(
+            f"/api/v1/projects/{projeto.id}/result/")
+        self.assertEqual(consulta_response.status_code, 200)
+
         response = self.client.put(
             f"/api/v1/projects/{projeto.id}/numeric-scores/",
             {
@@ -205,6 +212,105 @@ class ApiEvaluationsTests(APITestCase):
                     "nota": 8.5,
                 }],
             },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 409)
+
+    def test_resultado_gerado_bloqueia_novo_decisor(self):
+        projeto = Projeto.objects.create(
+            nome="Projeto bloqueio",
+            descricao="Descricao",
+            qtde_classes=2,
+            qtde_criterios=2,
+            qtde_alternativas=2,
+            qtde_decisores=1,
+            lamb=0.7,
+        )
+        decisor = Decisor.objects.create(projeto=projeto, nome="D1")
+        criterio_1 = Criterio.objects.create(
+            projeto=projeto,
+            nome="Criterio 1",
+            numerico=True,
+            monotonico=1,
+        )
+        criterio_2 = Criterio.objects.create(
+            projeto=projeto,
+            nome="Criterio 2",
+            numerico=True,
+            monotonico=2,
+        )
+        alternativa_1 = Alternativa.objects.create(projeto=projeto,
+                                                   nome="Alternativa 1")
+        alternativa_2 = Alternativa.objects.create(projeto=projeto,
+                                                   nome="Alternativa 2")
+        AvaliacaoCriterios.objects.create(
+            projeto=projeto,
+            decisor=decisor,
+            criterioA=criterio_1,
+            criterioB=criterio_2,
+            nota=1,
+        )
+        AvaliacaoCriterios.objects.create(
+            projeto=projeto,
+            decisor=decisor,
+            criterioA=criterio_2,
+            criterioB=criterio_1,
+            nota=-1,
+        )
+        AlternativaCriterio.objects.create(
+            projeto=projeto,
+            decisor=decisor,
+            criterio=criterio_1,
+            alternativa=alternativa_1,
+            nota=8,
+        )
+        AlternativaCriterio.objects.create(
+            projeto=projeto,
+            decisor=decisor,
+            criterio=criterio_1,
+            alternativa=alternativa_2,
+            nota=4,
+        )
+        AlternativaCriterio.objects.create(
+            projeto=projeto,
+            decisor=decisor,
+            criterio=criterio_2,
+            alternativa=alternativa_1,
+            nota=7,
+        )
+        AlternativaCriterio.objects.create(
+            projeto=projeto,
+            decisor=decisor,
+            criterio=criterio_2,
+            alternativa=alternativa_2,
+            nota=3,
+        )
+        CriterioParametro.objects.create(
+            projeto=projeto,
+            criterio=criterio_1,
+            p=0.2,
+            q=0.1,
+            v=0.8,
+        )
+        CriterioParametro.objects.create(
+            projeto=projeto,
+            criterio=criterio_2,
+            p=0.3,
+            q=0.1,
+            v=0.7,
+        )
+
+        gerar_response = self.client.post(
+            f"/api/v1/projects/{projeto.id}/generate-result/",
+            {},
+            format="json",
+        )
+        self.assertEqual(gerar_response.status_code, 200)
+
+        response = self.client.post(
+            f"/api/v1/projects/{projeto.id}/decision-makers/",
+            {"nome": "D2"},
             format="json",
         )
 

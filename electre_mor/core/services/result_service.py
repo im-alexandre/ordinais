@@ -5,6 +5,7 @@ from typing import Any
 
 import pandas as pd
 from django.core.cache import cache
+from django.db import transaction
 from django.utils import timezone
 
 from core.ElectreTri import ElectreTri
@@ -28,16 +29,20 @@ def _cache_key(projeto: Projeto) -> str:
 
 
 def resultado_gerado(projeto: Projeto) -> bool:
-    return cache.get(_cache_key(projeto)) is not None
+    return projeto.resultado_gerado_em is not None
 
 
 def obter_resultado_gerado(projeto: Projeto) -> dict[str, Any]:
-    resultado = cache.get(_cache_key(projeto))
-    if resultado is None:
+    if not resultado_gerado(projeto):
         raise ResultadoIndisponivel(
             "Resultado ainda nao gerado manualmente.",
             pendencias=obter_pendencias_resultado(projeto),
         )
+
+    resultado = cache.get(_cache_key(projeto))
+    if resultado is None:
+        resultado = obter_resultado_agregado(projeto)
+        cache.set(_cache_key(projeto), resultado, timeout=None)
     return resultado
 
 
@@ -187,8 +192,17 @@ def _montar_resultado(projeto: Projeto, matriz: MatrizProjeto,
             "Pontuacao das alternativas indisponivel.",
             pendencias=obter_pendencias_resultado(projeto),
         )
+    criterios_numericos = {
+        criterio.id for criterio in projeto.criterios.filter(numerico=True)
+    }
     if divisor > 1:
-        pontuacao = pontuacao / divisor
+        colunas_divisiveis = [
+            coluna for coluna in pontuacao.columns
+            if coluna not in criterios_numericos
+        ]
+        if colunas_divisiveis:
+            pontuacao.loc[:, colunas_divisiveis] = (
+                pontuacao.loc[:, colunas_divisiveis] / divisor)
 
     criterios_custo = [
         criterio.id for criterio in projeto.criterios.filter(
@@ -314,12 +328,15 @@ def obter_resultado_agregado(projeto: Projeto) -> dict[str, Any]:
     return _montar_resultado(projeto, matriz, decisores_ativos, divisor)
 
 
+@transaction.atomic
 def gerar_resultado_manual(projeto: Projeto) -> dict[str, Any]:
     if resultado_gerado(projeto):
         return obter_resultado_gerado(projeto)
 
     resultado = obter_resultado_agregado(projeto)
     cache.set(_cache_key(projeto), resultado, timeout=None)
+    projeto.resultado_gerado_em = timezone.now()
+    projeto.save(update_fields=["resultado_gerado_em"])
     decisores_ativos = _decisores_ativos(projeto)
     if decisores_ativos:
         projeto.decisores.filter(id__in=[d.id for d in decisores_ativos]).update(

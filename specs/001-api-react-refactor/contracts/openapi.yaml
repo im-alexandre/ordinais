@@ -76,6 +76,89 @@ paths:
                 $ref: "#/components/schemas/ParticipantsResponse"
         "400":
           description: Dados invalidos
+        "409":
+          description: Resultado ja gerado manualmente
+  /projects/{projectId}/decision-makers/:
+    get:
+      summary: Lista decisores do projeto
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: Decisores cadastrados
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DecisionMakerResponse"
+    post:
+      summary: Cria um decisor convidado
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [nome]
+              properties:
+                nome:
+                  type: string
+                  maxLength: 20
+      responses:
+        "201":
+          description: Decisor criado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionMakerResponse"
+        "400":
+          description: Dados invalidos
+        "409":
+          description: Resultado ja gerado manualmente
+  /projects/{projectId}/decision-makers/{decisionMakerId}/disable/:
+    post:
+      summary: Desativa um decisor existente
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - name: decisionMakerId
+          in: path
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+      responses:
+        "200":
+          description: Decisor desativado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/DecisionMakerResponse"
+        "409":
+          description: Resultado ja gerado manualmente
+  /projects/{projectId}/evaluation-token/{token}/:
+    get:
+      summary: Recupera contexto de avaliacao por token
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+        - name: token
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        "200":
+          description: Contexto de avaliacao
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/EvaluationContextResponse"
+        "404":
+          description: Token inexistente
+        "410":
+          description: Decisor desativado
   /projects/{projectId}/numeric-scores/:
     put:
       summary: Substitui notas numericas de alternativas por criterio
@@ -96,6 +179,8 @@ paths:
                 $ref: "#/components/schemas/NumericScoresResponse"
         "400":
           description: Dados invalidos
+        "409":
+          description: Resultado ja gerado manualmente
   /projects/{projectId}/criteria-comparisons/:
     put:
       summary: Substitui comparacoes pareadas de criterios
@@ -116,6 +201,8 @@ paths:
                 $ref: "#/components/schemas/CriteriaComparisonsResponse"
         "400":
           description: Dados invalidos
+        "409":
+          description: Resultado ja gerado manualmente
   /projects/{projectId}/alternative-comparisons/:
     put:
       summary: Substitui comparacoes pareadas de alternativas
@@ -136,6 +223,8 @@ paths:
                 $ref: "#/components/schemas/AlternativeComparisonsResponse"
         "400":
           description: Dados invalidos
+        "409":
+          description: Resultado ja gerado manualmente
   /projects/{projectId}/parameters/:
     put:
       summary: Substitui parametros p, q e v dos criterios
@@ -156,6 +245,8 @@ paths:
                 $ref: "#/components/schemas/ParametersResponse"
         "400":
           description: Dados invalidos
+        "409":
+          description: Resultado ja gerado manualmente
   /projects/{projectId}/result/:
     get:
       summary: Calcula e retorna o resultado do projeto
@@ -164,6 +255,20 @@ paths:
       responses:
         "200":
           description: Resultado calculado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ResultResponse"
+        "409":
+          description: Projeto ainda nao possui dados suficientes
+  /projects/{projectId}/generate-result/:
+    post:
+      summary: Gera manualmente o resultado consolidado do projeto
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      responses:
+        "200":
+          description: Resultado gerado
           content:
             application/json:
               schema:
@@ -320,6 +425,32 @@ components:
             data:
               type: string
               format: date-time
+    DecisionMakerResponse:
+      type: object
+      required: [id, nome, status, ativo, is_criador, token, evaluation_url]
+      properties:
+        id:
+          type: integer
+        nome:
+          type: string
+        status:
+          type: string
+        ativo:
+          type: boolean
+        is_criador:
+          type: boolean
+        token:
+          type: string
+        evaluation_url:
+          type: string
+    EvaluationContextResponse:
+      type: object
+      required: [project, decisor]
+      properties:
+        project:
+          $ref: "#/components/schemas/ProjectResponse"
+        decisor:
+          $ref: "#/components/schemas/DecisionMakerResponse"
     ParticipantsResponse:
       type: object
       required: [project, decisores, criterios, alternativas]

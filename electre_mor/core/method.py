@@ -18,12 +18,20 @@ pd.options.display.float_format = '{:,.4f}'.format
 class MatrizProjeto:
     def __init__(self, projeto: Projeto):
         self.projeto = projeto
-        self.decisores = projeto.decisores.all()
+        self.decisores = projeto.decisores.filter(
+            ativo=True).exclude(status=Decisor.Status.DESATIVADO)
         self.criterios = projeto.criterios.all()
         self.alternativas = projeto.alternativas.all()
-        self.avaliacoes_criterios = projeto.avaliacaocriterios.all()
-        self.avaliacoes_alternativas = projeto.avaliacaoalternativas.all()
-        self.alternativas_criterios = projeto.alternativacriterios.all()
+        self.avaliacoes_criterios = projeto.avaliacaocriterios.filter(
+            decisor__in=self.decisores)
+        self.avaliacoes_alternativas = projeto.avaliacaoalternativas.filter(
+            decisor__in=self.decisores)
+        if projeto.alternativacriterios.filter(decisor__isnull=False).exists():
+            self.alternativas_criterios = projeto.alternativacriterios.filter(
+                decisor__in=self.decisores)
+        else:
+            self.alternativas_criterios = projeto.alternativacriterios.filter(
+                decisor__isnull=True)
 
     @property
     def avaliacoes(self):
@@ -130,11 +138,15 @@ class MatrizProjeto:
             df_alt_crit = queryset_para_dataframe(
                 self.alternativas_criterios,
                 ('alternativa', 'criterio', 'nota'))
-            df_alt_crit = df_alt_crit.pivot_table(
-                values='nota',
+            df_alt_crit = df_alt_crit.groupby(
+                ['alternativa', 'criterio'],
+                as_index=False,
+            )['nota'].mean()
+            df_alt_crit = df_alt_crit.pivot(
                 index='alternativa',
                 columns='criterio',
-                aggfunc='first')
+                values='nota',
+            )
             pontuacao = pd.concat([pontuacao, df_alt_crit], axis=1) if pontuacao is not None else df_alt_crit
         except:
             pass

@@ -1,5 +1,7 @@
+from django.core.cache import cache
 from rest_framework.test import APITestCase
 
+from core.method import MatrizProjeto
 from core.models import (Alternativa, AlternativaCriterio,
                          AvaliacaoAlternativas, AvaliacaoCriterios, Criterio,
                          CriterioParametro, Decisor, Projeto)
@@ -265,11 +267,23 @@ class ApiResultTests(APITestCase):
         self.assertEqual(gerar_response.status_code, 200)
         self.assertIn("classificacao_final", gerar_response.data)
 
+        self.projeto.refresh_from_db()
+        self.assertIsNotNone(self.projeto.resultado_gerado_em)
+
         consulta_response = self.client.get(
             f"/api/v1/projects/{self.projeto.id}/result/")
 
         self.assertEqual(consulta_response.status_code, 200)
         self.assertEqual(consulta_response.data["project"]["id"],
+                         self.projeto.id)
+
+        cache.clear()
+
+        consulta_apos_clear = self.client.get(
+            f"/api/v1/projects/{self.projeto.id}/result/")
+
+        self.assertEqual(consulta_apos_clear.status_code, 200)
+        self.assertEqual(consulta_apos_clear.data["project"]["id"],
                          self.projeto.id)
 
     def test_resultado_retorna_pendencias_quando_faltam_avaliacoes_de_decisores_ativos(self):
@@ -337,7 +351,7 @@ class ApiResultTests(APITestCase):
 
         for decisor, nota_criterio, nota_alternativa in (
             (decisor_1, 1, (8.0, 4.0)),
-            (decisor_2, 2, (6.0, 5.0)),
+            (decisor_2, 2, (6.0, 2.0)),
         ):
             AvaliacaoCriterios.objects.create(
                 projeto=projeto,
@@ -372,14 +386,14 @@ class ApiResultTests(APITestCase):
                 decisor=decisor,
                 criterio=criterio_2,
                 alternativa=alternativa_1,
-                nota=7.0,
+                nota=5.0 if decisor == decisor_2 else 7.0,
             )
             AlternativaCriterio.objects.create(
                 projeto=projeto,
                 decisor=decisor,
                 criterio=criterio_2,
                 alternativa=alternativa_2,
-                nota=3.0,
+                nota=1.0 if decisor == decisor_2 else 3.0,
             )
 
         CriterioParametro.objects.create(
@@ -401,3 +415,14 @@ class ApiResultTests(APITestCase):
 
         self.assertEqual(resultado["decisores_ativos"], 2)
         self.assertIn("classificacao_final", resultado)
+
+        matriz = MatrizProjeto(projeto)
+        pontuacao_alternativas = matriz.pontuacao_alternativas
+        pontuacao_alternativas.index = pontuacao_alternativas.index.astype(int)
+        pontuacao_alternativas.columns = pontuacao_alternativas.columns.astype(int)
+        self.assertIn(alternativa_1.id, pontuacao_alternativas.index)
+        self.assertIn(criterio_1.id, pontuacao_alternativas.columns)
+        self.assertAlmostEqual(
+            pontuacao_alternativas.loc[alternativa_1.id, criterio_1.id],
+            7.0,
+        )

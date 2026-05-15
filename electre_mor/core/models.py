@@ -64,6 +64,7 @@ class Projeto(models.Model):
                     MaxValueValidator(1)])
 
     data = models.DateTimeField(auto_now_add=True)
+    resultado_gerado_em = models.DateTimeField(null=True, blank=True)
 
     def __str__(self):
         return self.nome

@@ -33,6 +33,16 @@ from core.services.result_service import (
 )
 
 
+def _resposta_resultado_bloqueado():
+    return Response(
+        {
+            "detail": "Resultado ja gerado manualmente.",
+            "pendencias": [],
+        },
+        status=status.HTTP_409_CONFLICT,
+    )
+
+
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Projeto.objects.all().order_by("id")
     serializer_class = ProjetoSerializer
@@ -50,6 +60,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["put"])
     def participants(self, request, pk=None):
         projeto = self.get_object()
+        if resultado_gerado(projeto):
+            return _resposta_resultado_bloqueado()
         serializer = ParticipantsPayloadSerializer(data=request.data,
                                                    context={"project": projeto})
         serializer.is_valid(raise_exception=True)
@@ -79,6 +91,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
             )
             return Response(serializer.data, status=status.HTTP_200_OK)
 
+        if resultado_gerado(projeto):
+            return _resposta_resultado_bloqueado()
         nome = request.data.get("nome", "").strip()
         if not nome:
             return Response(
@@ -117,6 +131,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
             url_path=r"decision-makers/(?P<decision_maker_id>[^/.]+)/disable")
     def decision_maker_disable(self, request, pk=None, decision_maker_id=None):
         projeto = self.get_object()
+        if resultado_gerado(projeto):
+            return _resposta_resultado_bloqueado()
         decisor = get_object_or_404(projeto.decisores, id=decision_maker_id)
         desativar_decisor(decisor)
         serializer = DecisorSerializer(decisor, context={"request": request})
@@ -125,6 +141,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["put"], url_path="numeric-scores")
     def numeric_scores(self, request, pk=None):
         projeto = self.get_object()
+        if resultado_gerado(projeto):
+            return _resposta_resultado_bloqueado()
         serializer = NumericScoresPayloadSerializer(data=request.data,
                                                     context={"project": projeto})
         serializer.is_valid(raise_exception=True)
@@ -147,6 +165,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["put"], url_path="criteria-comparisons")
     def criteria_comparisons(self, request, pk=None):
         projeto = self.get_object()
+        if resultado_gerado(projeto):
+            return _resposta_resultado_bloqueado()
         serializer = CriteriaComparisonsPayloadSerializer(
             data=request.data, context={"project": projeto})
         serializer.is_valid(raise_exception=True)
@@ -170,6 +190,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["put"], url_path="alternative-comparisons")
     def alternative_comparisons(self, request, pk=None):
         projeto = self.get_object()
+        if resultado_gerado(projeto):
+            return _resposta_resultado_bloqueado()
         serializer = AlternativeComparisonsPayloadSerializer(
             data=request.data, context={"project": projeto})
         serializer.is_valid(raise_exception=True)
@@ -195,6 +217,8 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["put"])
     def parameters(self, request, pk=None):
         projeto = self.get_object()
+        if resultado_gerado(projeto):
+            return _resposta_resultado_bloqueado()
         serializer = ParametersPayloadSerializer(data=request.data,
                                                  context={"project": projeto})
         serializer.is_valid(raise_exception=True)
