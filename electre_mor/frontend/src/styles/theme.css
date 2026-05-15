@@ -134,6 +134,12 @@ body::before {
   line-height: 1.7;
 }
 
+.hero-copy-setup {
+  max-width: 72ch;
+  margin: 18px auto 0;
+  text-align: center;
+}
+
 .hero-acronimo {
   max-width: none;
   color: var(--texto);
@@ -300,6 +306,53 @@ body::before {
 .formulario {
   display: grid;
   gap: 16px;
+}
+
+.gestao-links {
+  gap: 14px;
+}
+
+.gestao-links-cabecalho {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.gestao-links-cabecalho h3 {
+  margin: 0 0 6px;
+  color: var(--texto);
+  font-size: 1.08rem;
+}
+
+.gestao-links-cabecalho p {
+  margin: 0;
+  color: var(--texto-suave);
+  line-height: 1.5;
+}
+
+.lista-convidados {
+  display: grid;
+  gap: 12px;
+}
+
+.gestao-criador {
+  display: grid;
+  gap: 8px;
+  padding: 14px 16px;
+  border: 1px solid rgba(215, 208, 196, 0.9);
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.58);
+}
+
+.gestao-criador p {
+  margin: 0;
+  color: var(--texto-suave);
+}
+
+.gestao-criador strong {
+  color: var(--texto);
 }
 
 .grade-campos {
@@ -696,6 +749,15 @@ body::before {
 
   .navegacao .acao-botao,
   .hero-actions .acao-botao {
+    width: 100%;
+  }
+
+  .gestao-links-cabecalho {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .gestao-links-cabecalho .acao-botao {
     width: 100%;
   }
 

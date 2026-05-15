@@ -27,6 +27,10 @@ type CampoQuantidade =
   | 'qtde_alternativas'
   | 'qtde_decisores';
 
+type DecisorForm = {
+  nome: string;
+};
+
 const projetoInicial: ProjetoForm = {
   nome: '',
   descricao: '',
@@ -37,7 +41,11 @@ const projetoInicial: ProjetoForm = {
   lamb: '',
 };
 
-function ajustarTamanho<T>(itens: T[], tamanho: number, criar: (indice: number) => T) {
+function ajustarTamanho<T>(
+  itens: T[],
+  tamanho: number,
+  criar: (indice: number) => T,
+) {
   if (itens.length === tamanho) {
     return itens;
   }
@@ -46,12 +54,22 @@ function ajustarTamanho<T>(itens: T[], tamanho: number, criar: (indice: number) 
     return itens.slice(0, tamanho);
   }
 
-  return [...itens, ...Array.from({ length: tamanho - itens.length }, (_, indice) => criar(itens.length + indice))];
+  return [
+    ...itens,
+    ...Array.from({ length: tamanho - itens.length }, (_, indice) =>
+      criar(itens.length + indice),
+    ),
+  ];
+}
+
+function normalizarParticipante(nome: string) {
+  return nome.trim();
 }
 
 export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
   const [formulario, setFormulario] = useState(projetoInicial);
-  const [decisores, setDecisores] = useState<Array<{ nome: string }>>([]);
+  const [criador, setCriador] = useState('');
+  const [convidados, setConvidados] = useState<DecisorForm[]>([]);
   const [criterios, setCriterios] = useState<CriterioEntrada[]>([]);
   const [alternativas, setAlternativas] = useState<Array<{ nome: string }>>([]);
   const [mensagem, setMensagem] = useState<string | null>(null);
@@ -66,13 +84,9 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
       formulario.qtde_alternativas !== '' &&
       formulario.qtde_decisores !== '' &&
       formulario.lamb !== '' &&
-      decisores.every((item) => item.nome.trim() !== '') &&
-      criterios.every((item) => item.nome.trim() !== '') &&
-      alternativas.every((item) => item.nome.trim() !== ''),
+      criador.trim() !== '',
     [
-      alternativas,
-      criterios,
-      decisores,
+      criador,
       formulario.descricao,
       formulario.lamb,
       formulario.nome,
@@ -85,10 +99,10 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
 
   function atualizarQuantidade(chave: CampoQuantidade, valorBruto: string) {
     if (valorBruto === '') {
-      setFormulario({ ...formulario, [chave]: '' });
+      setFormulario((atual) => ({ ...atual, [chave]: '' }));
 
       if (chave === 'qtde_decisores') {
-        setDecisores([]);
+        setConvidados([]);
       }
 
       if (chave === 'qtde_criterios') {
@@ -111,12 +125,11 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
       chave === 'qtde_decisores' ? 1 : 2,
       Math.trunc(valor),
     );
-    const proximoFormulario = { ...formulario, [chave]: String(quantidade) };
-    setFormulario(proximoFormulario);
+    setFormulario((atual) => ({ ...atual, [chave]: String(quantidade) }));
 
     if (chave === 'qtde_decisores') {
-      setDecisores((atuais) =>
-        ajustarTamanho(atuais, quantidade, (indice) => ({
+      setConvidados((atuais) =>
+        ajustarTamanho(atuais, Math.max(0, quantidade - 1), () => ({
           nome: '',
         })),
       );
@@ -125,7 +138,7 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
     if (chave === 'qtde_criterios') {
       setCriterios((atuais) =>
         ajustarTamanho(atuais, quantidade, (indice) => ({
-          nome: '',
+          nome: `Criterio ${indice + 1}`,
           numerico: indice !== 0,
           monotonico: indice === 1 ? 2 : 1,
         })),
@@ -135,17 +148,21 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
     if (chave === 'qtde_alternativas') {
       setAlternativas((atuais) =>
         ajustarTamanho(atuais, quantidade, (indice) => ({
-          nome: '',
+          nome: `Alternativa ${indice + 1}`,
         })),
       );
     }
+  }
+
+  function adicionarDecisor() {
+    setConvidados((atuais) => [...atuais, { nome: '' }]);
   }
 
   function atualizarLambda(evento: ChangeEvent<HTMLInputElement>) {
     const valorBruto = evento.target.value;
 
     if (valorBruto === '') {
-      setFormulario({ ...formulario, lamb: valorBruto });
+      setFormulario((atual) => ({ ...atual, lamb: valorBruto }));
       return;
     }
 
@@ -154,11 +171,17 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
       return;
     }
 
-    setFormulario({ ...formulario, lamb: valorBruto });
+    setFormulario((atual) => ({ ...atual, lamb: valorBruto }));
   }
 
   async function lidarComEnvio(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
+
+    if (!podeSalvar) {
+      setMensagem('Preencha os dados do projeto, o criador e os campos obrigatorios.');
+      return;
+    }
+
     setCarregando(true);
     setMensagem(null);
 
@@ -172,11 +195,21 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
         qtde_decisores: Number(formulario.qtde_decisores),
         lamb: Number(formulario.lamb),
       });
+
+      const decisores = [
+        { nome: normalizarParticipante(criador) },
+        ...convidados
+          .map((item) => normalizarParticipante(item.nome))
+          .filter((nome) => nome !== '')
+          .map((nome) => ({ nome })),
+      ];
+
       const participantes = await salvarParticipantes(projeto.id, {
         decisores,
         criterios,
         alternativas,
       });
+
       setMensagem(`Projeto ${projeto.nome} configurado com participantes.`);
       onProjetoCriado?.({
         projeto: participantes.project,
@@ -194,7 +227,7 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
   return (
     <Panel
       titulo="Configurar projeto"
-      subtitulo="Cadastre decisores, criterios e alternativas antes da avaliacao."
+      subtitulo="Cadastre o criador, convide decisores e avance para a avaliacao sem sair da tela."
     >
       <form className="formulario" onSubmit={lidarComEnvio}>
         <section className="secao-formulario" aria-label="Dados do projeto">
@@ -203,7 +236,10 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
               label="Nome do projeto"
               value={formulario.nome}
               onChange={(evento) =>
-                setFormulario({ ...formulario, nome: evento.target.value })
+                setFormulario((atual) => ({
+                  ...atual,
+                  nome: evento.target.value,
+                }))
               }
               required
             />
@@ -211,8 +247,17 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
               label="Descricao"
               value={formulario.descricao}
               onChange={(evento) =>
-                setFormulario({ ...formulario, descricao: evento.target.value })
+                setFormulario((atual) => ({
+                  ...atual,
+                  descricao: evento.target.value,
+                }))
               }
+              required
+            />
+            <TextField
+              label="Nome do criador"
+              value={criador}
+              onChange={(evento) => setCriador(evento.target.value)}
               required
             />
             <TextField
@@ -264,16 +309,32 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
           </div>
         </section>
 
-        <section className="secao-formulario" aria-label="Decisores">
-          <h3>Decisores</h3>
-          <div className="grade-campos grade-campos-compacta">
-            {decisores.map((decisor, indice) => (
+        <section className="secao-formulario gestao-links" aria-label="Gestao de links">
+          <div className="gestao-links-cabecalho">
+            <div>
+              <h3>Gestao de links</h3>
+              <p>
+                O criador entra como primeiro decisor e cada convidado pode receber
+                um link individual.
+              </p>
+            </div>
+            <ActionButton
+              type="button"
+              className="acao-botao-secundario"
+              onClick={adicionarDecisor}
+            >
+              Adicionar decisor
+            </ActionButton>
+          </div>
+
+          <div className="lista-convidados" aria-label="Lista de decisores convidados">
+            {convidados.map((decisor, indice) => (
               <TextField
                 key={indice}
-                label={`Decisor ${indice + 1}`}
+                label={`Nome do decisor ${indice + 2}`}
                 value={decisor.nome}
                 onChange={(evento) =>
-                  setDecisores((atuais) =>
+                  setConvidados((atuais) =>
                     atuais.map((item, itemIndice) =>
                       itemIndice === indice
                         ? { nome: evento.target.value }
@@ -281,9 +342,21 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
                     ),
                   )
                 }
-                required
               />
             ))}
+          </div>
+        </section>
+
+        <section className="secao-formulario" aria-label="Decisores">
+          <h3>Decisores</h3>
+          <div className="gestao-criador">
+            <p>
+              <strong>Criador principal:</strong>{' '}
+              {criador.trim() || 'a definir'}
+            </p>
+            <p>
+              <strong>Convidados preparados:</strong> {convidados.length}
+            </p>
           </div>
         </section>
 
@@ -379,8 +452,8 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
         </section>
 
         <div className="formulario-acoes">
-          <ActionButton type="submit" disabled={carregando || !podeSalvar}>
-            {carregando ? 'Salvando...' : 'Salvar projeto completo'}
+          <ActionButton type="submit" disabled={carregando}>
+            {carregando ? 'Salvando...' : 'Continuar para minha avaliacao'}
           </ActionButton>
         </div>
       </form>

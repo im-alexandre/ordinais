@@ -1,12 +1,17 @@
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import { afterEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import App from './App';
 
 describe('App', () => {
+  beforeEach(() => {
+    window.history.replaceState({}, '', window.location.pathname);
+  });
+
   afterEach(() => {
     vi.restoreAllMocks();
+    window.history.replaceState({}, '', window.location.pathname);
   });
 
   it('exibe a landing page e navega para a configuracao do projeto', async () => {
@@ -18,16 +23,20 @@ describe('App', () => {
     expect(screen.getByText(/alexandre castro/i)).toBeInTheDocument();
     expect(screen.getByText(/igor pinheiro/i)).toBeInTheDocument();
 
-    const botaoConfigurarProjeto = screen.getByRole('button', {
+    const botaoConfigurarProjeto = screen.getAllByRole('button', {
       name: /configurar projeto/i,
-    });
+    })[0];
 
     await usuario.click(botaoConfigurarProjeto);
 
     expect(
       screen.getByRole('heading', { name: /configurar projeto/i }),
     ).toBeInTheDocument();
+    expect(screen.getByLabelText(/nome do criador/i)).toBeInTheDocument();
     expect(screen.getByLabelText(/nome do projeto/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('button', { name: /adicionar decisor/i }),
+    ).toBeEnabled();
   });
 
   it('copia a citacao no formato selecionado', async () => {

@@ -12,9 +12,12 @@ type Tela = 'inicio' | 'setup' | 'avaliacao' | 'resultado';
 export default function App() {
   const parametrosUrl = new URLSearchParams(window.location.search);
   const projetoIdInicial = Number(parametrosUrl.get('projectId'));
+  const viewInicial = parametrosUrl.get('view');
   const telaInicial =
-    parametrosUrl.get('view') === 'resultado' && projetoIdInicial > 0
+    viewInicial === 'resultado' && projetoIdInicial > 0
       ? 'resultado'
+      : viewInicial === 'setup'
+        ? 'setup'
       : 'inicio';
   const [tela, setTela] = useState<Tela>(telaInicial);
   const [projeto, setProjeto] = useState<ProjetoCompleto | null>(null);
@@ -32,9 +35,16 @@ export default function App() {
     }
 
     setTela(telaDestino);
-    if (telaDestino !== 'resultado') {
-      window.history.replaceState({}, '', window.location.pathname);
+    if (telaDestino === 'resultado') {
+      return;
     }
+
+    if (telaDestino === 'setup') {
+      window.history.replaceState({}, '', `${window.location.pathname}?view=setup`);
+      return;
+    }
+
+    window.history.replaceState({}, '', window.location.pathname);
   }
 
   function abrirResultado(projetoId?: number) {
