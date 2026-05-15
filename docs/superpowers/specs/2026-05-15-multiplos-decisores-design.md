@@ -34,11 +34,12 @@ O criador do projeto e o primeiro decisor. Ele pode continuar diretamente para a
    - continuar para a propria avaliacao; ou
    - adicionar decisores convidados.
 4. Ao adicionar convidados, o sistema gera um token unico por decisor e exibe o link de avaliacao.
-5. O criador pode copiar link, gerar QR Code ou desativar decisores pendentes.
-6. Cada decisor convidado acessa seu link e preenche apenas a propria avaliacao.
-7. O decisor pode reabrir o link e editar a propria resposta enquanto o resultado nao tiver sido gerado.
-8. Quando todos os decisores ativos estiverem completos, o criador pode clicar em gerar resultado.
-9. Apos gerar resultado, as avaliacoes usadas no calculo ficam travadas para preservar rastreabilidade.
+5. Depois de adicionar convidados, o criador pode ir direto para a propria avaliacao sem esperar que os convites sejam respondidos.
+6. O criador pode copiar link, gerar QR Code ou desativar decisores pendentes.
+7. Cada decisor convidado acessa seu link e preenche apenas a propria avaliacao.
+8. O decisor pode reabrir o link e editar a propria resposta enquanto o resultado nao tiver sido gerado.
+9. Quando todos os decisores ativos estiverem completos, o criador pode clicar em gerar resultado.
+10. Apos gerar resultado, as avaliacoes usadas no calculo ficam travadas para preservar rastreabilidade.
 
 ## Modelo de dados
 
@@ -116,6 +117,8 @@ A gestao de links deve mostrar nome, status, link e acoes por decisor:
 - gerar QR Code;
 - desativar pendente.
 
+Depois de adicionar decisores, a gestao de links deve manter uma acao clara para o criador continuar imediatamente para a propria avaliacao. Essa acao nao depende de nenhum convidado ter aberto ou concluido o link.
+
 O QR Code representa o mesmo link com token unico. Em desktop, o card ou modal pode mostrar QR Code e texto lado a lado. Em dispositivos moveis, o QR Code deve ficar maior no topo, e o texto como "Link de avaliacao de Ana Souza" junto das acoes deve ficar abaixo da imagem.
 
 A tela de avaliacao deve resolver o decisor pelo estado do criador ou pelo token da URL. Convidados veem apenas campos de avaliacao e contexto necessario do projeto.
@@ -156,6 +159,7 @@ E2E em browser headless:
 
 - Projeto com um decisor permite seguir direto para avaliacao sem adicionar convidados.
 - Projeto com varios decisores gera um link/token unico para cada convidado.
+- Apos adicionar convidados, o criador pode ir direto para a propria avaliacao.
 - QR Code e gerado a partir do link existente, sem criar outro token.
 - Decisor convidado so avalia e nao altera estrutura do projeto.
 - Respostas de um decisor nao sobrescrevem respostas de outro.
