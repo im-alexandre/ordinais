@@ -177,9 +177,12 @@ export function recalcularResultado(
   payload: RecalcularResultadoPayload,
 ): Promise<ResultadoProjeto> {
   const lambda = payload.lambda ?? payload.lamb;
+  const consulta = payload.decisorToken
+    ? `?${new URLSearchParams({ decisorToken: payload.decisorToken }).toString()}`
+    : '';
 
   return requisitarJson<ResultadoProjeto>(
-    `/projects/${projetoId}/recalculate-result/`,
+    `/projects/${projetoId}/recalculate-result/${consulta}`,
     'POST',
     {
       lambda,

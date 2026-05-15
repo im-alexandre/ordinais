@@ -159,6 +159,7 @@ export type RecalcularResultadoPayload = {
   lambda?: number;
   lamb?: number;
   qtde_classes: number;
+  decisorToken?: string;
 };
 
 export type ProjetoCompleto = {

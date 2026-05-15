@@ -151,7 +151,7 @@ describe('cliente da API', () => {
 
   it('confirma o upload revisado com JSON serializado', async () => {
     const resposta = {
-      project: {
+      projeto: {
         id: 12,
         nome: 'Projeto Planilha',
         descricao: 'Descricao',
@@ -242,12 +242,13 @@ describe('cliente da API', () => {
     const payload: RecalcularResultadoPayload = {
       lamb: 0.8,
       qtde_classes: 4,
+      decisorToken: 'criador-token',
     };
 
     const resultado = await recalcularResultado(12, payload);
 
     expect(fetchMock).toHaveBeenCalledWith(
-      '/api/v1/projects/12/recalculate-result/',
+      '/api/v1/projects/12/recalculate-result/?decisorToken=criador-token',
       expect.objectContaining({
         method: 'POST',
         headers: expect.objectContaining({

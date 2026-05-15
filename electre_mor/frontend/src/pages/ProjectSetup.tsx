@@ -4,8 +4,19 @@ import { ActionButton } from '../components/ActionButton';
 import { Notice } from '../components/Notice';
 import { Panel } from '../components/Panel';
 import { TextField } from '../components/TextField';
-import { criarProjeto, salvarParticipantes } from '../services/api';
-import type { CriterioEntrada, ProjetoCompleto } from '../types';
+import {
+  baixarPlanilhaModelo,
+  confirmarUploadPlanilha,
+  criarProjeto,
+  preverUploadPlanilha,
+  salvarParticipantes,
+} from '../services/api';
+import type {
+  CriterioEntrada,
+  OrigemValorPlanilha,
+  PlanilhaPreviewResposta,
+  ProjetoCompleto,
+} from '../types';
 
 type ProjectSetupProps = {
   onProjetoCriado?: (projeto: ProjetoCompleto) => void;
@@ -30,6 +41,13 @@ type CampoQuantidade =
 type DecisorForm = {
   nome: string;
 };
+
+type Mensagem = {
+  texto: string;
+  variant: 'success' | 'info' | 'warning';
+};
+
+type ParametroChave = 'q' | 'p' | 'v';
 
 const projetoInicial: ProjetoForm = {
   nome: '',
@@ -66,14 +84,50 @@ function normalizarParticipante(nome: string) {
   return nome.trim();
 }
 
+function rotuloOrigem(origem: OrigemValorPlanilha) {
+  switch (origem) {
+    case 'automatico':
+      return 'Automático';
+    case 'planilha':
+      return 'Planilha';
+    case 'editado':
+      return 'Editado';
+    default:
+      return origem;
+  }
+}
+
+function formatarValor(valor: number | null) {
+  if (valor === null) {
+    return '';
+  }
+
+  return Number.isInteger(valor) ? String(valor) : String(valor);
+}
+
+function todosOsNomesPreenchidos(criterios: CriterioEntrada[], alternativas: Array<{ nome: string }>) {
+  return (
+    criterios.length > 0 &&
+    criterios.every((criterio) => criterio.nome.trim() !== '') &&
+    alternativas.length > 0 &&
+    alternativas.every((alternativa) => alternativa.nome.trim() !== '')
+  );
+}
+
 export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
   const [formulario, setFormulario] = useState(projetoInicial);
   const [criador, setCriador] = useState('');
   const [convidados, setConvidados] = useState<DecisorForm[]>([]);
   const [criterios, setCriterios] = useState<CriterioEntrada[]>([]);
   const [alternativas, setAlternativas] = useState<Array<{ nome: string }>>([]);
-  const [mensagem, setMensagem] = useState<string | null>(null);
-  const [carregando, setCarregando] = useState(false);
+  const [projetoSalvo, setProjetoSalvo] = useState<ProjetoCompleto | null>(null);
+  const [arquivoPlanilha, setArquivoPlanilha] = useState<File | null>(null);
+  const [previewPlanilha, setPreviewPlanilha] =
+    useState<PlanilhaPreviewResposta | null>(null);
+  const [mensagem, setMensagem] = useState<Mensagem | null>(null);
+  const [carregandoProjeto, setCarregandoProjeto] = useState(false);
+  const [carregandoPlanilha, setCarregandoPlanilha] = useState(false);
+  const [confirmandoUpload, setConfirmandoUpload] = useState(false);
 
   const podeSalvar = useMemo(
     () =>
@@ -83,12 +137,10 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
       formulario.qtde_criterios !== '' &&
       formulario.qtde_alternativas !== '' &&
       formulario.qtde_decisores !== '' &&
-      formulario.lamb !== '' &&
       criador.trim() !== '',
     [
       criador,
       formulario.descricao,
-      formulario.lamb,
       formulario.nome,
       formulario.qtde_alternativas,
       formulario.qtde_classes,
@@ -96,6 +148,14 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
       formulario.qtde_decisores,
     ],
   );
+
+  const nomesProntos = useMemo(
+    () => todosOsNomesPreenchidos(criterios, alternativas),
+    [alternativas, criterios],
+  );
+
+  const podePrepararPlanilha = podeSalvar && nomesProntos;
+  const projetoIdSalvo = projetoSalvo?.projeto.id;
 
   function atualizarQuantidade(chave: CampoQuantidade, valorBruto: string) {
     if (valorBruto === '') {
@@ -174,62 +234,220 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
     setFormulario((atual) => ({ ...atual, lamb: valorBruto }));
   }
 
-  async function lidarComEnvio(evento: FormEvent<HTMLFormElement>) {
-    evento.preventDefault();
+  function montarPayloadProjeto() {
+    return {
+      nome: formulario.nome,
+      descricao: formulario.descricao,
+      qtde_classes: Number(formulario.qtde_classes),
+      qtde_criterios: Number(formulario.qtde_criterios),
+      qtde_alternativas: Number(formulario.qtde_alternativas),
+      qtde_decisores: Number(formulario.qtde_decisores),
+      lamb: formulario.lamb.trim() === '' ? 0.75 : Number(formulario.lamb),
+    };
+  }
 
-    if (!podeSalvar) {
-      setMensagem('Preencha os dados do projeto, o criador e os campos obrigatorios.');
-      return;
+  function montarPayloadParticipantes() {
+    const decisores = [
+      { nome: normalizarParticipante(criador) },
+      ...convidados
+        .map((item) => normalizarParticipante(item.nome))
+        .filter((nome) => nome !== '')
+        .map((nome) => ({ nome })),
+    ];
+
+    return {
+      decisores,
+      criterios,
+      alternativas,
+    };
+  }
+
+  async function garantirProjetoConfigurado() {
+    if (projetoSalvo) {
+      return projetoSalvo;
     }
 
-    setCarregando(true);
+    if (!podeSalvar) {
+      setMensagem({
+        texto: 'Preencha os dados do projeto, o criador e os campos obrigatórios.',
+        variant: 'warning',
+      });
+      return null;
+    }
+
+    setCarregandoProjeto(true);
     setMensagem(null);
 
     try {
-      const projeto = await criarProjeto({
-        nome: formulario.nome,
-        descricao: formulario.descricao,
-        qtde_classes: Number(formulario.qtde_classes),
-        qtde_criterios: Number(formulario.qtde_criterios),
-        qtde_alternativas: Number(formulario.qtde_alternativas),
-        qtde_decisores: Number(formulario.qtde_decisores),
-        lamb: Number(formulario.lamb),
-      });
-
-      const decisores = [
-        { nome: normalizarParticipante(criador) },
-        ...convidados
-          .map((item) => normalizarParticipante(item.nome))
-          .filter((nome) => nome !== '')
-          .map((nome) => ({ nome })),
-      ];
-
-      const participantes = await salvarParticipantes(projeto.id, {
-        decisores,
-        criterios,
-        alternativas,
-      });
-
-      setMensagem(`Projeto ${projeto.nome} configurado com participantes.`);
-      onProjetoCriado?.({
+      const projeto = await criarProjeto(montarPayloadProjeto());
+      const participantes = await salvarParticipantes(
+        projeto.id,
+        montarPayloadParticipantes(),
+      );
+      const completo: ProjetoCompleto = {
         projeto: participantes.project,
         decisores: participantes.decisores,
         criterios: participantes.criterios,
         alternativas: participantes.alternativas,
+      };
+
+      setProjetoSalvo(completo);
+      return completo;
+    } catch {
+      setMensagem({
+        texto: 'Nao foi possivel configurar o projeto agora.',
+        variant: 'warning',
       });
-    } catch (erro) {
-      setMensagem('Nao foi possivel configurar o projeto agora.');
+      return null;
     } finally {
-      setCarregando(false);
+      setCarregandoProjeto(false);
+    }
+  }
+
+  async function prepararPlanilha() {
+    const completo = await garantirProjetoConfigurado();
+    if (!completo) {
+      return;
+    }
+
+    setMensagem({
+      texto: `Projeto ${completo.projeto.nome} pronto para a planilha modelo.`,
+      variant: 'info',
+    });
+  }
+
+  async function continuarParaAvaliacao(evento: FormEvent<HTMLFormElement>) {
+    evento.preventDefault();
+
+    const completo = await garantirProjetoConfigurado();
+    if (!completo) {
+      return;
+    }
+
+    onProjetoCriado?.(completo);
+  }
+
+  async function baixarTemplate() {
+    if (!projetoIdSalvo) {
+      return;
+    }
+
+    try {
+      const blob = await baixarPlanilhaModelo(projetoIdSalvo);
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `planilha-modelo-${projetoIdSalvo}.xlsx`;
+      link.click();
+      window.URL.revokeObjectURL(url);
+    } catch {
+      setMensagem({
+        texto: 'Nao foi possivel baixar a planilha modelo agora.',
+        variant: 'warning',
+      });
+    }
+  }
+
+  async function preverPlanilha() {
+    if (!projetoIdSalvo || !arquivoPlanilha) {
+      setMensagem({
+        texto: 'Selecione uma planilha preenchida para revisar antes de confirmar.',
+        variant: 'warning',
+      });
+      return;
+    }
+
+    setCarregandoPlanilha(true);
+    setMensagem(null);
+
+    try {
+      const preview = await preverUploadPlanilha(projetoIdSalvo, arquivoPlanilha);
+      setPreviewPlanilha(preview);
+    } catch {
+      setMensagem({
+        texto: 'Nao foi possivel revisar a planilha agora.',
+        variant: 'warning',
+      });
+    } finally {
+      setCarregandoPlanilha(false);
+    }
+  }
+
+  function atualizarParametroPreview(
+    criterioId: number,
+    chave: ParametroChave,
+    valorBruto: string,
+  ) {
+    setPreviewPlanilha((atual) => {
+      if (!atual) {
+        return atual;
+      }
+
+      const valor = valorBruto.trim() === '' ? null : Number(valorBruto);
+      if (valorBruto.trim() !== '' && Number.isNaN(valor)) {
+        return atual;
+      }
+
+      return {
+        ...atual,
+        parametros: atual.parametros.map((parametro) =>
+          parametro.criterio_id === criterioId
+            ? {
+                ...parametro,
+                [chave]: {
+                  valor,
+                  origem: 'editado',
+                },
+              }
+            : parametro,
+        ),
+      };
+    });
+  }
+
+  async function confirmarPlanilha() {
+    if (!projetoIdSalvo || !previewPlanilha) {
+      setMensagem({
+        texto: 'Revise a planilha antes de confirmar.',
+        variant: 'warning',
+      });
+      return;
+    }
+
+    if (previewPlanilha.erros.length > 0) {
+      setMensagem({
+        texto: 'Corrija os erros da planilha antes de confirmar.',
+        variant: 'warning',
+      });
+      return;
+    }
+
+    setConfirmandoUpload(true);
+    setMensagem(null);
+
+    try {
+      const resultado = await confirmarUploadPlanilha(projetoIdSalvo, {
+        desempenhos: previewPlanilha.desempenhos,
+        parametros: previewPlanilha.parametros,
+      });
+
+      onProjetoCriado?.(resultado);
+    } catch {
+      setMensagem({
+        texto: 'Nao foi possivel confirmar o upload agora.',
+        variant: 'warning',
+      });
+    } finally {
+      setConfirmandoUpload(false);
     }
   }
 
   return (
     <Panel
       titulo="Configurar projeto"
-      subtitulo="Cadastre o criador, convide decisores e avance para a avaliacao sem sair da tela."
+      subtitulo="Cadastre o criador, convide decisores e escolha entre o fluxo manual ou a revisão por planilha."
     >
-      <form className="formulario" onSubmit={lidarComEnvio}>
+      <form className="formulario" onSubmit={continuarParaAvaliacao}>
         <section className="secao-formulario" aria-label="Dados do projeto">
           <div className="grade-campos">
             <TextField
@@ -297,14 +515,13 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
               }
             />
             <TextField
-              label="Lambda"
+              label="Lambda (opcional)"
               type="number"
               step="0.01"
               min="0.5"
               max="1"
               value={formulario.lamb}
               onChange={atualizarLambda}
-              required
             />
           </div>
         </section>
@@ -451,13 +668,174 @@ export default function ProjectSetup({ onProjetoCriado }: ProjectSetupProps) {
           </div>
         </section>
 
+        <section className="secao-formulario planilha-area" aria-label="Planilha">
+          <div className="planilha-cabecalho">
+            <div>
+              <h3>Planilha modelo</h3>
+              <p>
+                Prepare o projeto, baixe a planilha personalizada e revise o
+                arquivo preenchido antes de confirmar o upload.
+              </p>
+            </div>
+            <ActionButton
+              type="button"
+              className="acao-botao-secundario"
+              disabled={!podePrepararPlanilha || carregandoProjeto}
+              onClick={prepararPlanilha}
+            >
+              {carregandoProjeto ? 'Preparando...' : 'Preparar planilha'}
+            </ActionButton>
+          </div>
+
+          {projetoSalvo ? (
+            <div className="planilha-acoes">
+              <div className="planilha-acoes-secundarias">
+                <p className="planilha-mensagem">
+                  Projeto salvo. O download abaixo usa os critérios e alternativas
+                  atuais.
+                </p>
+                <ActionButton
+                  type="button"
+                  className="acao-botao-secundario"
+                  onClick={baixarTemplate}
+                >
+                  Baixar planilha modelo
+                </ActionButton>
+              </div>
+
+              <div className="planilha-upload">
+                <label className="campo">
+                  <span className="campo-rotulo">Planilha preenchida</span>
+                  <input
+                    aria-label="Planilha preenchida"
+                    className="campo-input planilha-upload-input"
+                    type="file"
+                    accept=".xlsx,.xlsm,.xls"
+                    onChange={(evento) => {
+                      const arquivo = evento.target.files?.[0] ?? null;
+                      setArquivoPlanilha(arquivo);
+                      setPreviewPlanilha(null);
+                    }}
+                  />
+                </label>
+
+                <ActionButton
+                  type="button"
+                  className="acao-botao-secundario"
+                  disabled={!arquivoPlanilha || carregandoPlanilha}
+                  onClick={preverPlanilha}
+                >
+                  {carregandoPlanilha ? 'Revisando...' : 'Prever planilha'}
+                </ActionButton>
+              </div>
+            </div>
+          ) : null}
+
+          {previewPlanilha ? (
+            <section className="planilha-revisao" aria-label="Revisao da planilha">
+              <div className="planilha-revisao-cabecalho">
+                <div>
+                  <h4>Revisão da planilha</h4>
+                  <p>
+                    Ajuste os parâmetros q, p e v se necessário. Ao editar, a
+                    origem passa para editado.
+                  </p>
+                </div>
+                <div className="planilha-revisao-status">
+                  {previewPlanilha.erros.length > 0 ? (
+                    <Notice variant="warning">
+                      Existem erros na planilha. Corrija antes de confirmar.
+                    </Notice>
+                  ) : null}
+                  {previewPlanilha.avisos.length > 0 ? (
+                    <Notice variant="info">
+                      {previewPlanilha.avisos.map((aviso) => aviso.mensagem).join(' ')}
+                    </Notice>
+                  ) : null}
+                </div>
+              </div>
+
+              <div className="planilha-revisao-grid">
+                <section className="planilha-revisao-bloco" aria-label="Desempenhos importados">
+                  <h5>Desempenhos importados</h5>
+                  <ul className="planilha-lista">
+                    {previewPlanilha.desempenhos.map((desempenho) => (
+                      <li key={desempenho.alternativa_id}>
+                        <strong>{desempenho.alternativa}</strong>
+                        <span>
+                          {desempenho.valores
+                            .map((valor) => `${valor.criterio}: ${valor.valor}`)
+                            .join(' | ')}
+                        </span>
+                      </li>
+                    ))}
+                  </ul>
+                </section>
+
+                <section className="planilha-revisao-bloco" aria-label="Parametros da planilha">
+                  <h5>Parametros q/p/v</h5>
+                  <div className="planilha-parametros">
+                    {previewPlanilha.parametros.map((parametro) => (
+                      <div className="planilha-parametro-linha" key={parametro.criterio_id}>
+                        <div className="planilha-parametro-titulo">{parametro.criterio}</div>
+                        {(['q', 'p', 'v'] as const).map((chave) => {
+                          const valorParametro = parametro[chave];
+                          return (
+                            <label
+                              className="planilha-parametro-campo"
+                              key={`${parametro.criterio_id}-${chave}`}
+                            >
+                              <span className="campo-rotulo">
+                                {chave.toUpperCase()} do {parametro.criterio}
+                              </span>
+                              <input
+                                aria-label={`${chave.toUpperCase()} do ${parametro.criterio}`}
+                                className="campo-input planilha-parametro-input"
+                                type="number"
+                                value={formatarValor(valorParametro.valor)}
+                                onChange={(evento) =>
+                                  atualizarParametroPreview(
+                                    parametro.criterio_id,
+                                    chave,
+                                    evento.target.value,
+                                  )
+                                }
+                              />
+                              <span
+                                className={`planilha-origem planilha-origem-${valorParametro.origem}`}
+                              >
+                                Origem: {rotuloOrigem(valorParametro.origem)}
+                              </span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              </div>
+
+              <div className="planilha-confirmacao">
+                <ActionButton
+                  type="button"
+                  disabled={confirmandoUpload || previewPlanilha.erros.length > 0}
+                  onClick={confirmarPlanilha}
+                >
+                  {confirmandoUpload ? 'Confirmando...' : 'Confirmar upload e continuar'}
+                </ActionButton>
+              </div>
+            </section>
+          ) : null}
+        </section>
+
         <div className="formulario-acoes">
-          <ActionButton type="submit" disabled={carregando}>
-            {carregando ? 'Salvando...' : 'Continuar para minha avaliacao'}
+          <ActionButton type="submit" disabled={carregandoProjeto}>
+            {carregandoProjeto ? 'Salvando...' : 'Continuar para minha avaliacao'}
           </ActionButton>
         </div>
       </form>
-      {mensagem ? <Notice variant="success">{mensagem}</Notice> : null}
+
+      {mensagem ? <Notice variant={mensagem.variant}>{mensagem.texto}</Notice> : null}
     </Panel>
   );
 }

@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   obterResultadoMock: vi.fn(),
   gerarResultadoMock: vi.fn(),
   listarDecisoresMock: vi.fn(),
+  recalcularResultadoMock: vi.fn(),
   xlsx: {
     bookNewMock: vi.fn(() => ({ sheets: [] })),
     aoaToSheetMock: vi.fn((rows: unknown[][]) => ({ rows })),
@@ -30,6 +31,7 @@ vi.mock('../services/api', () => ({
   obterResultado: mocks.obterResultadoMock,
   gerarResultado: mocks.gerarResultadoMock,
   listarDecisores: mocks.listarDecisoresMock,
+  recalcularResultado: mocks.recalcularResultadoMock,
 }));
 
 const resultadoFinal: ResultadoProjeto = {
@@ -72,11 +74,52 @@ const resultadoFinal: ResultadoProjeto = {
   },
 };
 
+const resultadoRecalculado: ResultadoProjeto = {
+  project: {
+    id: 4,
+    nome: 'Vacinas MOR',
+    descricao: 'Analise coletiva',
+    qtde_classes: 4,
+    qtde_criterios: 2,
+    qtde_alternativas: 2,
+    qtde_decisores: 2,
+    lamb: 0.81,
+  },
+  pesos_criterios: [
+    { criterio: 10, peso: 0.6, criterio_nome: 'Qualidade' },
+    { criterio: 11, peso: 0.4, criterio_nome: 'Custo' },
+  ],
+  pontuacao_alternativas: [],
+  classificacao_range: [],
+  classificacao_quantile: [],
+  classificacao_final: {
+    range: [
+      {
+        alternative_id: 20,
+        alternative: 'Vacina A',
+        pessimista: 'a2',
+        otimista: 'b2',
+        class: 'b2',
+      },
+    ],
+    quantile: [
+      {
+        alternative_id: 20,
+        alternative: 'Vacina A',
+        pessimista: 'a2',
+        otimista: 'b2',
+        class: 'b2',
+      },
+    ],
+  },
+};
+
 describe('ResultView', () => {
   afterEach(() => {
     mocks.obterResultadoMock.mockReset();
     mocks.gerarResultadoMock.mockReset();
     mocks.listarDecisoresMock.mockReset();
+    mocks.recalcularResultadoMock.mockReset();
     mocks.xlsx.bookNewMock.mockClear();
     mocks.xlsx.aoaToSheetMock.mockClear();
     mocks.xlsx.bookAppendSheetMock.mockClear();
@@ -185,6 +228,109 @@ describe('ResultView', () => {
     expect(
       screen.getByRole('link', { name: /acessar este projeto/i }),
     ).toBeInTheDocument();
+  });
+
+  it('mostra controles de recálculo apenas para o criador', async () => {
+    mocks.obterResultadoMock.mockResolvedValueOnce(resultadoFinal);
+    mocks.listarDecisoresMock.mockResolvedValueOnce([
+      {
+        id: 1,
+        nome: 'Criador',
+        status: 'concluido',
+        ativo: true,
+        is_criador: true,
+        token: 'criador-token',
+        evaluation_url:
+          'http://localhost/?projectId=4&decisorToken=criador-token&view=avaliacao',
+      },
+    ]);
+    const usuario = userEvent.setup();
+
+    render(<ResultView projectId={4} isCreator />);
+
+    await usuario.click(await screen.findByRole('tab', { name: /resultado/i }));
+
+    expect(await screen.findByLabelText(/lambda oficial/i)).toBeInTheDocument();
+    expect(
+      await screen.findByLabelText(/n[uú]mero de classes/i),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByRole('button', { name: /recalcular resultado/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('bloqueia os controles de recálculo para convidado', async () => {
+    mocks.obterResultadoMock.mockResolvedValueOnce(resultadoFinal);
+    mocks.listarDecisoresMock.mockResolvedValueOnce([]);
+    const usuario = userEvent.setup();
+
+    render(<ResultView projectId={4} isCreator={false} />);
+
+    await usuario.click(await screen.findByRole('tab', { name: /resultado/i }));
+
+    expect(screen.queryByLabelText(/lambda oficial/i)).not.toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /recalcular resultado/i }),
+    ).not.toBeInTheDocument();
+  });
+
+  it('recalcula o resultado oficial com decisorToken e atualiza o download xlsx', async () => {
+    mocks.obterResultadoMock.mockResolvedValueOnce(resultadoFinal);
+    mocks.listarDecisoresMock.mockResolvedValueOnce([
+      {
+        id: 1,
+        nome: 'Criador',
+        status: 'concluido',
+        ativo: true,
+        is_criador: true,
+        token: 'criador-token',
+        evaluation_url:
+          'http://localhost/?projectId=4&decisorToken=criador-token&view=avaliacao',
+      },
+    ]);
+    mocks.recalcularResultadoMock.mockResolvedValueOnce(resultadoRecalculado);
+    const usuario = userEvent.setup();
+
+    render(<ResultView projectId={4} isCreator />);
+
+    await usuario.click(await screen.findByRole('tab', { name: /resultado/i }));
+
+    const campoLambda = await screen.findByLabelText(/lambda oficial/i);
+    const campoClasses = await screen.findByLabelText(/n[uú]mero de classes/i);
+
+    await usuario.clear(campoLambda);
+    await usuario.type(campoLambda, '0.81');
+    await usuario.clear(campoClasses);
+    await usuario.type(campoClasses, '4');
+    await usuario.click(
+      screen.getByRole('button', { name: /recalcular resultado/i }),
+    );
+
+    expect(mocks.recalcularResultadoMock).toHaveBeenCalledWith(4, {
+      lambda: 0.81,
+      qtde_classes: 4,
+      decisorToken: 'criador-token',
+    });
+
+    expect(await screen.findByText(/lambda:\s*0\.81/i)).toBeInTheDocument();
+    expect(screen.getByText(/classes:\s*4/i)).toBeInTheDocument();
+
+    await usuario.click(
+      screen.getByRole('button', { name: /baixar tabela para excel/i }),
+    );
+
+    const resumoSheet = mocks.xlsx.aoaToSheetMock.mock.calls[0]?.[0] as unknown[][];
+    expect(resumoSheet).toEqual(
+      expect.arrayContaining([
+        ['Classes', 4],
+        ['Lambda', 0.81],
+      ]),
+    );
+    expect(mocks.xlsx.writeFileMock).toHaveBeenCalledWith(
+      expect.any(Object),
+      'resultado-projeto-4.xlsx',
+      { compression: true },
+    );
   });
 
   it('mostra links e qr codes dos decisores convidados para o criador', async () => {

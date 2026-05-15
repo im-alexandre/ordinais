@@ -4,7 +4,12 @@ import { ActionButton } from '../components/ActionButton';
 import { Notice } from '../components/Notice';
 import { Panel } from '../components/Panel';
 import { QrShareCard } from '../components/QrShareCard';
-import { gerarResultado, listarDecisores, obterResultado } from '../services/api';
+import {
+  gerarResultado,
+  listarDecisores,
+  obterResultado,
+  recalcularResultado,
+} from '../services/api';
 import type { DecisorDetalhado, PendenciaDecisor, ResultadoProjeto } from '../types';
 
 type ResultViewProps = {
@@ -149,6 +154,9 @@ export default function ResultView({ projectId, isCreator = false }: ResultViewP
   const [decisores, setDecisores] = useState<DecisorDetalhado[]>([]);
   const [carregando, setCarregando] = useState(false);
   const [gerando, setGerando] = useState(false);
+  const [recalculando, setRecalculando] = useState(false);
+  const [lambdaRecalculo, setLambdaRecalculo] = useState('');
+  const [qtdeClassesRecalculo, setQtdeClassesRecalculo] = useState('');
   const [abaAtiva, setAbaAtiva] = useState<'links' | 'resultado'>('links');
   const linkProjeto =
     projectId === undefined
@@ -196,6 +204,13 @@ export default function ResultView({ projectId, isCreator = false }: ResultViewP
       ativo = false;
     };
   }, [projectId]);
+
+  useEffect(() => {
+    if (resultado) {
+      setLambdaRecalculo(String(resultado.project.lamb));
+      setQtdeClassesRecalculo(String(resultado.project.qtde_classes));
+    }
+  }, [resultado]);
 
   useEffect(() => {
     if (!isCreator || projectId === undefined) {
@@ -246,6 +261,42 @@ export default function ResultView({ projectId, isCreator = false }: ResultViewP
     }
   }
 
+  async function recalcularResultadoOficial() {
+    if (
+      projectId === undefined ||
+      resultado === null ||
+      !isCreator ||
+      !tokenCriador
+    ) {
+      return;
+    }
+
+    const lambda = Number(lambdaRecalculo);
+    const qtdeClasses = Number(qtdeClassesRecalculo);
+
+    if (!Number.isFinite(lambda) || !Number.isFinite(qtdeClasses)) {
+      setErro('Preencha lambda e número de classes com valores válidos.');
+      return;
+    }
+
+    setRecalculando(true);
+    setErro(null);
+
+    try {
+      const dados = await recalcularResultado(projectId, {
+        lambda,
+        qtde_classes: qtdeClasses,
+        decisorToken: tokenCriador,
+      });
+      setResultado(dados);
+      setPendencias(null);
+    } catch (error) {
+      setErro(extrairMensagem(error));
+    } finally {
+      setRecalculando(false);
+    }
+  }
+
   async function baixarTabelaExcel() {
     if (!resultado) {
       return;
@@ -266,6 +317,14 @@ export default function ResultView({ projectId, isCreator = false }: ResultViewP
     resultado === null;
   const temLinksDecisores =
     isCreator && decisores.some((decisor) => decisor.ativo && !decisor.is_criador);
+  const tokenCriador = decisores.find((decisor) => decisor.is_criador)?.token;
+  const podeRecalcularResultado =
+    isCreator &&
+    resultado !== null &&
+    !recalculando &&
+    tokenCriador !== undefined &&
+    lambdaRecalculo.trim() !== '' &&
+    qtdeClassesRecalculo.trim() !== '';
 
   return (
     <Panel
@@ -378,8 +437,61 @@ export default function ResultView({ projectId, isCreator = false }: ResultViewP
 
             <div className="resultado-resumo">
               <p>Projeto: {resultado.project.nome}</p>
+              <p>Lambda: {resultado.project.lamb}</p>
               <p>Classes: {resultado.project.qtde_classes}</p>
             </div>
+
+            {isCreator ? (
+              <section
+                className="resultado-bloco"
+                aria-label="Recálculo oficial"
+              >
+                <h3>Recálculo oficial</h3>
+                <p>Somente o criador pode atualizar os valores oficiais do projeto.</p>
+                <div className="grade-campos grade-campos-compacta">
+                  <label className="campo" htmlFor="resultado-lambda-oficial">
+                    <span className="campo-rotulo">Lambda oficial</span>
+                    <input
+                      id="resultado-lambda-oficial"
+                      className="campo-input"
+                      inputMode="decimal"
+                      min="0.5"
+                      max="1"
+                      step="0.01"
+                      type="number"
+                      value={lambdaRecalculo}
+                      onChange={(evento) => setLambdaRecalculo(evento.target.value)}
+                    />
+                  </label>
+
+                  <label className="campo" htmlFor="resultado-qtde-classes-oficiais">
+                    <span className="campo-rotulo">Número de classes</span>
+                    <input
+                      id="resultado-qtde-classes-oficiais"
+                      className="campo-input"
+                      min="1"
+                      step="1"
+                      type="number"
+                      value={qtdeClassesRecalculo}
+                      onChange={(evento) =>
+                        setQtdeClassesRecalculo(evento.target.value)
+                      }
+                    />
+                  </label>
+                </div>
+
+                <div className="formulario-acoes">
+                  <ActionButton
+                    type="button"
+                    className="resultado-botao"
+                    disabled={!podeRecalcularResultado}
+                    onClick={recalcularResultadoOficial}
+                  >
+                    {recalculando ? 'Recalculando...' : 'Recalcular resultado'}
+                  </ActionButton>
+                </div>
+              </section>
+            ) : null}
 
             <div className="resultado-grade">
               <section className="resultado-bloco" aria-label="Classificacao range">
