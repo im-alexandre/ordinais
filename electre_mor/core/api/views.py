@@ -1,6 +1,9 @@
+import secrets
+
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
+from rest_framework.permissions import BasePermission
 from rest_framework.response import Response
 
 from core.api.evaluation_serializers import (
@@ -15,7 +18,8 @@ from core.api.evaluation_serializers import (
 from core.api.serializers import (AlternativaSerializer, CriterioSerializer,
                                   DecisorSerializer,
                                   ParticipantsPayloadSerializer,
-                                  ProjetoSerializer)
+                                  ProjetoSerializer,
+                                  RecalcularResultadoSerializer)
 from core.models import Alternativa, Criterio, Decisor, Projeto
 from core.services import (substituir_comparacoes_alternativas,
                            substituir_comparacoes_criterios,
@@ -29,8 +33,26 @@ from core.services.result_service import (
     gerar_resultado_manual,
     obter_resultado_gerado,
     obter_pendencias_resultado,
+    recalcular_resultado_oficial,
     resultado_gerado,
 )
+
+
+class PodeRecalcularResultado(BasePermission):
+    message = "Apenas o criador pode recalcular o resultado oficial."
+
+    def has_permission(self, request, view):
+        projeto = view.get_object()
+        token_decisor = request.query_params.get("decisorToken") or request.headers.get(
+            "X-Decisor-Token")
+        if not token_decisor:
+            return False
+
+        decisor_criador = projeto.decisores.filter(is_criador=True).first()
+        if decisor_criador is None:
+            return False
+
+        return secrets.compare_digest(token_decisor, decisor_criador.token)
 
 
 def _resposta_resultado_bloqueado():
@@ -280,6 +302,40 @@ class ProjectViewSet(viewsets.ModelViewSet):
         projeto = self.get_object()
         try:
             resultado = gerar_resultado_manual(projeto)
+        except ResultadoIndisponivel as exc:
+            return Response({
+                "detail": exc.motivo,
+                "pendencias": exc.pendencias or [],
+            }, status=status.HTTP_409_CONFLICT)
+
+        return Response(resultado, status=status.HTTP_200_OK)
+
+    @action(
+        detail=True,
+        methods=["post"],
+        url_path="recalculate-result",
+        permission_classes=[PodeRecalcularResultado],
+    )
+    def recalculate_result(self, request, pk=None):
+        projeto = self.get_object()
+        payload = request.data.copy()
+        if "lamb" not in payload and "lambda" in payload:
+            payload["lamb"] = payload["lambda"]
+        if payload.get("lamb") == "":
+            payload["lamb"] = None
+
+        serializer = RecalcularResultadoSerializer(
+            data=payload,
+            context={"project": projeto},
+        )
+        serializer.is_valid(raise_exception=True)
+
+        try:
+            resultado = recalcular_resultado_oficial(
+                projeto,
+                lamb=serializer.validated_data["lamb"],
+                qtde_classes=serializer.validated_data["qtde_classes"],
+            )
         except ResultadoIndisponivel as exc:
             return Response({
                 "detail": exc.motivo,

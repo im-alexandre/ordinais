@@ -19,7 +19,8 @@ class ApiResultTests(APITestCase):
             lamb=0.6,
         )
         self.decisor = Decisor.objects.create(projeto=self.projeto,
-                                              nome="Decisor 1")
+                                              nome="Decisor 1",
+                                              is_criador=True)
         self.criterio_1 = Criterio.objects.create(
             projeto=self.projeto,
             nome="Criterio 1",
@@ -112,6 +113,248 @@ class ApiResultTests(APITestCase):
         self.assertIn("pontuacao_alternativas", response.data)
         self.assertIn("classificacao_range", response.data)
         self.assertIn("classificacao_quantile", response.data)
+
+    def test_criador_recalcula_resultado_oficial_e_atualiza_projeto(self):
+        projeto = Projeto.objects.create(
+            nome="Projeto recalc",
+            descricao="Descricao",
+            qtde_classes=2,
+            qtde_criterios=2,
+            qtde_alternativas=3,
+            qtde_decisores=1,
+            lamb=0.6,
+        )
+        criador = Decisor.objects.create(
+            projeto=projeto,
+            nome="Criador",
+            is_criador=True,
+        )
+        criterio_1 = Criterio.objects.create(
+            projeto=projeto,
+            nome="Criterio 1",
+            numerico=True,
+            monotonico=1,
+        )
+        criterio_2 = Criterio.objects.create(
+            projeto=projeto,
+            nome="Criterio 2",
+            numerico=True,
+            monotonico=2,
+        )
+        alternativa_1 = Alternativa.objects.create(
+            projeto=projeto,
+            nome="Alternativa 1",
+        )
+        alternativa_2 = Alternativa.objects.create(
+            projeto=projeto,
+            nome="Alternativa 2",
+        )
+        alternativa_3 = Alternativa.objects.create(
+            projeto=projeto,
+            nome="Alternativa 3",
+        )
+
+        for nota_criterio in (1, 2):
+            AvaliacaoCriterios.objects.create(
+                projeto=projeto,
+                decisor=criador,
+                criterioA=criterio_1,
+                criterioB=criterio_2,
+                nota=nota_criterio,
+            )
+            AvaliacaoCriterios.objects.create(
+                projeto=projeto,
+                decisor=criador,
+                criterioA=criterio_2,
+                criterioB=criterio_1,
+                nota=-nota_criterio,
+            )
+
+        for alternativa, nota_criterio_1, nota_criterio_2 in (
+            (alternativa_1, 9, 3),
+            (alternativa_2, 7, 5),
+            (alternativa_3, 4, 8),
+        ):
+            AlternativaCriterio.objects.create(
+                projeto=projeto,
+                decisor=criador,
+                criterio=criterio_1,
+                alternativa=alternativa,
+                nota=nota_criterio_1,
+            )
+            AlternativaCriterio.objects.create(
+                projeto=projeto,
+                decisor=criador,
+                criterio=criterio_2,
+                alternativa=alternativa,
+                nota=nota_criterio_2,
+            )
+
+        CriterioParametro.objects.create(
+            projeto=projeto,
+            criterio=criterio_1,
+            p=0.2,
+            q=0.1,
+            v=0.8,
+        )
+        CriterioParametro.objects.create(
+            projeto=projeto,
+            criterio=criterio_2,
+            p=0.3,
+            q=0.1,
+            v=0.7,
+        )
+
+        gerar_response = self.client.post(
+            f"/api/v1/projects/{projeto.id}/generate-result/",
+            {},
+            format="json",
+        )
+        self.assertEqual(gerar_response.status_code, 200)
+
+        projeto.refresh_from_db()
+        resultado_gerado_em_anterior = projeto.resultado_gerado_em
+        quantidade_avaliacoes_criterios = AvaliacaoCriterios.objects.count()
+        quantidade_notas_numericas = AlternativaCriterio.objects.count()
+        quantidade_parametros = CriterioParametro.objects.count()
+
+        response = self.client.post(
+            f"/api/v1/projects/{projeto.id}/recalculate-result/?decisorToken={criador.token}",
+            {
+                "lambda": None,
+                "qtde_classes": 3,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["project"]["id"], projeto.id)
+        self.assertEqual(response.data["project"]["lamb"], 0.75)
+        self.assertEqual(response.data["project"]["qtde_classes"], 3)
+
+        projeto.refresh_from_db()
+        self.assertEqual(projeto.lamb, 0.75)
+        self.assertEqual(projeto.qtde_classes, 3)
+        self.assertEqual(projeto.resultado_snapshot, response.data)
+        self.assertNotEqual(projeto.resultado_gerado_em,
+                            resultado_gerado_em_anterior)
+        self.assertEqual(AvaliacaoCriterios.objects.count(),
+                         quantidade_avaliacoes_criterios)
+        self.assertEqual(AlternativaCriterio.objects.count(),
+                         quantidade_notas_numericas)
+        self.assertEqual(CriterioParametro.objects.count(),
+                         quantidade_parametros)
+
+    def test_convidado_nao_pode_recalcular_resultado_oficial(self):
+        projeto = Projeto.objects.create(
+            nome="Projeto recalc guest",
+            descricao="Descricao",
+            qtde_classes=2,
+            qtde_criterios=2,
+            qtde_alternativas=2,
+            qtde_decisores=1,
+            lamb=0.6,
+        )
+        criador = Decisor.objects.create(
+            projeto=projeto,
+            nome="Criador",
+            is_criador=True,
+        )
+        convidado = Decisor.objects.create(
+            projeto=projeto,
+            nome="Convidado",
+            ativo=False,
+            status=Decisor.Status.DESATIVADO,
+        )
+        criterio_1 = Criterio.objects.create(
+            projeto=projeto,
+            nome="Criterio 1",
+            numerico=True,
+            monotonico=1,
+        )
+        criterio_2 = Criterio.objects.create(
+            projeto=projeto,
+            nome="Criterio 2",
+            numerico=True,
+            monotonico=2,
+        )
+        alternativa_1 = Alternativa.objects.create(
+            projeto=projeto,
+            nome="Alternativa 1",
+        )
+        alternativa_2 = Alternativa.objects.create(
+            projeto=projeto,
+            nome="Alternativa 2",
+        )
+
+        AvaliacaoCriterios.objects.create(
+            projeto=projeto,
+            decisor=criador,
+            criterioA=criterio_1,
+            criterioB=criterio_2,
+            nota=1,
+        )
+        AvaliacaoCriterios.objects.create(
+            projeto=projeto,
+            decisor=criador,
+            criterioA=criterio_2,
+            criterioB=criterio_1,
+            nota=-1,
+        )
+        for criterio, notas in (
+            (criterio_1, (8, 4)),
+            (criterio_2, (3, 7)),
+        ):
+            AlternativaCriterio.objects.create(
+                projeto=projeto,
+                decisor=criador,
+                criterio=criterio,
+                alternativa=alternativa_1,
+                nota=notas[0],
+            )
+            AlternativaCriterio.objects.create(
+                projeto=projeto,
+                decisor=criador,
+                criterio=criterio,
+                alternativa=alternativa_2,
+                nota=notas[1],
+            )
+
+        CriterioParametro.objects.create(
+            projeto=projeto,
+            criterio=criterio_1,
+            p=0.2,
+            q=0.1,
+            v=0.8,
+        )
+        CriterioParametro.objects.create(
+            projeto=projeto,
+            criterio=criterio_2,
+            p=0.3,
+            q=0.1,
+            v=0.7,
+        )
+
+        self.client.post(
+            f"/api/v1/projects/{projeto.id}/generate-result/",
+            {},
+            format="json",
+        )
+        projeto.refresh_from_db()
+        snapshot_antes = projeto.resultado_snapshot
+
+        response = self.client.post(
+            f"/api/v1/projects/{projeto.id}/recalculate-result/?decisorToken={convidado.token}",
+            {
+                "lamb": 0.8,
+                "qtde_classes": 2,
+            },
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 403)
+        projeto.refresh_from_db()
+        self.assertEqual(projeto.resultado_snapshot, snapshot_antes)
 
     def test_resultado_retorna_conflito_quando_faltam_dados(self):
         projeto_incompleto = Projeto.objects.create(

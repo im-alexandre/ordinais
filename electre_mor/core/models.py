@@ -59,7 +59,7 @@ class Projeto(models.Model):
     lamb = models.FloatField(
         null=False,
         blank=False,
-        default=0.5,
+        default=0.75,
         validators=[MinValueValidator(0.5),
                     MaxValueValidator(1)])
 

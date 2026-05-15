@@ -45,6 +45,25 @@ class ApiProjectsTests(APITestCase):
         self.assertEqual(Projeto.objects.count(), 2)
         self.assertTrue(Projeto.objects.filter(nome="Projeto novo").exists())
 
+    def test_criar_projeto_usa_lambda_padrao_quando_omitido(self):
+        payload = {
+            "nome": "Projeto sem lambda",
+            "descricao": "Descricao sem lambda",
+            "qtde_classes": 2,
+            "qtde_criterios": 2,
+            "qtde_alternativas": 2,
+            "qtde_decisores": 1,
+        }
+
+        response = self.client.post("/api/v1/projects/",
+                                    payload,
+                                    format="json")
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["lamb"], 0.75)
+        projeto = Projeto.objects.get(nome="Projeto sem lambda")
+        self.assertEqual(projeto.lamb, 0.75)
+
     def test_recuperar_e_excluir_projeto(self):
         detail_url = f"/api/v1/projects/{self.projeto.id}/"
 

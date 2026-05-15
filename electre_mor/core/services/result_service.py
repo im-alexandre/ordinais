@@ -16,6 +16,7 @@ from core.tabular import queryset_para_dataframe
 
 
 _CACHE_PREFIX = "electre_mor:resultado_gerado"
+_LAMBDA_PADRAO = 0.75
 
 
 @dataclass
@@ -54,6 +55,16 @@ def obter_resultado_gerado(projeto: Projeto) -> dict[str, Any]:
     cache.set(_cache_key(projeto), snapshot, timeout=None)
     projeto.resultado_snapshot = snapshot
     projeto.save(update_fields=["resultado_snapshot"])
+    return snapshot
+
+
+def _persistir_resultado_oficial(projeto: Projeto,
+                                 resultado: dict[str, Any]) -> dict[str, Any]:
+    snapshot = ResultadoSerializer(resultado).data
+    cache.set(_cache_key(projeto), snapshot, timeout=None)
+    projeto.resultado_gerado_em = timezone.now()
+    projeto.resultado_snapshot = snapshot
+    projeto.save(update_fields=["resultado_gerado_em", "resultado_snapshot"])
     return snapshot
 
 
@@ -345,11 +356,7 @@ def gerar_resultado_manual(projeto: Projeto) -> dict[str, Any]:
         return obter_resultado_gerado(projeto)
 
     resultado = obter_resultado_agregado(projeto)
-    snapshot = ResultadoSerializer(resultado).data
-    cache.set(_cache_key(projeto), snapshot, timeout=None)
-    projeto.resultado_gerado_em = timezone.now()
-    projeto.resultado_snapshot = snapshot
-    projeto.save(update_fields=["resultado_gerado_em", "resultado_snapshot"])
+    snapshot = _persistir_resultado_oficial(projeto, resultado)
     decisores_ativos = _decisores_ativos(projeto)
     if decisores_ativos:
         projeto.decisores.filter(id__in=[d.id for d in decisores_ativos]).update(
@@ -357,6 +364,25 @@ def gerar_resultado_manual(projeto: Projeto) -> dict[str, Any]:
             concluido_em=timezone.now(),
         )
     return snapshot
+
+
+@transaction.atomic
+def recalcular_resultado_oficial(projeto: Projeto,
+                                 *,
+                                 lamb: float | None,
+                                 qtde_classes: int) -> dict[str, Any]:
+    if not resultado_gerado(projeto):
+        raise ResultadoIndisponivel(
+            "Resultado ainda nao gerado manualmente.",
+            pendencias=obter_pendencias_resultado(projeto),
+        )
+
+    projeto.lamb = _LAMBDA_PADRAO if lamb is None else lamb
+    projeto.qtde_classes = qtde_classes
+    projeto.save(update_fields=["lamb", "qtde_classes"])
+
+    resultado = obter_resultado_agregado(projeto)
+    return _persistir_resultado_oficial(projeto, resultado)
 
 
 def obter_resultado_gerado_ou_erro(projeto: Projeto) -> dict[str, Any]:
