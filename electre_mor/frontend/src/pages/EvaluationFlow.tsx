@@ -1,20 +1,22 @@
-import { useMemo, useState, type FormEvent } from 'react';
+import { useEffect, useMemo, useState, type FormEvent } from 'react';
 
 import { ActionButton } from '../components/ActionButton';
 import { Notice } from '../components/Notice';
 import { Panel } from '../components/Panel';
 import { TextField } from '../components/TextField';
 import {
+  obterContextoAvaliacaoPorToken,
   salvarComparacoesAlternativas,
   salvarComparacoesCriterios,
   salvarNotasNumericas,
   salvarParametros,
 } from '../services/api';
-import type { ProjetoCompleto } from '../types';
+import type { ContextoAvaliacao, ProjetoCompleto } from '../types';
 
 type EvaluationFlowProps = {
   projeto?: ProjetoCompleto | null;
   projectId?: number;
+  decisorToken?: string;
   onComplete?: () => void;
 };
 
@@ -82,12 +84,17 @@ function ComparacaoSlider({
 export function EvaluationFlow({
   projeto,
   projectId,
+  decisorToken,
   onComplete,
 }: EvaluationFlowProps) {
-  const projetoId = projeto?.projeto.id ?? projectId ?? 0;
+  const projetoId = projectId ?? projeto?.projeto.id ?? 0;
   const criterios = projeto?.criterios ?? [];
   const alternativas = projeto?.alternativas ?? [];
-  const decisorId = projeto?.decisores[0]?.id ?? 0;
+  const [contextoAvaliacao, setContextoAvaliacao] =
+    useState<ContextoAvaliacao | null>(null);
+  const decisorId = decisorToken
+    ? contextoAvaliacao?.decisor.id ?? 0
+    : projeto?.decisores[0]?.id ?? 0;
   const criteriosNumericos = criterios.filter((criterio) => criterio.numerico);
   const criteriosQualitativos = criterios.filter((criterio) => !criterio.numerico);
 
@@ -100,6 +107,38 @@ export function EvaluationFlow({
   const [parametros, setParametros] = useState<Record<string, { q: string; p: string; v: string }>>({});
   const [mensagem, setMensagem] = useState<string | null>(null);
   const [carregando, setCarregando] = useState(false);
+  const [carregandoToken, setCarregandoToken] = useState(false);
+
+  useEffect(() => {
+    if (!decisorToken || projetoId === 0) {
+      setContextoAvaliacao(null);
+      return;
+    }
+
+    let ativo = true;
+    setCarregandoToken(true);
+
+    obterContextoAvaliacaoPorToken(projetoId, decisorToken)
+      .then((dados) => {
+        if (ativo) {
+          setContextoAvaliacao(dados);
+        }
+      })
+      .catch(() => {
+        if (ativo) {
+          setContextoAvaliacao(null);
+        }
+      })
+      .finally(() => {
+        if (ativo) {
+          setCarregandoToken(false);
+        }
+      });
+
+    return () => {
+      ativo = false;
+    };
+  }, [decisorToken, projetoId]);
 
   function valorNotaNumerica(criterioIndice: number, alternativaIndice: number) {
     const chave = `${criterioIndice}:${alternativaIndice}`;
@@ -140,7 +179,11 @@ export function EvaluationFlow({
     evento.preventDefault();
 
     if (!projeto || decisorId === 0) {
-      setMensagem('Configure o projeto antes de avaliar.');
+      setMensagem(
+        decisorToken
+          ? 'Aguarde o token de avaliacao carregar os dados do decisor.'
+          : 'Configure o projeto antes de avaliar.',
+      );
       return;
     }
 
@@ -327,11 +370,27 @@ export function EvaluationFlow({
         </section>
 
         <div className="formulario-acoes">
-          <ActionButton type="submit" disabled={carregando || !projeto}>
+          <ActionButton
+            type="submit"
+            disabled={
+              carregando ||
+              !projeto ||
+              (decisorToken ? carregandoToken || decisorId === 0 : false)
+            }
+          >
             {carregando ? 'Salvando...' : 'Salvar avaliacao completa'}
           </ActionButton>
         </div>
       </form>
+      {decisorToken ? (
+        <Notice variant="info">
+          {carregandoToken
+            ? 'Validando link de avaliacao individual...'
+            : contextoAvaliacao
+              ? `Avaliando como ${contextoAvaliacao.decisor.nome}.`
+              : 'Link de avaliacao individual carregado.'}
+        </Notice>
+      ) : null}
       {mensagem ? <Notice variant={mensagem.includes('Nao') || mensagem.includes('Configure') ? 'warning' : 'success'}>{mensagem}</Notice> : null}
     </Panel>
   );

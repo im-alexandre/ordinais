@@ -2,10 +2,13 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 import {
   criarProjeto,
+  gerarResultado,
+  obterContextoAvaliacaoPorToken,
   listarProjetos,
+  obterResultado,
   salvarParticipantes,
 } from './api';
-import type { ParticipantesPayload } from '../types';
+import type { ParticipantesPayload, ResultadoProjeto } from '../types';
 
 describe('cliente da API', () => {
   afterEach(() => {
@@ -99,6 +102,90 @@ describe('cliente da API', () => {
         headers: expect.objectContaining({
           'Content-Type': 'application/json',
         }),
+      }),
+    );
+    expect(resultado).toEqual(resposta);
+  });
+
+  it('resolve o contexto de avaliacao por token', async () => {
+    const resposta = {
+      project: {
+        id: 4,
+        nome: 'Projeto X',
+        descricao: 'Descricao',
+        qtde_classes: 3,
+        qtde_criterios: 2,
+        qtde_alternativas: 2,
+        qtde_decisores: 2,
+        lamb: 0.65,
+      },
+      decisor: {
+        id: 9,
+        nome: 'Ana Souza',
+        status: 'pendente',
+        ativo: true,
+        is_criador: false,
+        token: 'token-seguro',
+        evaluation_url:
+          'http://localhost/?projectId=4&decisorToken=token-seguro&view=avaliacao',
+      },
+    };
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(resposta), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    );
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const contexto = await obterContextoAvaliacaoPorToken(4, 'token-seguro');
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/projects/4/evaluation-token/token-seguro/',
+      expect.objectContaining({
+        method: 'GET',
+      }),
+    );
+    expect(contexto).toEqual(resposta);
+  });
+
+  it('gera resultado manualmente', async () => {
+    const resposta: ResultadoProjeto = {
+      project: {
+        id: 4,
+        nome: 'Projeto X',
+        descricao: 'Descricao',
+        qtde_classes: 3,
+        qtde_criterios: 2,
+        qtde_alternativas: 2,
+        qtde_decisores: 2,
+        lamb: 0.65,
+      },
+      pesos_criterios: [],
+      pontuacao_alternativas: [],
+      classificacao_range: [],
+      classificacao_quantile: [],
+      classificacao_final: {
+        range: [],
+        quantile: [],
+      },
+    };
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(resposta), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    );
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const resultado = await gerarResultado(4);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/projects/4/generate-result/',
+      expect.objectContaining({
+        method: 'POST',
       }),
     );
     expect(resultado).toEqual(resposta);

@@ -619,6 +619,75 @@ body::before {
   gap: 16px;
 }
 
+.qr-share-card {
+  display: grid;
+  gap: 22px;
+  grid-template-columns: minmax(240px, 320px) minmax(0, 1fr);
+  align-items: center;
+  border: 1px solid rgba(215, 208, 196, 0.9);
+  border-radius: 24px;
+  padding: 18px;
+  background: linear-gradient(145deg, rgba(255, 255, 255, 0.9), rgba(236, 232, 223, 0.74));
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.54);
+}
+
+.qr-share-card-qr {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 12px;
+  border-radius: 22px;
+  background: rgba(36, 48, 45, 0.08);
+}
+
+.qr-share-card-svg {
+  width: min(100%, 320px);
+  aspect-ratio: 1;
+  display: block;
+  color: #f8f6f1;
+}
+
+.qr-share-card-svg rect {
+  fill: currentColor;
+}
+
+.qr-share-card-pattern rect {
+  fill: #24302d;
+}
+
+.qr-share-card-conteudo {
+  display: grid;
+  gap: 10px;
+}
+
+.qr-share-card-kicker {
+  margin: 0;
+  color: var(--destaque-2);
+  text-transform: uppercase;
+  letter-spacing: 0.12em;
+  font-weight: 800;
+  font-size: 0.8rem;
+}
+
+.qr-share-card-conteudo h3 {
+  margin: 0;
+  font-size: 1.55rem;
+}
+
+.qr-share-card-url {
+  margin: 0;
+  color: var(--texto-suave);
+  overflow-wrap: anywhere;
+}
+
+.qr-share-card-acoes,
+.resultado-pendencias-acoes {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  align-items: center;
+}
+
 .resultado-acoes {
   display: flex;
   flex-wrap: wrap;
@@ -690,6 +759,32 @@ body::before {
   font-weight: 800;
 }
 
+.resultado-pendencias {
+  display: grid;
+  gap: 12px;
+}
+
+.resultado-pendencias ul {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding-left: 20px;
+}
+
+.resultado-pendencias li {
+  padding-left: 4px;
+}
+
+.resultado-pendencias li strong {
+  display: inline-block;
+  min-width: 120px;
+}
+
+.resultado-pendencias li span {
+  color: var(--texto-suave);
+  font-weight: 700;
+}
+
 @media (max-width: 900px) {
   .barra-superior,
   .hero,
@@ -717,6 +812,14 @@ body::before {
 
   .grade-comparacoes {
     grid-template-columns: 1fr;
+  }
+
+  .qr-share-card {
+    grid-template-columns: 1fr;
+  }
+
+  .qr-share-card-qr {
+    order: -1;
   }
 
   .comparacao-slider-controle {

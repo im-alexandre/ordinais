@@ -16,6 +16,20 @@ export type EntidadeNome = {
   nome: string;
 };
 
+export type DecisorStatus =
+  | 'pendente'
+  | 'em_edicao'
+  | 'concluido'
+  | 'desativado';
+
+export type DecisorDetalhado = EntidadeNome & {
+  status: DecisorStatus;
+  ativo: boolean;
+  is_criador: boolean;
+  token: string;
+  evaluation_url: string;
+};
+
 export type ParticipanteNome = Omit<EntidadeNome, 'id'>;
 
 export type CriterioEntrada = {
@@ -93,6 +107,24 @@ export type ProjetoCompleto = {
   alternativas: EntidadeNome[];
 };
 
+export type ContextoAvaliacao = {
+  project: Projeto;
+  decisor: DecisorDetalhado;
+};
+
+export type PendenciaDecisor = {
+  id: number;
+  nome: string;
+  status: DecisorStatus | string;
+  ativo: boolean;
+  faltas: string[];
+};
+
+export type ResultadoPendente = {
+  detail: string;
+  pendencias: PendenciaDecisor[];
+};
+
 export type ClassificacaoFinalItem = {
   alternative_id: number;
   alternative: string;
@@ -112,3 +144,5 @@ export type ResultadoProjeto = {
     quantile: ClassificacaoFinalItem[];
   };
 };
+
+export type ResultadoConsulta = ResultadoProjeto | ResultadoPendente;

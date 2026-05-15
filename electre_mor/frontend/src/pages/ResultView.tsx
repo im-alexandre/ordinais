@@ -1,12 +1,15 @@
 import { useEffect, useState } from 'react';
 
+import { ActionButton } from '../components/ActionButton';
 import { Notice } from '../components/Notice';
 import { Panel } from '../components/Panel';
-import { obterResultado } from '../services/api';
-import type { ResultadoProjeto } from '../types';
+import { QrShareCard } from '../components/QrShareCard';
+import { gerarResultado, obterResultado } from '../services/api';
+import type { PendenciaDecisor, ResultadoProjeto } from '../types';
 
 type ResultViewProps = {
   projectId?: number;
+  isCreator?: boolean;
 };
 
 function escaparCsv(valor: unknown) {
@@ -42,9 +45,63 @@ function montarCsv(resultado: ResultadoProjeto) {
   return linhas.map((linha) => linha.map(escaparCsv).join(';')).join('\n');
 }
 
-export default function ResultView({ projectId }: ResultViewProps) {
+function isPendenciaApi(erro: unknown) {
+  return (
+    (typeof erro === 'object' &&
+      erro !== null &&
+      'status' in erro &&
+      Number((erro as { status?: number }).status) === 409)
+  );
+}
+
+function extrairDadosErro(erro: unknown) {
+  if (typeof erro === 'object' && erro !== null && 'data' in erro) {
+    return (erro as { data?: unknown }).data;
+  }
+
+  return erro;
+}
+
+function extrairPendencias(erro: unknown): PendenciaDecisor[] {
+  if (!isPendenciaApi(erro)) {
+    return [];
+  }
+
+  const dados = extrairDadosErro(erro);
+  if (typeof dados !== 'object' || dados === null || !('pendencias' in dados)) {
+    return [];
+  }
+
+  const pendencias = (dados as { pendencias?: PendenciaDecisor[] }).pendencias;
+  return Array.isArray(pendencias) ? pendencias : [];
+}
+
+function extrairMensagem(erro: unknown) {
+  const dados = extrairDadosErro(erro);
+  if (typeof dados === 'string') {
+    return dados;
+  }
+
+  if (typeof dados === 'object' && dados !== null) {
+    const detalhes = dados as { detail?: string };
+    if (detalhes.detail) {
+      return detalhes.detail;
+    }
+  }
+
+  if (erro instanceof Error) {
+    return erro.message;
+  }
+
+  return 'Resultado indisponivel no momento.';
+}
+
+export default function ResultView({ projectId, isCreator = false }: ResultViewProps) {
   const [resultado, setResultado] = useState<ResultadoProjeto | null>(null);
+  const [pendencias, setPendencias] = useState<PendenciaDecisor[] | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [carregando, setCarregando] = useState(false);
+  const [gerando, setGerando] = useState(false);
   const linkProjeto =
     projectId === undefined
       ? ''
@@ -56,6 +113,10 @@ export default function ResultView({ projectId }: ResultViewProps) {
     }
 
     let ativo = true;
+    setCarregando(true);
+    setErro(null);
+    setResultado(null);
+    setPendencias(null);
 
     obterResultado(projectId)
       .then((dados) => {
@@ -64,9 +125,22 @@ export default function ResultView({ projectId }: ResultViewProps) {
           setErro(null);
         }
       })
-      .catch(() => {
+      .catch((error) => {
+        if (!ativo) {
+          return;
+        }
+
+        if (isPendenciaApi(error)) {
+          setPendencias(extrairPendencias(error));
+          setErro(null);
+          return;
+        }
+
+        setErro(extrairMensagem(error));
+      })
+      .finally(() => {
         if (ativo) {
-          setErro('Resultado indisponivel no momento.');
+          setCarregando(false);
         }
       });
 
@@ -74,6 +148,30 @@ export default function ResultView({ projectId }: ResultViewProps) {
       ativo = false;
     };
   }, [projectId]);
+
+  async function gerarResultadoManual() {
+    if (projectId === undefined) {
+      return;
+    }
+
+    setGerando(true);
+    setErro(null);
+
+    try {
+      const dados = await gerarResultado(projectId);
+      setResultado(dados);
+      setPendencias(null);
+    } catch (error) {
+      if (isPendenciaApi(error)) {
+        setPendencias(extrairPendencias(error));
+        setErro(null);
+      } else {
+        setErro(extrairMensagem(error));
+      }
+    } finally {
+      setGerando(false);
+    }
+  }
 
   function baixarTabelaExcel() {
     if (!resultado) {
@@ -92,12 +190,52 @@ export default function ResultView({ projectId }: ResultViewProps) {
     URL.revokeObjectURL(url);
   }
 
+  const podeGerarResultado =
+    isCreator &&
+    !gerando &&
+    (pendencias === null || pendencias.length === 0) &&
+    projectId !== undefined &&
+    resultado === null;
+
   return (
     <Panel
       titulo="Resultado"
       subtitulo="Resumo executavel da classificacao entregue pela API."
     >
+      {carregando ? <Notice variant="info">Carregando resultado...</Notice> : null}
       {erro ? <Notice variant="warning">{erro}</Notice> : null}
+      {projectId !== undefined ? (
+        <QrShareCard nome="resultado do projeto" url={linkProjeto} />
+      ) : null}
+      {pendencias ? (
+        <section className="resultado-bloco resultado-pendencias" aria-label="Decisores pendentes">
+          <h3>Decisores pendentes</h3>
+          {pendencias.length > 0 ? (
+            <ul>
+              {pendencias.map((pendencia) => (
+                <li key={String(pendencia.id)}>
+                  <strong>{pendencia.nome}</strong>
+                  <span>{pendencia.faltas.join(', ') || 'sem pendencias'}</span>
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p>Nenhuma pendencia restante para gerar o resultado.</p>
+          )}
+          {isCreator ? (
+            <div className="resultado-pendencias-acoes">
+              <ActionButton
+                type="button"
+                className="resultado-botao"
+                disabled={!podeGerarResultado}
+                onClick={gerarResultadoManual}
+              >
+                {gerando ? 'Gerando...' : 'Gerar resultado'}
+              </ActionButton>
+            </div>
+          ) : null}
+        </section>
+      ) : null}
       {resultado ? (
         <div className="resultado">
           <div className="resultado-acoes">
@@ -125,7 +263,9 @@ export default function ResultView({ projectId }: ResultViewProps) {
                 {resultado.classificacao_final.range.map((item) => (
                   <li key={`range-${item.alternative_id}`}>
                     <strong>{item.alternative}</strong>
-                    <span>{item.pessimista} / {item.otimista}</span>
+                    <span>
+                      {item.pessimista} / {item.otimista}
+                    </span>
                   </li>
                 ))}
               </ol>
@@ -137,7 +277,9 @@ export default function ResultView({ projectId }: ResultViewProps) {
                 {resultado.classificacao_final.quantile.map((item) => (
                   <li key={`quantile-${item.alternative_id}`}>
                     <strong>{item.alternative}</strong>
-                    <span>{item.pessimista} / {item.otimista}</span>
+                    <span>
+                      {item.pessimista} / {item.otimista}
+                    </span>
                   </li>
                 ))}
               </ol>
@@ -156,9 +298,9 @@ export default function ResultView({ projectId }: ResultViewProps) {
             </ul>
           </section>
         </div>
-      ) : (
+      ) : !pendencias ? (
         <Notice variant="info">Nenhum resultado carregado.</Notice>
-      )}
+      ) : null}
     </Panel>
   );
 }

@@ -1,6 +1,7 @@
 import type {
   ComparacoesAlternativasPayload,
   ComparacoesCriteriosPayload,
+  ContextoAvaliacao,
   NotasNumericasPayload,
   ParametrosPayload,
   ParticipantesPayload,
@@ -13,6 +14,19 @@ import type {
 const BASE_URL = '/api/v1';
 
 type MetodoHttp = 'GET' | 'POST' | 'PUT' | 'PATCH' | 'DELETE';
+
+export class ApiError extends Error {
+  status: number;
+
+  data: unknown;
+
+  constructor(status: number, data: unknown, message?: string) {
+    super(message ?? `Falha HTTP ${status}`);
+    this.name = 'ApiError';
+    this.status = status;
+    this.data = data;
+  }
+}
 
 async function requisitarJson<T>(
   caminho: string,
@@ -32,7 +46,17 @@ async function requisitarJson<T>(
 
   if (!resposta.ok) {
     const detalhe = await resposta.text().catch(() => '');
-    throw new Error(
+    let dados: unknown = detalhe;
+    if (detalhe) {
+      try {
+        dados = JSON.parse(detalhe);
+      } catch {
+        dados = detalhe;
+      }
+    }
+    throw new ApiError(
+      resposta.status,
+      dados,
       detalhe || `Falha ao chamar ${metodo} ${BASE_URL}${caminho}`,
     );
   }
@@ -98,4 +122,20 @@ export function salvarParametros(projetoId: number, payload: ParametrosPayload) 
 
 export function obterResultado(projetoId: number) {
   return requisitarJson<ResultadoProjeto>(`/projects/${projetoId}/result/`);
+}
+
+export function obterContextoAvaliacaoPorToken(
+  projetoId: number,
+  token: string,
+) {
+  return requisitarJson<ContextoAvaliacao>(
+    `/projects/${projetoId}/evaluation-token/${token}/`,
+  );
+}
+
+export function gerarResultado(projetoId: number) {
+  return requisitarJson<ResultadoProjeto>(
+    `/projects/${projetoId}/generate-result/`,
+    'POST',
+  );
 }

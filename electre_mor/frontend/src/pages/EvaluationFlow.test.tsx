@@ -6,6 +6,7 @@ import { EvaluationFlow } from './EvaluationFlow';
 import type { ProjetoCompleto } from '../types';
 
 const mocks = vi.hoisted(() => ({
+  obterContextoAvaliacaoPorTokenMock: vi.fn(),
   salvarNotasMock: vi.fn(),
   salvarComparacoesCriteriosMock: vi.fn(),
   salvarComparacoesAlternativasMock: vi.fn(),
@@ -13,6 +14,7 @@ const mocks = vi.hoisted(() => ({
 }));
 
 vi.mock('../services/api', () => ({
+  obterContextoAvaliacaoPorToken: mocks.obterContextoAvaliacaoPorTokenMock,
   salvarNotasNumericas: mocks.salvarNotasMock,
   salvarComparacoesCriterios: mocks.salvarComparacoesCriteriosMock,
   salvarComparacoesAlternativas: mocks.salvarComparacoesAlternativasMock,
@@ -45,6 +47,7 @@ const projeto: ProjetoCompleto = {
 
 describe('EvaluationFlow', () => {
   afterEach(() => {
+    mocks.obterContextoAvaliacaoPorTokenMock.mockReset();
     mocks.salvarNotasMock.mockReset();
     mocks.salvarComparacoesCriteriosMock.mockReset();
     mocks.salvarComparacoesAlternativasMock.mockReset();
@@ -125,5 +128,69 @@ describe('EvaluationFlow', () => {
     expect(
       await screen.findByText(/avaliacao completa salva/i),
     ).toBeInTheDocument();
+  });
+
+  it('avalia por token sem mostrar controles de estrutura', async () => {
+    mocks.obterContextoAvaliacaoPorTokenMock.mockResolvedValue({
+      project: projeto.projeto,
+      decisor: {
+        id: 9,
+        nome: 'Ana Souza',
+        status: 'pendente',
+        ativo: true,
+        is_criador: false,
+        token: 'token-seguro',
+        evaluation_url:
+          'http://localhost/?projectId=12&decisorToken=token-seguro&view=avaliacao',
+      },
+    });
+    mocks.salvarNotasMock.mockResolvedValue({ project_id: 12, scores: [] });
+    mocks.salvarComparacoesCriteriosMock.mockResolvedValue({
+      project_id: 12,
+      comparisons: [],
+    });
+    mocks.salvarComparacoesAlternativasMock.mockResolvedValue({
+      project_id: 12,
+      comparisons: [],
+    });
+    mocks.salvarParametrosMock.mockResolvedValue({
+      project_id: 12,
+      parameters: [],
+    });
+
+    const usuario = userEvent.setup();
+
+    render(
+      <EvaluationFlow
+        projeto={projeto}
+        projectId={12}
+        decisorToken="token-seguro"
+      />,
+    );
+
+    expect(
+      await screen.findByText(/fluxo de avaliacao/i),
+    ).toBeInTheDocument();
+    expect(
+      await screen.findByText(/avaliando como ana souza/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.queryByRole('button', { name: /configurar projeto/i }),
+    ).not.toBeInTheDocument();
+
+    await usuario.click(
+      screen.getByRole('button', { name: /salvar avaliacao completa/i }),
+    );
+
+    expect(
+      mocks.obterContextoAvaliacaoPorTokenMock,
+    ).toHaveBeenCalledWith(12, 'token-seguro');
+    expect(mocks.salvarComparacoesCriteriosMock).toHaveBeenCalledWith(12, {
+      comparisons: expect.arrayContaining([
+        expect.objectContaining({
+          decisor_id: 9,
+        }),
+      ]),
+    });
   });
 });
