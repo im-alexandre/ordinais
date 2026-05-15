@@ -1,3 +1,5 @@
+from urllib.parse import urlencode
+
 from rest_framework import serializers
 
 from core.models import Alternativa, Criterio, Decisor, Projeto
@@ -32,10 +34,32 @@ class ProjetoSerializer(serializers.ModelSerializer):
 
 
 class DecisorSerializer(serializers.ModelSerializer):
+    evaluation_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Decisor
-        fields = ["id", "nome"]
-        read_only_fields = ["id"]
+        fields = [
+            "id",
+            "nome",
+            "status",
+            "ativo",
+            "is_criador",
+            "token",
+            "evaluation_url",
+        ]
+        read_only_fields = fields
+
+    def get_evaluation_url(self, obj):
+        request = self.context.get("request")
+        query = urlencode({
+            "projectId": obj.projeto_id,
+            "decisorToken": obj.token,
+            "view": "avaliacao",
+        })
+        path = f"/?{query}"
+        if request is not None:
+            return request.build_absolute_uri(path)
+        return path
 
 
 class CriterioSerializer(serializers.ModelSerializer):

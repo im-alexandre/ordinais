@@ -1,4 +1,3 @@
-from django.urls import reverse
 from rest_framework.test import APITestCase
 
 from core.models import Alternativa, Criterio, Decisor, Projeto
@@ -105,3 +104,43 @@ class ApiParticipantsTests(APITestCase):
         self.assertTrue(decisor.ativo)
         self.assertEqual(decisor.status, Decisor.Status.PENDENTE)
         self.assertGreaterEqual(len(decisor.token), 32)
+
+    def test_criador_lista_decisores_e_retorna_links(self):
+        response = self.client.get(
+            f"/api/v1/projects/{self.projeto.id}/decision-makers/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIsInstance(response.data, list)
+        self.assertEqual(len(response.data), 1)
+        self.assertEqual(response.data[0]["nome"], "Antigo decisor")
+        self.assertIn("token", response.data[0])
+        self.assertIn("evaluation_url", response.data[0])
+
+    def test_criador_adiciona_decisor_convidado_e_recebe_link(self):
+        response = self.client.post(
+            f"/api/v1/projects/{self.projeto.id}/decision-makers/",
+            {"nome": "Ana Souza"},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 201)
+        self.assertEqual(response.data["nome"], "Ana Souza")
+        self.assertIn("token", response.data)
+        self.assertIn("evaluation_url", response.data)
+        self.assertIn("decisorToken=", response.data["evaluation_url"])
+        self.assertIn("projectId=", response.data["evaluation_url"])
+        self.assertIn("view=avaliacao", response.data["evaluation_url"])
+
+    def test_criador_desativa_decisor_pendente(self):
+        decisor = Decisor.objects.create(projeto=self.projeto, nome="Ana Souza")
+
+        response = self.client.post(
+            f"/api/v1/projects/{self.projeto.id}/decision-makers/{decisor.id}/disable/",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(response.status_code, 200)
+        decisor.refresh_from_db()
+        self.assertFalse(decisor.ativo)
+        self.assertEqual(decisor.status, Decisor.Status.DESATIVADO)
