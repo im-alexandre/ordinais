@@ -2,14 +2,18 @@ import type {
   ComparacoesAlternativasPayload,
   ComparacoesCriteriosPayload,
   ContextoAvaliacao,
+  ConfirmarUploadPlanilhaPayload,
   DecisorDetalhado,
+  PlanilhaPreviewResposta,
   NotasNumericasPayload,
   ParametrosPayload,
   ParticipantesPayload,
   ParticipantesResposta,
   Projeto,
+  ProjetoCompleto,
   ProjetoPayload,
   ResultadoProjeto,
+  RecalcularResultadoPayload,
 } from '../types';
 
 const BASE_URL = '/api/v1';
@@ -69,8 +73,119 @@ async function requisitarJson<T>(
   return (await resposta.json()) as T;
 }
 
+async function requisitarBlob(caminho: string): Promise<Blob> {
+  const resposta = await fetch(`${BASE_URL}${caminho}`, {
+    method: 'GET',
+    headers: {
+      Accept: 'application/json',
+    },
+  });
+
+  if (!resposta.ok) {
+    const detalhe = await resposta.text().catch(() => '');
+    let dados: unknown = detalhe;
+    if (detalhe) {
+      try {
+        dados = JSON.parse(detalhe);
+      } catch {
+        dados = detalhe;
+      }
+    }
+    throw new ApiError(
+      resposta.status,
+      dados,
+      detalhe || `Falha ao chamar GET ${BASE_URL}${caminho}`,
+    );
+  }
+
+  return resposta.blob();
+}
+
+async function requisitarFormDataJson<T>(
+  caminho: string,
+  metodo: MetodoHttp,
+  corpo: FormData,
+): Promise<T> {
+  const resposta = await fetch(`${BASE_URL}${caminho}`, {
+    method: metodo,
+    headers: {
+      Accept: 'application/json',
+    },
+    body: corpo,
+  });
+
+  if (!resposta.ok) {
+    const detalhe = await resposta.text().catch(() => '');
+    let dados: unknown = detalhe;
+    if (detalhe) {
+      try {
+        dados = JSON.parse(detalhe);
+      } catch {
+        dados = detalhe;
+      }
+    }
+    throw new ApiError(
+      resposta.status,
+      dados,
+      detalhe || `Falha ao chamar ${metodo} ${BASE_URL}${caminho}`,
+    );
+  }
+
+  if (resposta.status === 204) {
+    return undefined as T;
+  }
+
+  return (await resposta.json()) as T;
+}
+
 export function listarProjetos() {
   return requisitarJson<Projeto[]>('/projects/');
+}
+
+export function baixarPlanilhaModelo(projetoId: number): Promise<Blob> {
+  return requisitarBlob(`/projects/${projetoId}/spreadsheet-template/`);
+}
+
+export function preverUploadPlanilha(
+  projetoId: number,
+  arquivo: Blob,
+): Promise<PlanilhaPreviewResposta> {
+  const formData = new FormData();
+  const nomeArquivo = arquivo instanceof File ? arquivo.name : 'planilha.xlsx';
+  formData.append('arquivo', arquivo, nomeArquivo);
+
+  return requisitarFormDataJson<PlanilhaPreviewResposta>(
+    `/projects/${projetoId}/spreadsheet-upload/preview/`,
+    'POST',
+    formData,
+  );
+}
+
+export function confirmarUploadPlanilha(
+  projetoId: number,
+  payload: ConfirmarUploadPlanilhaPayload,
+): Promise<ProjetoCompleto> {
+  return requisitarJson<ProjetoCompleto>(
+    `/projects/${projetoId}/spreadsheet-upload/confirm/`,
+    'POST',
+    payload,
+  );
+}
+
+export function recalcularResultado(
+  projetoId: number,
+  payload: RecalcularResultadoPayload,
+): Promise<ResultadoProjeto> {
+  const lambda = payload.lambda ?? payload.lamb;
+
+  return requisitarJson<ResultadoProjeto>(
+    `/projects/${projetoId}/recalculate-result/`,
+    'POST',
+    {
+      lambda,
+      qtde_classes: payload.qtde_classes,
+    },
+  );
 }
 
 export function listarDecisores(projetoId: number) {

@@ -100,6 +100,67 @@ export type ParametrosPayload = {
   parameters: ParametroCriterio[];
 };
 
+export type OrigemValorPlanilha = 'planilha' | 'automatico' | 'editado';
+
+export type PlanilhaMensagem = {
+  codigo: string;
+  mensagem: string;
+  campo?: string;
+  criterio_id?: number;
+  alternativa_id?: number;
+};
+
+export type PlanilhaValorParametro = {
+  valor: number | null;
+  origem: OrigemValorPlanilha;
+};
+
+export type PlanilhaDesempenhoValor = {
+  criterio_id: number;
+  criterio: string;
+  valor: number | null;
+};
+
+export type PlanilhaDesempenhoRevisao = {
+  alternativa_id: number;
+  alternativa: string;
+  valores: PlanilhaDesempenhoValor[];
+};
+
+export type PlanilhaParametroRevisao = {
+  criterio_id: number;
+  criterio: string;
+  q: PlanilhaValorParametro;
+  p: PlanilhaValorParametro;
+  v: PlanilhaValorParametro;
+};
+
+export type PlanilhaArquivo = {
+  nome: string;
+  tamanho?: number;
+  tipo?: string;
+};
+
+export type PlanilhaPreviewResposta = {
+  projeto: Projeto;
+  arquivo: PlanilhaArquivo;
+  desempenhos: PlanilhaDesempenhoRevisao[];
+  parametros: PlanilhaParametroRevisao[];
+  erros: PlanilhaMensagem[];
+  avisos: PlanilhaMensagem[];
+};
+
+export type ConfirmarUploadPlanilhaPayload = {
+  desempenhos: PlanilhaDesempenhoRevisao[];
+  parametros: PlanilhaParametroRevisao[];
+};
+
+export type RecalcularResultadoPayload = {
+  lambda?: number;
+  lamb?: number;
+  qtde_classes: number;
+};
+
 export type ProjetoCompleto = {
   projeto: Projeto;
   decisores: DecisorDetalhado[];
