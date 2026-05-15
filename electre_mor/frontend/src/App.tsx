@@ -99,6 +99,14 @@ export default function App() {
           >
             Resultado
           </ActionButton>
+          <a
+            className="acao-botao acao-botao-secundario"
+            href="/static/frontend/tutorial/tutorial.html"
+            rel="noreferrer"
+            target="_blank"
+          >
+            Tutorial
+          </a>
         </nav>
       </header>
 

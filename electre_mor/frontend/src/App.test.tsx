@@ -56,6 +56,18 @@ describe('App', () => {
     ).toBeEnabled();
   });
 
+  it('exibe link do tutorial no menu superior', () => {
+    render(<App />);
+
+    const linkTutorial = screen.getByRole('link', { name: /tutorial/i });
+
+    expect(linkTutorial).toHaveAttribute(
+      'href',
+      '/static/frontend/tutorial/tutorial.html',
+    );
+    expect(linkTutorial).toHaveAttribute('target', '_blank');
+  });
+
   it('copia a citacao no formato selecionado', async () => {
     const writeText = vi.fn().mockResolvedValue(undefined);
     const usuario = userEvent.setup();

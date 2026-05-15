@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Tutorial ELECTRE-MOr - baixar planilhas e tabelas</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f4f6f8;
+      --panel: #ffffff;
+      --text: #172033;
+      --muted: #5f6b7a;
+      --accent: #d9352b;
+      --line: #d9dee7;
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Segoe UI, Arial, sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      line-height: 1.55;
+    }
+    header {
+      padding: 42px 6vw 28px;
+      background: #101820;
+      color: white;
+    }
+    header h1 {
+      margin: 0 0 12px;
+      font-size: clamp(30px, 4vw, 54px);
+      letter-spacing: 0;
+    }
+    header p {
+      max-width: 980px;
+      margin: 0;
+      color: #d7dee8;
+      font-size: 18px;
+    }
+    main { padding: 28px 6vw 56px; }
+    .summary, .downloads, .step {
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 8px;
+      box-shadow: 0 10px 28px rgba(15, 23, 42, 0.08);
+    }
+    .summary, .downloads { padding: 24px; margin-bottom: 24px; }
+    .summary ul { margin: 12px 0 0; padding-left: 22px; }
+    .downloads a {
+      display: inline-flex;
+      margin: 8px 10px 0 0;
+      padding: 10px 14px;
+      border-radius: 6px;
+      background: #eef2f7;
+      color: #132238;
+      text-decoration: none;
+      border: 1px solid var(--line);
+    }
+    .step {
+      overflow: hidden;
+      margin: 26px 0;
+    }
+    .step-copy { padding: 24px 24px 16px; }
+    .step-index {
+      display: inline-block;
+      color: var(--accent);
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .step h2 { margin: 0 0 8px; font-size: 26px; }
+    .step p { margin: 0; color: var(--muted); font-size: 17px; }
+    .step img {
+      display: block;
+      width: 100%;
+      border-top: 1px solid var(--line);
+      background: white;
+    }
+    footer {
+      padding: 22px 6vw 42px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Tutorial: baixar a planilha modelo e a tabela de resultados</h1>
+    <p>Este guia foi gerado por um teste E2E no ambiente de desenvolvimento. As imagens mostram o fluxo real no navegador, com setas indicando os pontos importantes para preparar a planilha, enviar os dados, gerar o resultado e baixar o XLSX final.</p>
+  </header>
+  <main>
+    <section class="summary">
+      <h2>Resumo do fluxo</h2>
+      <ul>
+        <li>Configure o projeto e preencha nomes de critérios e alternativas antes de preparar a planilha.</li>
+        <li>Baixe a planilha modelo personalizada, complete os desempenhos numéricos e envie o arquivo de volta.</li>
+        <li>Revise os parâmetros calculados automaticamente, edite q, p ou v quando necessário e confirme o upload.</li>
+        <li>Complete a avaliação do criador, gere o resultado e use o botão de download para baixar a tabela em XLSX.</li>
+      </ul>
+    </section>
+    <section class="downloads">
+      <h2>Arquivos gerados neste E2E</h2>
+      <a href="downloads/planilha-modelo-17.xlsx">Planilha modelo baixada</a>
+      <a href="downloads/planilha-modelo-17-preenchida.xlsx">Planilha preenchida usada no upload</a>
+      <a href="downloads/resultado-projeto-17.xlsx">Tabela de resultado baixada</a>
+    </section>
+    
+        <article class="step" id="01-configuracao-pronta">
+          <div class="step-copy">
+            <span class="step-index">Passo 01</span>
+            <h2>Configuração pronta para gerar a planilha</h2>
+            <p>Depois de informar o projeto, critérios e alternativas, a área de planilha fica pronta para criar o modelo personalizado.</p>
+          </div>
+          <a href="images/01-configuracao-pronta.png" target="_blank" rel="noreferrer">
+            <img src="images/01-configuracao-pronta.png" alt="Configuração pronta para gerar a planilha">
+          </a>
+        </article>
+        
+
+        <article class="step" id="02-download-modelo">
+          <div class="step-copy">
+            <span class="step-index">Passo 02</span>
+            <h2>Baixar a planilha modelo personalizada</h2>
+            <p>Com o projeto salvo, o botão de download gera um arquivo XLSX já com abas, critérios e alternativas do projeto.</p>
+          </div>
+          <a href="images/02-download-modelo.png" target="_blank" rel="noreferrer">
+            <img src="images/02-download-modelo.png" alt="Baixar a planilha modelo personalizada">
+          </a>
+        </article>
+        
+
+        <article class="step" id="03-upload-planilha">
+          <div class="step-copy">
+            <span class="step-index">Passo 03</span>
+            <h2>Selecionar a planilha preenchida</h2>
+            <p>Depois de completar o arquivo, selecione a planilha preenchida e gere a prévia antes de gravar qualquer dado.</p>
+          </div>
+          <a href="images/03-upload-planilha.png" target="_blank" rel="noreferrer">
+            <img src="images/03-upload-planilha.png" alt="Selecionar a planilha preenchida">
+          </a>
+        </article>
+        
+
+        <article class="step" id="04-revisao-parametros">
+          <div class="step-copy">
+            <span class="step-index">Passo 04</span>
+            <h2>Revisar valores importados e parâmetros calculados</h2>
+            <p>A revisão mostra desempenhos importados e indica se q, p e v vieram da planilha, foram calculados automaticamente ou foram editados.</p>
+          </div>
+          <a href="images/04-revisao-parametros.png" target="_blank" rel="noreferrer">
+            <img src="images/04-revisao-parametros.png" alt="Revisar valores importados e parâmetros calculados">
+          </a>
+        </article>
+        
+
+        <article class="step" id="05-edicao-parametros">
+          <div class="step-copy">
+            <span class="step-index">Passo 05</span>
+            <h2>Editar q, p ou v antes de confirmar</h2>
+            <p>Quando o usuário altera um parâmetro, a origem muda para Editado. A confirmação usa exatamente os valores revisados nessa tela.</p>
+          </div>
+          <a href="images/05-edicao-parametros.png" target="_blank" rel="noreferrer">
+            <img src="images/05-edicao-parametros.png" alt="Editar q, p ou v antes de confirmar">
+          </a>
+        </article>
+        
+
+        <article class="step" id="06-avaliacao-criador">
+          <div class="step-copy">
+            <span class="step-index">Passo 06</span>
+            <h2>Completar a avaliação do criador</h2>
+            <p>O upload preenche os critérios numéricos, mas o decisor ainda precisa salvar a avaliação completa no fluxo normal.</p>
+          </div>
+          <a href="images/06-avaliacao-criador.png" target="_blank" rel="noreferrer">
+            <img src="images/06-avaliacao-criador.png" alt="Completar a avaliação do criador">
+          </a>
+        </article>
+        
+
+        <article class="step" id="07-resultado-pendente">
+          <div class="step-copy">
+            <span class="step-index">Passo 07</span>
+            <h2>Abrir a aba Resultado</h2>
+            <p>A tela de resultados separa links/QR codes da tabela final. Para baixar a tabela, entre na aba Resultado.</p>
+          </div>
+          <a href="images/07-resultado-pendente.png" target="_blank" rel="noreferrer">
+            <img src="images/07-resultado-pendente.png" alt="Abrir a aba Resultado">
+          </a>
+        </article>
+        
+
+        <article class="step" id="08-tabela-resultado">
+          <div class="step-copy">
+            <span class="step-index">Passo 08</span>
+            <h2>Conferir a tabela de classificação</h2>
+            <p>A tabela mostra as mesmas informações exportadas: classe pessimista, classe otimista e classe final.</p>
+          </div>
+          <a href="images/08-tabela-resultado.png" target="_blank" rel="noreferrer">
+            <img src="images/08-tabela-resultado.png" alt="Conferir a tabela de classificação">
+          </a>
+        </article>
+        
+
+        <article class="step" id="09-recalculo-oficial">
+          <div class="step-copy">
+            <span class="step-index">Passo 09</span>
+            <h2>Simular lambda e classes antes do download</h2>
+            <p>O criador pode ajustar lambda e número de classes. Ao recalcular, esses valores passam a ser oficiais para o projeto.</p>
+          </div>
+          <a href="images/09-recalculo-oficial.png" target="_blank" rel="noreferrer">
+            <img src="images/09-recalculo-oficial.png" alt="Simular lambda e classes antes do download">
+          </a>
+        </article>
+        
+
+        <article class="step" id="10-download-resultado">
+          <div class="step-copy">
+            <span class="step-index">Passo 10</span>
+            <h2>Baixar a tabela final em XLSX</h2>
+            <p>Depois do recálculo, o botão de download exporta a versão oficial exibida na tela.</p>
+          </div>
+          <a href="images/10-download-resultado.png" target="_blank" rel="noreferrer">
+            <img src="images/10-download-resultado.png" alt="Baixar a tabela final em XLSX">
+          </a>
+        </article>
+        
+  </main>
+  <footer>
+    Tutorial salvo localmente em D:\ordinais\output\playwright\tutorial-downloads.
+  </footer>
+</body>
+</html>

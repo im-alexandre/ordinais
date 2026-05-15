@@ -740,6 +740,9 @@ body::before {
 }
 
 .acao-botao {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   border: 1px solid rgba(79, 111, 100, 0.86);
   border-radius: 999px;
   padding: 17px 24px;
@@ -749,10 +752,13 @@ body::before {
   font-size: 1.3rem;
   cursor: pointer;
   box-shadow: 0 12px 28px rgba(79, 111, 100, 0.18);
+  text-align: center;
+  text-decoration: none;
 }
 
 .acao-botao:hover {
   transform: translateY(-1px);
+  text-decoration: none;
 }
 
 .acao-botao:disabled {
