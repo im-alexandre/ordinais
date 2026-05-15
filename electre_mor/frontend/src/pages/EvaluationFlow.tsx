@@ -169,6 +169,7 @@ export function EvaluationFlow({
       await salvarNotasNumericas(projetoId, {
         scores: criteriosNumericos.flatMap((criterio, criterioIndice) =>
           alternativas.map((alternativa, alternativaIndice) => ({
+            decisor_id: decisorId,
             criterio_id: criterio.id,
             alternativa_id: alternativa.id,
             nota: Number(valorNotaNumerica(criterioIndice, alternativaIndice)),

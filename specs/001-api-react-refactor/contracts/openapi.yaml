@@ -248,15 +248,7 @@ components:
         scores:
           type: array
           items:
-            type: object
-            required: [criterio_id, alternativa_id, nota]
-            properties:
-              criterio_id:
-                type: integer
-              alternativa_id:
-                type: integer
-              nota:
-                type: number
+            $ref: "#/components/schemas/NumericScoreItem"
     CriteriaComparisonsPayload:
       type: object
       required: [comparisons]
@@ -457,8 +449,10 @@ components:
           type: integer
     NumericScoreItem:
       type: object
-      required: [criterio_id, alternativa_id, nota]
+      required: [decisor_id, criterio_id, alternativa_id, nota]
       properties:
+        decisor_id:
+          type: integer
         criterio_id:
           type: integer
         alternativa_id:

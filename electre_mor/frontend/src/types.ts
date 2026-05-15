@@ -42,6 +42,7 @@ export type ParticipantesResposta = {
 };
 
 export type NotaNumerica = {
+  decisor_id: number;
   criterio_id: number;
   alternativa_id: number;
   nota: number;

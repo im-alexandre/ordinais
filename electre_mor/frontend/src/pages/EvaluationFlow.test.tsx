@@ -109,7 +109,7 @@ describe('EvaluationFlow', () => {
     });
     expect(mocks.salvarNotasMock).toHaveBeenCalledWith(12, {
       scores: expect.arrayContaining([
-        { criterio_id: 11, alternativa_id: 20, nota: 40 },
+        { decisor_id: 1, criterio_id: 11, alternativa_id: 20, nota: 40 },
       ]),
     });
     expect(mocks.salvarComparacoesAlternativasMock).toHaveBeenCalledWith(12, {
