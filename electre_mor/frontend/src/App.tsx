@@ -12,25 +12,27 @@ type Tela = 'inicio' | 'setup' | 'avaliacao' | 'resultado';
 export default function App() {
   const parametrosUrl = new URLSearchParams(window.location.search);
   const projetoIdInicial = Number(parametrosUrl.get('projectId'));
+  const decisorTokenInicial = parametrosUrl.get('decisorToken') ?? undefined;
   const viewInicial = parametrosUrl.get('view');
   const telaInicial =
     viewInicial === 'resultado' && projetoIdInicial > 0
       ? 'resultado'
       : viewInicial === 'setup'
         ? 'setup'
+        : viewInicial === 'avaliacao' && projetoIdInicial > 0
+          ? 'avaliacao'
       : 'inicio';
   const [tela, setTela] = useState<Tela>(telaInicial);
   const [projeto, setProjeto] = useState<ProjetoCompleto | null>(null);
   const [projetoIdDireto, setProjetoIdDireto] = useState<number | null>(
     projetoIdInicial > 0 ? projetoIdInicial : null,
   );
+  const projetoIdAtual = projeto?.projeto.id ?? projetoIdDireto ?? undefined;
   const projetoConfigurado = projeto !== null;
+  const podeAbrirFluxos = projetoConfigurado || projetoIdAtual !== undefined;
 
   function navegar(telaDestino: Tela) {
-    if (
-      (telaDestino === 'avaliacao' || telaDestino === 'resultado') &&
-      !projetoConfigurado
-    ) {
+    if ((telaDestino === 'avaliacao' || telaDestino === 'resultado') && !podeAbrirFluxos) {
       return;
     }
 
@@ -48,19 +50,18 @@ export default function App() {
   }
 
   function abrirResultado(projetoId?: number) {
-    if (!projetoConfigurado) {
+    const id = projetoId ?? projetoIdAtual;
+
+    if (id === undefined) {
       return;
     }
 
-    const id = projetoId ?? projeto?.projeto.id ?? projetoIdDireto;
-    if (id !== null && id !== undefined) {
-      setProjetoIdDireto(id);
-      window.history.replaceState(
-        {},
-        '',
-        `${window.location.pathname}?projectId=${id}&view=resultado`,
-      );
-    }
+    setProjetoIdDireto(id);
+    window.history.replaceState(
+      {},
+      '',
+      `${window.location.pathname}?projectId=${id}&view=resultado`,
+    );
     setTela('resultado');
   }
 
@@ -85,7 +86,7 @@ export default function App() {
           <ActionButton
             type="button"
             className={tela === 'avaliacao' ? '' : 'acao-botao-secundario'}
-            disabled={!projetoConfigurado}
+            disabled={!podeAbrirFluxos}
             onClick={() => navegar('avaliacao')}
           >
             Avaliar projeto
@@ -93,7 +94,7 @@ export default function App() {
           <ActionButton
             type="button"
             className={tela === 'resultado' ? '' : 'acao-botao-secundario'}
-            disabled={!projetoConfigurado}
+            disabled={!podeAbrirFluxos}
             onClick={() => abrirResultado()}
           >
             Resultado
@@ -123,12 +124,16 @@ export default function App() {
         {tela === 'avaliacao' ? (
           <EvaluationFlow
             projeto={projeto}
-            onComplete={() => abrirResultado(projeto?.projeto.id)}
+            projectId={projetoIdAtual}
+            decisorToken={decisorTokenInicial}
+            onComplete={
+              projetoConfigurado ? () => abrirResultado(projetoIdAtual) : undefined
+            }
           />
         ) : null}
 
         {tela === 'resultado' ? (
-          <ResultView projectId={projeto?.projeto.id ?? projetoIdDireto ?? undefined} />
+          <ResultView projectId={projetoIdAtual} isCreator={projetoConfigurado} />
         ) : null}
       </main>
     </div>

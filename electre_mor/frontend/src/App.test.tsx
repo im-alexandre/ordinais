@@ -4,8 +4,24 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 import App from './App';
 
+const apiMocks = vi.hoisted(() => ({
+  criarProjeto: vi.fn(),
+  gerarResultado: vi.fn(),
+  listarProjetos: vi.fn(),
+  obterContextoAvaliacaoPorToken: vi.fn(),
+  obterResultado: vi.fn(),
+  salvarComparacoesAlternativas: vi.fn(),
+  salvarComparacoesCriterios: vi.fn(),
+  salvarNotasNumericas: vi.fn(),
+  salvarParametros: vi.fn(),
+  salvarParticipantes: vi.fn(),
+}));
+
+vi.mock('./services/api', () => apiMocks);
+
 describe('App', () => {
   beforeEach(() => {
+    Object.values(apiMocks).forEach((mock) => mock.mockReset());
     window.history.replaceState({}, '', window.location.pathname);
   });
 
@@ -90,6 +106,46 @@ describe('App', () => {
     fireEvent.change(campoLambda, { target: { value: '0.6' } });
 
     expect(campoLambda).toHaveValue(0.6);
+  });
+
+  it('abre o fluxo de avaliacao com token pela URL sem projeto em memoria', async () => {
+    apiMocks.obterContextoAvaliacaoPorToken.mockResolvedValueOnce({
+      project: {
+        id: 12,
+        nome: 'Projeto Token',
+        descricao: 'Descricao de teste',
+        qtde_classes: 3,
+        qtde_criterios: 2,
+        qtde_alternativas: 2,
+        qtde_decisores: 1,
+        lamb: 0.7,
+      },
+      decisor: {
+        id: 34,
+        nome: 'Decisor Token',
+        status: 'em_edicao',
+        ativo: true,
+        is_criador: false,
+        token: 'abc',
+        evaluation_url: 'http://localhost/?projectId=12&decisorToken=abc&view=avaliacao',
+      },
+    });
+
+    window.history.replaceState(
+      {},
+      '',
+      '/?projectId=12&decisorToken=abc&view=avaliacao',
+    );
+
+    render(<App />);
+
+    expect(
+      await screen.findByText(/avaliando como decisor token\./i),
+    ).toBeInTheDocument();
+    expect(apiMocks.obterContextoAvaliacaoPorToken).toHaveBeenCalledWith(
+      12,
+      'abc',
+    );
   });
 
   it('mantem avaliacao e resultado bloqueados ate configurar o projeto', () => {
