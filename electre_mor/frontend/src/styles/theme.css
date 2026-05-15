@@ -412,6 +412,31 @@ body::before {
   align-items: stretch;
 }
 
+.avaliador-destaque {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 10px;
+  margin-bottom: 16px;
+  border: 1px solid rgba(79, 111, 100, 0.24);
+  border-radius: 18px;
+  padding: 14px 16px;
+  background: rgba(79, 111, 100, 0.1);
+}
+
+.avaliador-destaque span {
+  color: var(--texto-suave);
+  font-size: 0.82rem;
+  font-weight: 800;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+}
+
+.avaliador-destaque strong {
+  color: var(--destaque);
+  font-size: 1.35rem;
+}
+
 .avaliacao-card {
   display: grid;
   gap: 14px;
@@ -617,6 +642,29 @@ body::before {
 .resultado {
   display: grid;
   gap: 16px;
+}
+
+.abas-resultado {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-bottom: 16px;
+}
+
+.aba-resultado {
+  border: 1px solid rgba(215, 208, 196, 0.95);
+  border-radius: 999px;
+  padding: 12px 16px;
+  background: rgba(255, 255, 255, 0.62);
+  color: var(--texto);
+  cursor: pointer;
+  font-weight: 800;
+}
+
+.aba-resultado[aria-selected='true'] {
+  border-color: rgba(79, 111, 100, 0.86);
+  background: var(--destaque);
+  color: var(--branco);
 }
 
 .qr-share-card {

@@ -83,12 +83,14 @@ describe('ResultView', () => {
       }),
     );
     mocks.listarDecisoresMock.mockResolvedValueOnce([]);
+    const usuario = userEvent.setup();
 
     render(<ResultView projectId={4} isCreator />);
 
     expect(
       await screen.findByText(/decisores pendentes/i),
     ).toBeInTheDocument();
+    await usuario.click(screen.getByRole('tab', { name: /resultado/i }));
     expect(
       screen.getByRole('button', { name: /gerar resultado/i }),
     ).toBeDisabled();
@@ -111,6 +113,10 @@ describe('ResultView', () => {
 
     render(<ResultView projectId={4} isCreator />);
 
+    await usuario.click(
+      await screen.findByRole('tab', { name: /resultado/i }),
+    );
+
     const botaoGerar = await screen.findByRole('button', {
       name: /gerar resultado/i,
     });
@@ -128,14 +134,18 @@ describe('ResultView', () => {
   it('mostra o QR de compartilhamento quando o resultado estiver carregado', async () => {
     mocks.obterResultadoMock.mockResolvedValueOnce(resultadoFinal);
     mocks.listarDecisoresMock.mockResolvedValueOnce([]);
+    const usuario = userEvent.setup();
 
     render(<ResultView projectId={4} isCreator />);
 
     expect(
-      await screen.findByRole('link', { name: /acessar este projeto/i }),
+      await screen.findByRole('img', { name: /qr code/i }),
     ).toBeInTheDocument();
+
+    await usuario.click(screen.getByRole('tab', { name: /resultado/i }));
+
     expect(
-      screen.getByRole('img', { name: /qr code/i }),
+      screen.getByRole('link', { name: /acessar este projeto/i }),
     ).toBeInTheDocument();
   });
 

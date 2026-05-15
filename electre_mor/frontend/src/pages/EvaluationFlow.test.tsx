@@ -82,6 +82,10 @@ describe('EvaluationFlow', () => {
 
     render(<EvaluationFlow projeto={projeto} />);
 
+    expect(screen.getByLabelText(/avaliador atual/i)).toHaveTextContent(
+      /Comite/,
+    );
+
     const [vacinaANoCusto] = screen.getAllByLabelText(/vacina a/i);
     await usuario.clear(vacinaANoCusto);
     await usuario.type(vacinaANoCusto, '40');
@@ -185,6 +189,9 @@ describe('EvaluationFlow', () => {
     expect(
       await screen.findByText(/avaliando como ana souza/i),
     ).toBeInTheDocument();
+    expect(screen.getByLabelText(/avaliador atual/i)).toHaveTextContent(
+      /Ana Souza/,
+    );
     expect(
       screen.queryByRole('button', { name: /configurar projeto/i }),
     ).not.toBeInTheDocument();

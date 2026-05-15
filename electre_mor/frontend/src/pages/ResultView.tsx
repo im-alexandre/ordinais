@@ -103,6 +103,7 @@ export default function ResultView({ projectId, isCreator = false }: ResultViewP
   const [decisores, setDecisores] = useState<DecisorDetalhado[]>([]);
   const [carregando, setCarregando] = useState(false);
   const [gerando, setGerando] = useState(false);
+  const [abaAtiva, setAbaAtiva] = useState<'links' | 'resultado'>('links');
   const linkProjeto =
     projectId === undefined
       ? ''
@@ -186,6 +187,7 @@ export default function ResultView({ projectId, isCreator = false }: ResultViewP
       const dados = await gerarResultado(projectId);
       setResultado(dados);
       setPendencias(null);
+      setAbaAtiva('resultado');
     } catch (error) {
       if (isPendenciaApi(error)) {
         setPendencias(extrairPendencias(error));
@@ -221,6 +223,8 @@ export default function ResultView({ projectId, isCreator = false }: ResultViewP
     (pendencias === null || pendencias.length === 0) &&
     projectId !== undefined &&
     resultado === null;
+  const temLinksDecisores =
+    isCreator && decisores.some((decisor) => decisor.ativo && !decisor.is_criador);
 
   return (
     <Panel
@@ -229,119 +233,159 @@ export default function ResultView({ projectId, isCreator = false }: ResultViewP
     >
       {carregando ? <Notice variant="info">Carregando resultado...</Notice> : null}
       {erro ? <Notice variant="warning">{erro}</Notice> : null}
-      {projectId !== undefined ? (
-        <QrShareCard nome="resultado do projeto" url={linkProjeto} />
-      ) : null}
-      {isCreator && decisores.some((decisor) => decisor.ativo && !decisor.is_criador) ? (
-        <section className="resultado-bloco links-decisores" aria-label="Links de avaliacao dos decisores">
-          <h3>Links de avaliacao dos decisores</h3>
-          <div className="links-decisores-grid">
-            {decisores
-              .filter((decisor) => decisor.ativo && !decisor.is_criador)
-              .map((decisor) => (
-                <QrShareCard
-                  key={decisor.id}
-                  nome={decisor.nome}
-                  url={decisor.evaluation_url}
-                />
-              ))}
-          </div>
-        </section>
-      ) : null}
-      {pendencias ? (
-        <section className="resultado-bloco resultado-pendencias" aria-label="Decisores pendentes">
-          <h3>Decisores pendentes</h3>
-          {pendencias.length > 0 ? (
-            <ul>
-              {pendencias.map((pendencia) => (
-                <li key={String(pendencia.id)}>
-                  <strong>{pendencia.nome}</strong>
-                  <span>{pendencia.faltas.join(', ') || 'sem pendencias'}</span>
-                </li>
-              ))}
-            </ul>
-          ) : (
-            <p>Nenhuma pendencia restante para gerar o resultado.</p>
-          )}
-          {isCreator ? (
-            <div className="resultado-pendencias-acoes">
-              <ActionButton
-                type="button"
-                className="resultado-botao"
-                disabled={!podeGerarResultado}
-                onClick={gerarResultadoManual}
-              >
-                {gerando ? 'Gerando...' : 'Gerar resultado'}
-              </ActionButton>
+      <div className="abas-resultado" role="tablist" aria-label="Secoes do resultado">
+        <button
+          aria-controls="painel-links"
+          aria-selected={abaAtiva === 'links'}
+          className="aba-resultado"
+          id="aba-links"
+          onClick={() => setAbaAtiva('links')}
+          role="tab"
+          type="button"
+        >
+          Links e QR codes
+        </button>
+        <button
+          aria-controls="painel-resultado"
+          aria-selected={abaAtiva === 'resultado'}
+          className="aba-resultado"
+          id="aba-resultado"
+          onClick={() => setAbaAtiva('resultado')}
+          role="tab"
+          type="button"
+        >
+          Resultado
+        </button>
+      </div>
+
+      <div
+        aria-labelledby="aba-links"
+        hidden={abaAtiva !== 'links'}
+        id="painel-links"
+        role="tabpanel"
+      >
+        {projectId !== undefined ? (
+          <QrShareCard nome="resultado do projeto" url={linkProjeto} />
+        ) : null}
+        {temLinksDecisores ? (
+          <section className="resultado-bloco links-decisores" aria-label="Links de avaliacao dos decisores">
+            <h3>Links de avaliacao dos decisores</h3>
+            <div className="links-decisores-grid">
+              {decisores
+                .filter((decisor) => decisor.ativo && !decisor.is_criador)
+                .map((decisor) => (
+                  <QrShareCard
+                    key={decisor.id}
+                    nome={decisor.nome}
+                    url={decisor.evaluation_url}
+                  />
+                ))}
             </div>
-          ) : null}
-        </section>
-      ) : null}
-      {resultado ? (
-        <div className="resultado">
-          <div className="resultado-acoes">
-            <a className="link-projeto" href={linkProjeto}>
-              Acessar este projeto
-            </a>
-            <button
-              className="acao-botao resultado-botao"
-              type="button"
-              onClick={baixarTabelaExcel}
-            >
-              Baixar tabela para Excel
-            </button>
-          </div>
-
-          <div className="resultado-resumo">
-            <p>Projeto: {resultado.project.nome}</p>
-            <p>Classes: {resultado.project.qtde_classes}</p>
-          </div>
-
-          <div className="resultado-grade">
-            <section className="resultado-bloco" aria-label="Classificacao range">
-              <h3>Classificacao range</h3>
-              <ol>
-                {resultado.classificacao_final.range.map((item) => (
-                  <li key={`range-${item.alternative_id}`}>
-                    <strong>{item.alternative}</strong>
-                    <span>
-                      {item.pessimista} / {item.otimista}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            </section>
-
-            <section className="resultado-bloco" aria-label="Classificacao quantile">
-              <h3>Classificacao quantile</h3>
-              <ol>
-                {resultado.classificacao_final.quantile.map((item) => (
-                  <li key={`quantile-${item.alternative_id}`}>
-                    <strong>{item.alternative}</strong>
-                    <span>
-                      {item.pessimista} / {item.otimista}
-                    </span>
-                  </li>
-                ))}
-              </ol>
-            </section>
-          </div>
-
-          <section className="resultado-bloco" aria-label="Pesos dos criterios">
-            <h3>Pesos dos criterios</h3>
-            <ul>
-              {resultado.pesos_criterios.map((item) => (
-                <li key={String(item.criterio)}>
-                  <strong>{item.criterio_nome}</strong>
-                  <span>{Number(item.peso).toFixed(4)}</span>
-                </li>
-              ))}
-            </ul>
           </section>
-        </div>
-      ) : !pendencias ? (
-        <Notice variant="info">Nenhum resultado carregado.</Notice>
-      ) : null}
+        ) : null}
+      </div>
+
+      <div
+        aria-labelledby="aba-resultado"
+        hidden={abaAtiva !== 'resultado'}
+        id="painel-resultado"
+        role="tabpanel"
+      >
+        {pendencias ? (
+          <section className="resultado-bloco resultado-pendencias" aria-label="Decisores pendentes">
+            <h3>Decisores pendentes</h3>
+            {pendencias.length > 0 ? (
+              <ul>
+                {pendencias.map((pendencia) => (
+                  <li key={String(pendencia.id)}>
+                    <strong>{pendencia.nome}</strong>
+                    <span>{pendencia.faltas.join(', ') || 'sem pendencias'}</span>
+                  </li>
+                ))}
+              </ul>
+            ) : (
+              <p>Nenhuma pendencia restante para gerar o resultado.</p>
+            )}
+            {isCreator ? (
+              <div className="resultado-pendencias-acoes">
+                <ActionButton
+                  type="button"
+                  className="resultado-botao"
+                  disabled={!podeGerarResultado}
+                  onClick={gerarResultadoManual}
+                >
+                  {gerando ? 'Gerando...' : 'Gerar resultado'}
+                </ActionButton>
+              </div>
+            ) : null}
+          </section>
+        ) : null}
+        {resultado ? (
+          <div className="resultado">
+            <div className="resultado-acoes">
+              <a className="link-projeto" href={linkProjeto}>
+                Acessar este projeto
+              </a>
+              <button
+                className="acao-botao resultado-botao"
+                type="button"
+                onClick={baixarTabelaExcel}
+              >
+                Baixar tabela para Excel
+              </button>
+            </div>
+
+            <div className="resultado-resumo">
+              <p>Projeto: {resultado.project.nome}</p>
+              <p>Classes: {resultado.project.qtde_classes}</p>
+            </div>
+
+            <div className="resultado-grade">
+              <section className="resultado-bloco" aria-label="Classificacao range">
+                <h3>Classificacao range</h3>
+                <ol>
+                  {resultado.classificacao_final.range.map((item) => (
+                    <li key={`range-${item.alternative_id}`}>
+                      <strong>{item.alternative}</strong>
+                      <span>
+                        {item.pessimista} / {item.otimista}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+
+              <section className="resultado-bloco" aria-label="Classificacao quantile">
+                <h3>Classificacao quantile</h3>
+                <ol>
+                  {resultado.classificacao_final.quantile.map((item) => (
+                    <li key={`quantile-${item.alternative_id}`}>
+                      <strong>{item.alternative}</strong>
+                      <span>
+                        {item.pessimista} / {item.otimista}
+                      </span>
+                    </li>
+                  ))}
+                </ol>
+              </section>
+            </div>
+
+            <section className="resultado-bloco" aria-label="Pesos dos criterios">
+              <h3>Pesos dos criterios</h3>
+              <ul>
+                {resultado.pesos_criterios.map((item) => (
+                  <li key={String(item.criterio)}>
+                    <strong>{item.criterio_nome}</strong>
+                    <span>{Number(item.peso).toFixed(4)}</span>
+                  </li>
+                ))}
+              </ul>
+            </section>
+          </div>
+        ) : !pendencias ? (
+          <Notice variant="info">Nenhum resultado carregado.</Notice>
+        ) : null}
+      </div>
     </Panel>
   );
 }

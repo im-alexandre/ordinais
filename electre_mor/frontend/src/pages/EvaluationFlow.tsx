@@ -103,6 +103,9 @@ export function EvaluationFlow({
   const decisorId = decisorToken
     ? contextoAvaliacao?.decisor.id ?? 0
     : projetoAvaliacao?.decisores[0]?.id ?? 0;
+  const nomeAvaliador = decisorToken
+    ? contextoAvaliacao?.decisor.nome
+    : projetoAvaliacao?.decisores[0]?.nome;
   const criterios = projetoAvaliacao?.criterios ?? [];
   const alternativas = projetoAvaliacao?.alternativas ?? [];
   const criteriosNumericos = criterios.filter((criterio) => criterio.numerico);
@@ -258,6 +261,12 @@ export function EvaluationFlow({
     >
       {!projetoAvaliacao ? (
         <Notice variant="warning">Configure o projeto antes de avaliar.</Notice>
+      ) : null}
+      {nomeAvaliador ? (
+        <div className="avaliador-destaque" aria-label="Avaliador atual">
+          <span>Avaliador</span>
+          <strong>{nomeAvaliador}</strong>
+        </div>
       ) : null}
 
       <form className="formulario" onSubmit={lidarComEnvio}>
