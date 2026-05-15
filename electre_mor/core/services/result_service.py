@@ -10,6 +10,7 @@ from django.utils import timezone
 
 from core.ElectreTri import ElectreTri
 from core.method import MatrizProjeto
+from core.api.evaluation_serializers import ResultadoSerializer
 from core.models import (CriterioParametro, Decisor, Projeto)
 from core.tabular import queryset_para_dataframe
 
@@ -39,10 +40,15 @@ def obter_resultado_gerado(projeto: Projeto) -> dict[str, Any]:
             pendencias=obter_pendencias_resultado(projeto),
         )
 
+    if projeto.resultado_snapshot:
+        return projeto.resultado_snapshot
+
     resultado = cache.get(_cache_key(projeto))
     if resultado is None:
-        resultado = obter_resultado_agregado(projeto)
-        cache.set(_cache_key(projeto), resultado, timeout=None)
+        raise ResultadoIndisponivel(
+            "Snapshot de resultado indisponivel.",
+            pendencias=obter_pendencias_resultado(projeto),
+        )
     return resultado
 
 
@@ -334,16 +340,18 @@ def gerar_resultado_manual(projeto: Projeto) -> dict[str, Any]:
         return obter_resultado_gerado(projeto)
 
     resultado = obter_resultado_agregado(projeto)
-    cache.set(_cache_key(projeto), resultado, timeout=None)
+    snapshot = ResultadoSerializer(resultado).data
+    cache.set(_cache_key(projeto), snapshot, timeout=None)
     projeto.resultado_gerado_em = timezone.now()
-    projeto.save(update_fields=["resultado_gerado_em"])
+    projeto.resultado_snapshot = snapshot
+    projeto.save(update_fields=["resultado_gerado_em", "resultado_snapshot"])
     decisores_ativos = _decisores_ativos(projeto)
     if decisores_ativos:
         projeto.decisores.filter(id__in=[d.id for d in decisores_ativos]).update(
             status=Decisor.Status.CONCLUIDO,
             concluido_em=timezone.now(),
         )
-    return resultado
+    return snapshot
 
 
 def obter_resultado_gerado_ou_erro(projeto: Projeto) -> dict[str, Any]:

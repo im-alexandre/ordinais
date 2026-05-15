@@ -11,7 +11,7 @@ from core.api.evaluation_serializers import (
     CriteriaComparisonsPayloadSerializer,
     NumericScoreItemSerializer,
     NumericScoresPayloadSerializer, ParameterItemSerializer,
-    ParametersPayloadSerializer, ResultadoSerializer)
+    ParametersPayloadSerializer)
 from core.api.serializers import (AlternativaSerializer, CriterioSerializer,
                                   DecisorSerializer,
                                   ParticipantsPayloadSerializer,
@@ -46,6 +46,24 @@ def _resposta_resultado_bloqueado():
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Projeto.objects.all().order_by("id")
     serializer_class = ProjetoSerializer
+
+    def update(self, request, *args, **kwargs):
+        projeto = self.get_object()
+        if resultado_gerado(projeto):
+            return _resposta_resultado_bloqueado()
+        return super().update(request, *args, **kwargs)
+
+    def partial_update(self, request, *args, **kwargs):
+        projeto = self.get_object()
+        if resultado_gerado(projeto):
+            return _resposta_resultado_bloqueado()
+        return super().partial_update(request, *args, **kwargs)
+
+    def destroy(self, request, *args, **kwargs):
+        projeto = self.get_object()
+        if resultado_gerado(projeto):
+            return _resposta_resultado_bloqueado()
+        return super().destroy(request, *args, **kwargs)
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
@@ -255,8 +273,7 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 "pendencias": exc.pendencias or [],
             }, status=status.HTTP_409_CONFLICT)
 
-        serializer = ResultadoSerializer(resultado)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(resultado, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["post"], url_path="generate-result")
     def generate_result(self, request, pk=None):
@@ -269,5 +286,4 @@ class ProjectViewSet(viewsets.ModelViewSet):
                 "pendencias": exc.pendencias or [],
             }, status=status.HTTP_409_CONFLICT)
 
-        serializer = ResultadoSerializer(resultado)
-        return Response(serializer.data, status=status.HTTP_200_OK)
+        return Response(resultado, status=status.HTTP_200_OK)

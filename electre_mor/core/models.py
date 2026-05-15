@@ -65,6 +65,7 @@ class Projeto(models.Model):
 
     data = models.DateTimeField(auto_now_add=True)
     resultado_gerado_em = models.DateTimeField(null=True, blank=True)
+    resultado_snapshot = models.JSONField(default=dict, blank=True)
 
     def __str__(self):
         return self.nome

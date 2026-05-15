@@ -128,3 +128,20 @@ class ApiContractsSmokeTests(APITestCase):
         result_response = self.client.get(f"/api/v1/projects/{projeto_id}/result/")
         self.assertEqual(result_response.status_code, 200)
         self.assertEqual(result_response.data["project"]["id"], projeto_id)
+
+    def test_openapi_documenta_409_para_mutacoes_de_projeto_pos_resultado(self):
+        from pathlib import Path
+        import re
+
+        openapi_path = Path("specs/001-api-react-refactor/contracts/openapi.yaml")
+        conteudo = openapi_path.read_text(encoding="utf-8")
+        secao = re.search(
+            r"  /projects/\{projectId\}/:\n(?P<section>(?:    .*\n)+?)  /projects/\{projectId\}/participants/:",
+            conteudo,
+        )
+        self.assertIsNotNone(secao)
+        secao_texto = secao.group("section")
+        self.assertIn("  put:\n", secao_texto)
+        self.assertIn("  patch:\n", secao_texto)
+        self.assertIn("  delete:\n", secao_texto)
+        self.assertEqual(secao_texto.count('"409":'), 3)

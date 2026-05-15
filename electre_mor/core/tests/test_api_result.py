@@ -286,6 +286,35 @@ class ApiResultTests(APITestCase):
         self.assertEqual(consulta_apos_clear.data["project"]["id"],
                          self.projeto.id)
 
+    def test_resultado_permanece_igual_apos_cache_clear_e_mudanca_na_base(self):
+        gerar_response = self.client.post(
+            f"/api/v1/projects/{self.projeto.id}/generate-result/",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(gerar_response.status_code, 200)
+
+        self.projeto.refresh_from_db()
+        self.assertEqual(self.projeto.resultado_snapshot,
+                         gerar_response.data)
+
+        snapshot_gerado = gerar_response.data
+
+        AlternativaCriterio.objects.filter(
+            projeto=self.projeto,
+            criterio=self.criterio_1,
+            alternativa=self.alternativa_1,
+        ).update(nota=99)
+
+        cache.clear()
+
+        response = self.client.get(f"/api/v1/projects/{self.projeto.id}/result/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data, snapshot_gerado)
+        self.assertEqual(response.data, self.projeto.resultado_snapshot)
+
     def test_resultado_retorna_pendencias_quando_faltam_avaliacoes_de_decisores_ativos(self):
         projeto = Projeto.objects.create(
             nome="Projeto pendencias",

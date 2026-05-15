@@ -49,6 +49,71 @@ paths:
                 $ref: "#/components/schemas/ProjectResponse"
         "404":
           description: Projeto inexistente
+    put:
+      summary: Atualiza um projeto
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ProjectCreate"
+      responses:
+        "200":
+          description: Projeto atualizado
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
+        "400":
+          description: Dados invalidos
+        "409":
+          description: Resultado ja gerado manualmente
+    patch:
+      summary: Atualiza parcialmente um projeto
+      parameters:
+        - $ref: "#/components/parameters/ProjectId"
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                nome:
+                  type: string
+                  maxLength: 20
+                descricao:
+                  type: string
+                  maxLength: 400
+                qtde_classes:
+                  type: integer
+                  minimum: 2
+                qtde_criterios:
+                  type: integer
+                  minimum: 2
+                qtde_decisores:
+                  type: integer
+                  minimum: 1
+                qtde_alternativas:
+                  type: integer
+                  minimum: 2
+                lamb:
+                  type: number
+                  minimum: 0.5
+                  maximum: 1
+      responses:
+        "200":
+          description: Projeto atualizado parcialmente
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ProjectResponse"
+        "400":
+          description: Dados invalidos
+        "409":
+          description: Resultado ja gerado manualmente
     delete:
       summary: Remove um projeto
       parameters:
@@ -56,6 +121,8 @@ paths:
       responses:
         "204":
           description: Projeto removido
+        "409":
+          description: Resultado ja gerado manualmente
   /projects/{projectId}/participants/:
     put:
       summary: Substitui decisores, criterios e alternativas do projeto
