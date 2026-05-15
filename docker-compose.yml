@@ -29,10 +29,11 @@ services:
       - db_electre
     labels:
       - traefik.enable=true
-      - traefik.http.routers.electremor.rule=Host(`${TRAEFIK_HOST:-electremor.drg.ink}`)
-      - traefik.http.routers.electremor.entrypoints=web,websecure
-      - traefik.http.routers.electremor.tls=true
-      - traefik.http.services.electremor.loadbalancer.server.port=80
+      - traefik.http.routers.${TRAEFIK_ROUTER:-electremor}.rule=Host(`${TRAEFIK_HOST:-electremor.drg.ink}`)
+      - traefik.http.routers.${TRAEFIK_ROUTER:-electremor}.entrypoints=web,websecure
+      - traefik.http.routers.${TRAEFIK_ROUTER:-electremor}.tls=true
+      - traefik.http.routers.${TRAEFIK_ROUTER:-electremor}.service=${TRAEFIK_SERVICE:-electremor}
+      - traefik.http.services.${TRAEFIK_SERVICE:-electremor}.loadbalancer.server.port=80
 
 volumes:
   postgres_data_electre_mor:
