@@ -6,57 +6,99 @@ from core.models import (AlternativaCriterio, AvaliacaoAlternativas,
 
 @transaction.atomic
 def substituir_notas_numericas(projeto: Projeto, dados):
-    decisor = dados.get("decisor") or dados.get("decisor_id")
-    if decisor is None:
-        decisor = projeto.decisores.filter(ativo=True).order_by("id").first()
-
-    filtros = {"projeto": projeto}
-    if decisor is not None:
-        filtros["decisor"] = decisor
-    AlternativaCriterio.objects.filter(**filtros).delete()
+    scores = dados["scores"]
+    decisores = {score["decisor"] for score in scores}
+    for decisor in decisores:
+        AlternativaCriterio.objects.filter(
+            projeto=projeto,
+            decisor=decisor,
+        ).delete()
 
     itens = [
-        AlternativaCriterio.objects.create(projeto=projeto,
-                                           decisor=decisor,
-                                           **score)
-        for score in dados["scores"]
+        AlternativaCriterio.objects.create(
+            projeto=projeto,
+            decisor=score["decisor"],
+            criterio=score["criterio"],
+            alternativa=score["alternativa"],
+            nota=score["nota"],
+        ) for score in scores
     ]
     return itens
 
 
 @transaction.atomic
 def substituir_comparacoes_criterios(projeto: Projeto, dados):
-    AvaliacaoCriterios.objects.filter(projeto=projeto).delete()
+    comparisons = dados["comparisons"]
+    decisores = {comparison["decisor"] for comparison in comparisons}
+    for decisor in decisores:
+        AvaliacaoCriterios.objects.filter(
+            projeto=projeto,
+            decisor=decisor,
+        ).delete()
+
     itens = []
-    for comparison in dados["comparisons"]:
-        itens.append(AvaliacaoCriterios.objects.create(projeto=projeto,
-                                                       **comparison))
+    for comparison in comparisons:
+        itens.append(
+            AvaliacaoCriterios.objects.create(
+                projeto=projeto,
+                decisor=comparison["decisor"],
+                criterioA=comparison["criterioA"],
+                criterioB=comparison["criterioB"],
+                nota=comparison["nota"],
+            ))
         inverso = dict(comparison)
         inverso["criterioA"], inverso["criterioB"] = (
             inverso["criterioB"],
             inverso["criterioA"],
         )
         inverso["nota"] = -int(inverso["nota"])
-        itens.append(AvaliacaoCriterios.objects.create(projeto=projeto,
-                                                       **inverso))
+        itens.append(
+            AvaliacaoCriterios.objects.create(
+                projeto=projeto,
+                decisor=inverso["decisor"],
+                criterioA=inverso["criterioA"],
+                criterioB=inverso["criterioB"],
+                nota=inverso["nota"],
+            ))
     return itens
 
 
 @transaction.atomic
 def substituir_comparacoes_alternativas(projeto: Projeto, dados):
-    AvaliacaoAlternativas.objects.filter(projeto=projeto).delete()
+    comparisons = dados["comparisons"]
+    decisores = {comparison["decisor"] for comparison in comparisons}
+    for decisor in decisores:
+        AvaliacaoAlternativas.objects.filter(
+            projeto=projeto,
+            decisor=decisor,
+        ).delete()
+
     itens = []
-    for comparison in dados["comparisons"]:
-        itens.append(AvaliacaoAlternativas.objects.create(
-            projeto=projeto, **comparison))
+    for comparison in comparisons:
+        itens.append(
+            AvaliacaoAlternativas.objects.create(
+                projeto=projeto,
+                decisor=comparison["decisor"],
+                criterio=comparison["criterio"],
+                alternativaA=comparison["alternativaA"],
+                alternativaB=comparison["alternativaB"],
+                nota=comparison["nota"],
+            ))
         inverso = dict(comparison)
         inverso["alternativaA"], inverso["alternativaB"] = (
             inverso["alternativaB"],
             inverso["alternativaA"],
         )
         inverso["nota"] = -int(inverso["nota"])
-        itens.append(AvaliacaoAlternativas.objects.create(
-            projeto=projeto, **inverso))
+        itens.append(
+            AvaliacaoAlternativas.objects.create(
+                projeto=projeto,
+                decisor=inverso["decisor"],
+                criterio=inverso["criterio"],
+                alternativaA=inverso["alternativaA"],
+                alternativaB=inverso["alternativaB"],
+                nota=inverso["nota"],
+            ))
     return itens
 
 

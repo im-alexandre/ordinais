@@ -3,7 +3,11 @@ from rest_framework.test import APITestCase
 from core.models import (Alternativa, AlternativaCriterio,
                          AvaliacaoAlternativas, AvaliacaoCriterios, Criterio,
                          CriterioParametro, Decisor, Projeto)
-from core.services.evaluation_service import substituir_notas_numericas
+from core.services.evaluation_service import (
+    substituir_comparacoes_alternativas,
+    substituir_comparacoes_criterios,
+    substituir_notas_numericas,
+)
 
 
 class ApiEvaluationsTests(APITestCase):
@@ -43,10 +47,12 @@ class ApiEvaluationsTests(APITestCase):
     def test_substituir_notas_numericas(self):
         payload = {
             "scores": [{
+                "decisor_id": self.decisor.id,
                 "criterio_id": self.criterio_1.id,
                 "alternativa_id": self.alternativa_1.id,
                 "nota": 8.5,
             }, {
+                "decisor_id": self.decisor.id,
                 "criterio_id": self.criterio_1.id,
                 "alternativa_id": self.alternativa_2.id,
                 "nota": 4.0,
@@ -61,26 +67,32 @@ class ApiEvaluationsTests(APITestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertEqual(AlternativaCriterio.objects.count(), 2)
+        self.assertEqual(response.data["scores"][0]["decisor_id"],
+                         self.decisor.id)
+        self.assertTrue(
+            AlternativaCriterio.objects.filter(decisor=self.decisor).exists())
 
     def test_notas_numericas_sao_independentes_por_decisor(self):
         decisor_2 = Decisor.objects.create(projeto=self.projeto, nome="D2")
 
-        substituir_notas_numericas(self.projeto, {
-            "decisor": self.decisor,
-            "scores": [{
-                "criterio": self.criterio_1,
-                "alternativa": self.alternativa_1,
-                "nota": 8.0,
-            }],
-        })
-        substituir_notas_numericas(self.projeto, {
-            "decisor": decisor_2,
-            "scores": [{
-                "criterio": self.criterio_1,
-                "alternativa": self.alternativa_1,
-                "nota": 4.0,
-            }],
-        })
+        substituir_notas_numericas(
+            self.projeto, {
+                "scores": [{
+                    "decisor": self.decisor,
+                    "criterio": self.criterio_1,
+                    "alternativa": self.alternativa_1,
+                    "nota": 8.0,
+                }],
+            })
+        substituir_notas_numericas(
+            self.projeto, {
+                "scores": [{
+                    "decisor": decisor_2,
+                    "criterio": self.criterio_1,
+                    "alternativa": self.alternativa_1,
+                    "nota": 4.0,
+                }],
+            })
 
         notas = AlternativaCriterio.objects.filter(
             projeto=self.projeto,
@@ -88,6 +100,66 @@ class ApiEvaluationsTests(APITestCase):
             alternativa=self.alternativa_1,
         ).order_by("decisor__nome").values_list("decisor__nome", "nota")
         self.assertEqual(list(notas), [("D1", 8.0), ("D2", 4.0)])
+
+    def test_comparacoes_de_criterios_ficam_separadas_por_decisor(self):
+        decisor_2 = Decisor.objects.create(projeto=self.projeto, nome="D2")
+
+        substituir_comparacoes_criterios(
+            self.projeto, {
+                "comparisons": [{
+                    "decisor": self.decisor,
+                    "criterioA": self.criterio_1,
+                    "criterioB": self.criterio_2,
+                    "nota": 1,
+                }],
+            })
+        substituir_comparacoes_criterios(
+            self.projeto, {
+                "comparisons": [{
+                    "decisor": decisor_2,
+                    "criterioA": self.criterio_1,
+                    "criterioB": self.criterio_2,
+                    "nota": 2,
+                }],
+            })
+
+        notas = list(
+            AvaliacaoCriterios.objects.filter(projeto=self.projeto).order_by(
+                "decisor__nome", "nota").values_list("decisor__nome", "nota"))
+        self.assertEqual(notas, [("D1", -1), ("D1", 1), ("D2", -2),
+                                 ("D2", 2)])
+
+    def test_comparacoes_de_alternativas_ficam_separadas_por_decisor(self):
+        decisor_2 = Decisor.objects.create(projeto=self.projeto, nome="D2")
+
+        substituir_comparacoes_alternativas(
+            self.projeto, {
+                "comparisons": [{
+                    "decisor": self.decisor,
+                    "criterio": self.criterio_2,
+                    "alternativaA": self.alternativa_1,
+                    "alternativaB": self.alternativa_2,
+                    "nota": -2,
+                }],
+            })
+        substituir_comparacoes_alternativas(
+            self.projeto, {
+                "comparisons": [{
+                    "decisor": decisor_2,
+                    "criterio": self.criterio_2,
+                    "alternativaA": self.alternativa_1,
+                    "alternativaB": self.alternativa_2,
+                    "nota": -1,
+                }],
+            })
+
+        notas = list(
+            AvaliacaoAlternativas.objects.filter(
+                projeto=self.projeto).order_by("decisor__nome",
+                                                "nota").values_list(
+                                                    "decisor__nome", "nota"))
+        self.assertEqual(notas, [("D1", -2), ("D1", 2), ("D2", -1),
+                                 ("D2", 1)])
 
     def test_substituir_comparacoes_de_criterios(self):
         payload = {

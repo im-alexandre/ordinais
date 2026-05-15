@@ -7,6 +7,10 @@ from core.models import (Alternativa, AlternativaCriterio,
 
 
 class NumericScoreItemSerializer(serializers.Serializer):
+    decisor_id = serializers.PrimaryKeyRelatedField(
+        source="decisor",
+        queryset=Decisor.objects.all(),
+    )
     criterio_id = serializers.PrimaryKeyRelatedField(
         source="criterio",
         queryset=Criterio.objects.all(),
@@ -21,6 +25,8 @@ class NumericScoreItemSerializer(serializers.Serializer):
         super().__init__(*args, **kwargs)
         project = self.context.get("project")
         if project is not None:
+            self.fields["decisor_id"].queryset = Decisor.objects.filter(
+                projeto=project)
             self.fields["criterio_id"].queryset = Criterio.objects.filter(
                 projeto=project)
             self.fields["alternativa_id"].queryset = Alternativa.objects.filter(
