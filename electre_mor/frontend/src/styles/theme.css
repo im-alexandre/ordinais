@@ -800,6 +800,55 @@ body::before {
   font-weight: 800;
 }
 
+.resultado-tabela-wrapper {
+  overflow-x: auto;
+}
+
+.resultado-tabela {
+  width: 100%;
+  min-width: 560px;
+  border-collapse: collapse;
+  font-size: 0.94rem;
+}
+
+.resultado-tabela caption {
+  height: 1px;
+  margin: -1px;
+  overflow: hidden;
+  position: absolute;
+  width: 1px;
+}
+
+.resultado-tabela th,
+.resultado-tabela td {
+  border-bottom: 1px solid rgba(215, 208, 196, 0.86);
+  padding: 10px 12px;
+  text-align: left;
+  vertical-align: top;
+}
+
+.resultado-tabela thead th {
+  color: var(--texto-suave);
+  font-size: 0.78rem;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.resultado-tabela tbody th {
+  color: var(--texto);
+  font-weight: 800;
+}
+
+.resultado-tabela tbody td:last-child {
+  color: var(--destaque);
+  font-weight: 900;
+}
+
+.resultado-tabela tbody tr:last-child th,
+.resultado-tabela tbody tr:last-child td {
+  border-bottom: 0;
+}
+
 .resultado-pendencias {
   display: grid;
   gap: 12px;

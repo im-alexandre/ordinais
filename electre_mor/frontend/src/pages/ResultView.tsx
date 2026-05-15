@@ -107,6 +107,41 @@ function extrairMensagem(erro: unknown) {
   return 'Resultado indisponivel no momento.';
 }
 
+type TabelaClassificacaoProps = {
+  itens: ResultadoProjeto['classificacao_final']['range'];
+  metodo: string;
+};
+
+function TabelaClassificacao({ itens, metodo }: TabelaClassificacaoProps) {
+  return (
+    <div className="resultado-tabela-wrapper">
+      <table className="resultado-tabela">
+        <caption>Classificacao {metodo}</caption>
+        <thead>
+          <tr>
+            <th scope="col">Alternativa</th>
+            <th scope="col">Classe pessimista</th>
+            <th scope="col">Classe otimista</th>
+            <th scope="col">Classe</th>
+          </tr>
+        </thead>
+        <tbody>
+          {itens.map((item) => (
+            <tr key={`${metodo}-${item.alternative_id}`}>
+              <th scope="row">{item.alternative}</th>
+              <td>{item.pessimista}</td>
+              <td>{item.otimista}</td>
+              <td>
+                <strong>{item.class}</strong>
+              </td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+  );
+}
+
 export default function ResultView({ projectId, isCreator = false }: ResultViewProps) {
   const [resultado, setResultado] = useState<ResultadoProjeto | null>(null);
   const [pendencias, setPendencias] = useState<PendenciaDecisor[] | null>(null);
@@ -349,30 +384,18 @@ export default function ResultView({ projectId, isCreator = false }: ResultViewP
             <div className="resultado-grade">
               <section className="resultado-bloco" aria-label="Classificacao range">
                 <h3>Classificacao range</h3>
-                <ol>
-                  {resultado.classificacao_final.range.map((item) => (
-                    <li key={`range-${item.alternative_id}`}>
-                      <strong>{item.alternative}</strong>
-                      <span>
-                        {item.pessimista} / {item.otimista}
-                      </span>
-                    </li>
-                  ))}
-                </ol>
+                <TabelaClassificacao
+                  itens={resultado.classificacao_final.range}
+                  metodo="range"
+                />
               </section>
 
               <section className="resultado-bloco" aria-label="Classificacao quantile">
                 <h3>Classificacao quantile</h3>
-                <ol>
-                  {resultado.classificacao_final.quantile.map((item) => (
-                    <li key={`quantile-${item.alternative_id}`}>
-                      <strong>{item.alternative}</strong>
-                      <span>
-                        {item.pessimista} / {item.otimista}
-                      </span>
-                    </li>
-                  ))}
-                </ol>
+                <TabelaClassificacao
+                  itens={resultado.classificacao_final.quantile}
+                  metodo="quantile"
+                />
               </section>
             </div>
 

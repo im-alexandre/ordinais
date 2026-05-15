@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react';
+import { render, screen, within } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
@@ -147,6 +147,25 @@ describe('ResultView', () => {
     expect(mocks.gerarResultadoMock).toHaveBeenCalledWith(4);
     expect(
       await screen.findByRole('heading', { name: /classificacao range/i }),
+    ).toBeInTheDocument();
+    const tabelaRange = screen.getByRole('table', {
+      name: /classificacao range/i,
+    });
+
+    expect(
+      within(tabelaRange).getByRole('columnheader', { name: /alternativa/i }),
+    ).toBeInTheDocument();
+    expect(
+      within(tabelaRange).getByRole('columnheader', { name: /classe pessimista/i }),
+    ).toBeInTheDocument();
+    expect(
+      within(tabelaRange).getByRole('columnheader', { name: /classe otimista/i }),
+    ).toBeInTheDocument();
+    expect(
+      within(tabelaRange).getByRole('columnheader', { name: /^classe$/i }),
+    ).toBeInTheDocument();
+    expect(
+      within(tabelaRange).getByRole('row', { name: /vacina a a1 b1 a1/i }),
     ).toBeInTheDocument();
   });
 
