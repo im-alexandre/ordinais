@@ -97,10 +97,6 @@ ER  -`,
           <strong>T</strong>raduisant la <strong>RE</strong>alité -{' '}
           <strong>M</strong>ulticriteria <strong>Or</strong>dinal
         </p>
-        <p className="hero-copy hero-copy-setup">
-          O criador entra como primeiro decisor, adiciona convidados e segue para
-          a propria avaliacao.
-        </p>
       </section>
 
       <section className="equipe" aria-labelledby="equipe-titulo">
