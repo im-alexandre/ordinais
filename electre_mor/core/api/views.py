@@ -1,5 +1,6 @@
 import secrets
 
+from django.http import HttpResponse
 from django.shortcuts import get_object_or_404
 from rest_framework import status, viewsets
 from rest_framework.decorators import action
@@ -17,7 +18,11 @@ from core.api.evaluation_serializers import (
     ParametersPayloadSerializer)
 from core.api.serializers import (AlternativaSerializer, CriterioSerializer,
                                   DecisorSerializer,
+                                  ConfirmarUploadPlanilhaSerializer,
                                   ParticipantsPayloadSerializer,
+                                  PlanilhaPreviewRespostaSerializer,
+                                  PlanilhaUploadArquivoSerializer,
+                                  ProjetoCompletoSerializer,
                                   ProjetoSerializer,
                                   RecalcularResultadoSerializer)
 from core.models import Alternativa, Criterio, Decisor, Projeto
@@ -28,6 +33,8 @@ from core.services import (substituir_comparacoes_alternativas,
 from core.services.project_service import (criar_decisor_convidado,
                                            desativar_decisor,
                                            listar_decisores)
+from core.services.spreadsheet_template_service import gerar_planilha_modelo
+from core.services.spreadsheet_upload_service import prever_upload_planilha
 from core.services.result_service import (
     ResultadoIndisponivel,
     gerar_resultado_manual,
@@ -65,6 +72,11 @@ def _resposta_resultado_bloqueado():
     )
 
 
+def _decisor_confirmacao_planilha(projeto):
+    return projeto.decisores.filter(is_criador=True).first() or projeto.decisores.order_by(
+        "id").first()
+
+
 class ProjectViewSet(viewsets.ModelViewSet):
     queryset = Projeto.objects.all().order_by("id")
     serializer_class = ProjetoSerializer
@@ -96,6 +108,91 @@ class ProjectViewSet(viewsets.ModelViewSet):
         return Response(output.data,
                         status=status.HTTP_201_CREATED,
                         headers=headers)
+
+    @action(detail=True, methods=["get"], url_path="spreadsheet-template")
+    def spreadsheet_template(self, request, pk=None):
+        projeto = self.get_object()
+        conteudo = gerar_planilha_modelo(projeto)
+        resposta = HttpResponse(
+            conteudo,
+            content_type=(
+                "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+            ),
+        )
+        resposta["Content-Disposition"] = (
+            f'attachment; filename="{projeto.nome}.xlsx"'
+        )
+        return resposta
+
+    @action(detail=True, methods=["post"], url_path="spreadsheet-upload/preview")
+    def spreadsheet_upload_preview(self, request, pk=None):
+        projeto = self.get_object()
+        serializer = PlanilhaUploadArquivoSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        arquivo = serializer.validated_data["arquivo"]
+        preview = prever_upload_planilha(projeto, arquivo)
+        resposta = {
+            "projeto": ProjetoSerializer(projeto).data,
+            "arquivo": {
+                "nome": getattr(arquivo, "name", "planilha.xlsx"),
+                "tamanho": getattr(arquivo, "size", None),
+                "tipo": getattr(arquivo, "content_type", None),
+            },
+            "desempenhos": preview["desempenhos"],
+            "parametros": preview["parametros"],
+            "erros": preview["erros"],
+            "avisos": preview["avisos"],
+        }
+        resposta_serializer = PlanilhaPreviewRespostaSerializer(resposta)
+        return Response(resposta_serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["post"], url_path="spreadsheet-upload/confirm")
+    def spreadsheet_upload_confirm(self, request, pk=None):
+        projeto = self.get_object()
+        if resultado_gerado(projeto):
+            return _resposta_resultado_bloqueado()
+
+        serializer = ConfirmarUploadPlanilhaSerializer(
+            data=request.data,
+            context={"project": projeto},
+        )
+        serializer.is_valid(raise_exception=True)
+
+        decisor = _decisor_confirmacao_planilha(projeto)
+        criterios_por_id = {criterio.id: criterio for criterio in projeto.criterios.all()}
+        alternativas_por_id = {
+            alternativa.id: alternativa
+            for alternativa in projeto.alternativas.all()
+        }
+        scores = []
+        for desempenho in serializer.validated_data["desempenhos"]:
+            for valor in desempenho["valores"]:
+                scores.append({
+                    "decisor": decisor,
+                    "criterio": criterios_por_id[valor["criterio_id"]],
+                    "alternativa": alternativas_por_id[desempenho["alternativa_id"]],
+                    "nota": valor["valor"],
+                })
+
+        parametros = []
+        for parametro in serializer.validated_data["parametros"]:
+            parametros.append({
+                "criterio": criterios_por_id[parametro["criterio_id"]],
+                "p": parametro["p"]["valor"],
+                "q": parametro["q"]["valor"],
+                "v": parametro["v"]["valor"],
+            })
+
+        substituir_notas_numericas(projeto, {"scores": scores})
+        substituir_parametros(projeto, {"parameters": parametros})
+
+        resposta = ProjetoCompletoSerializer({
+            "projeto": projeto,
+            "decisores": projeto.decisores.all().order_by("id"),
+            "criterios": projeto.criterios.all().order_by("id"),
+            "alternativas": projeto.alternativas.all().order_by("id"),
+        })
+        return Response(resposta.data, status=status.HTTP_200_OK)
 
     @action(detail=True, methods=["put"])
     def participants(self, request, pk=None):

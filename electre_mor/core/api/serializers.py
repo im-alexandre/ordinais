@@ -108,6 +108,99 @@ class AlternativaSerializer(serializers.ModelSerializer):
         read_only_fields = ["id"]
 
 
+class PlanilhaArquivoSerializer(serializers.Serializer):
+    nome = serializers.CharField()
+    tamanho = serializers.IntegerField(required=False, allow_null=True)
+    tipo = serializers.CharField(required=False, allow_null=True)
+
+
+class PlanilhaMensagemSerializer(serializers.Serializer):
+    codigo = serializers.CharField()
+    mensagem = serializers.CharField()
+    campo = serializers.CharField(required=False)
+    criterio_id = serializers.IntegerField(required=False)
+    alternativa_id = serializers.IntegerField(required=False)
+
+
+class PlanilhaDesempenhoValorSerializer(serializers.Serializer):
+    criterio_id = serializers.IntegerField()
+    criterio = serializers.CharField(required=False, allow_blank=True)
+    valor = serializers.FloatField(allow_null=True)
+
+    def validate_criterio_id(self, value):
+        project = self.context.get("project")
+        if project is not None and not Criterio.objects.filter(
+            projeto=project,
+            id=value,
+        ).exists():
+            raise serializers.ValidationError("Criterio fora do projeto.")
+        return value
+
+
+class PlanilhaDesempenhoSerializer(serializers.Serializer):
+    alternativa_id = serializers.IntegerField()
+    alternativa = serializers.CharField(required=False, allow_blank=True)
+    valores = PlanilhaDesempenhoValorSerializer(many=True)
+
+    def validate_alternativa_id(self, value):
+        project = self.context.get("project")
+        if project is not None and not Alternativa.objects.filter(
+            projeto=project,
+            id=value,
+        ).exists():
+            raise serializers.ValidationError("Alternativa fora do projeto.")
+        return value
+
+
+class PlanilhaValorComOrigemSerializer(serializers.Serializer):
+    valor = serializers.FloatField()
+    origem = serializers.ChoiceField(
+        choices=("planilha", "automatico", "editado"),
+    )
+
+
+class PlanilhaParametroSerializer(serializers.Serializer):
+    criterio_id = serializers.IntegerField()
+    criterio = serializers.CharField(required=False, allow_blank=True)
+    q = PlanilhaValorComOrigemSerializer()
+    p = PlanilhaValorComOrigemSerializer()
+    v = PlanilhaValorComOrigemSerializer()
+
+    def validate_criterio_id(self, value):
+        project = self.context.get("project")
+        if project is not None and not Criterio.objects.filter(
+            projeto=project,
+            id=value,
+        ).exists():
+            raise serializers.ValidationError("Criterio fora do projeto.")
+        return value
+
+
+class PlanilhaUploadArquivoSerializer(serializers.Serializer):
+    arquivo = serializers.FileField()
+
+
+class PlanilhaPreviewRespostaSerializer(serializers.Serializer):
+    projeto = ProjetoSerializer()
+    arquivo = PlanilhaArquivoSerializer()
+    desempenhos = PlanilhaDesempenhoSerializer(many=True)
+    parametros = PlanilhaParametroSerializer(many=True)
+    erros = PlanilhaMensagemSerializer(many=True)
+    avisos = PlanilhaMensagemSerializer(many=True)
+
+
+class ConfirmarUploadPlanilhaSerializer(serializers.Serializer):
+    desempenhos = PlanilhaDesempenhoSerializer(many=True)
+    parametros = PlanilhaParametroSerializer(many=True)
+
+
+class ProjetoCompletoSerializer(serializers.Serializer):
+    projeto = ProjetoSerializer()
+    decisores = DecisorSerializer(many=True)
+    criterios = CriterioSerializer(many=True)
+    alternativas = AlternativaSerializer(many=True)
+
+
 class NomeItemSerializer(serializers.Serializer):
     nome = serializers.CharField(max_length=20)
 
