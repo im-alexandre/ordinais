@@ -6,6 +6,7 @@ from rest_framework.response import Response
 from core.api.evaluation_serializers import (
     AlternativeComparisonItemSerializer,
     AlternativeComparisonsPayloadSerializer,
+    ContextoAvaliacaoSerializer,
     CriteriaComparisonItemSerializer,
     CriteriaComparisonsPayloadSerializer,
     NumericScoreItemSerializer,
@@ -81,6 +82,29 @@ class ProjectViewSet(viewsets.ModelViewSet):
         decisor = criar_decisor_convidado(projeto, nome)
         serializer = DecisorSerializer(decisor, context={"request": request})
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+
+    @action(
+        detail=True,
+        methods=["get"],
+        url_path=r"evaluation-token/(?P<token>[^/.]+)",
+    )
+    def evaluation_token(self, request, pk=None, token=None):
+        projeto = self.get_object()
+        decisor = get_object_or_404(projeto.decisores, token=token)
+        if not decisor.ativo:
+            return Response(
+                {"detail": "Decisor desativado."},
+                status=status.HTTP_410_GONE,
+            )
+
+        serializer = ContextoAvaliacaoSerializer(
+            {
+                "project": projeto,
+                "decisor": decisor,
+            },
+            context={"request": request},
+        )
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
     @action(detail=True,
             methods=["post"],

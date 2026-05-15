@@ -68,30 +68,36 @@ class ApiContractsSmokeTests(APITestCase):
                 format="json",
             ).status_code, 200)
 
-        self.assertEqual(
-            self.client.put(
-                f"/api/v1/projects/{projeto_id}/numeric-scores/",
-                {
-                    "scores": [{
-                        "criterio_id": criterio_1_id,
-                        "alternativa_id": alternativa_1_id,
-                        "nota": 8,
-                    }, {
-                        "criterio_id": criterio_1_id,
-                        "alternativa_id": alternativa_2_id,
-                        "nota": 4,
-                    }, {
-                        "criterio_id": criterio_2_id,
-                        "alternativa_id": alternativa_1_id,
-                        "nota": 3,
-                    }, {
-                        "criterio_id": criterio_2_id,
-                        "alternativa_id": alternativa_2_id,
-                        "nota": 7,
-                    }],
-                },
-                format="json",
-            ).status_code, 200)
+        numeric_scores_response = self.client.put(
+            f"/api/v1/projects/{projeto_id}/numeric-scores/",
+            {
+                "scores": [{
+                    "decisor_id": decisor_id,
+                    "criterio_id": criterio_1_id,
+                    "alternativa_id": alternativa_1_id,
+                    "nota": 8,
+                }, {
+                    "decisor_id": decisor_id,
+                    "criterio_id": criterio_1_id,
+                    "alternativa_id": alternativa_2_id,
+                    "nota": 4,
+                }, {
+                    "decisor_id": decisor_id,
+                    "criterio_id": criterio_2_id,
+                    "alternativa_id": alternativa_1_id,
+                    "nota": 3,
+                }, {
+                    "decisor_id": decisor_id,
+                    "criterio_id": criterio_2_id,
+                    "alternativa_id": alternativa_2_id,
+                    "nota": 7,
+                }],
+            },
+            format="json",
+        )
+        self.assertEqual(numeric_scores_response.status_code, 200)
+        self.assertEqual(numeric_scores_response.data["scores"][0]["decisor_id"],
+                         decisor_id)
 
         self.assertEqual(
             self.client.put(

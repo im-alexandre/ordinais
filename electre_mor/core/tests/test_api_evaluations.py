@@ -72,6 +72,31 @@ class ApiEvaluationsTests(APITestCase):
         self.assertTrue(
             AlternativaCriterio.objects.filter(decisor=self.decisor).exists())
 
+    def test_contexto_avaliacao_por_token_retorna_projeto_e_decisor_ativo(self):
+        response = self.client.get(
+            f"/api/v1/projects/{self.projeto.id}/evaluation-token/{self.decisor.token}/"
+        )
+
+        self.assertEqual(response.status_code, 200)
+        self.assertEqual(response.data["project"]["id"], self.projeto.id)
+        self.assertEqual(response.data["decisor"]["id"], self.decisor.id)
+        self.assertEqual(response.data["decisor"]["token"],
+                         self.decisor.token)
+
+    def test_decisor_desativado_retorna_410_no_contexto_por_token(self):
+        decisor = Decisor.objects.create(
+            projeto=self.projeto,
+            nome="Desativado",
+            ativo=False,
+            status=Decisor.Status.DESATIVADO,
+        )
+
+        response = self.client.get(
+            f"/api/v1/projects/{self.projeto.id}/evaluation-token/{decisor.token}/"
+        )
+
+        self.assertEqual(response.status_code, 410)
+
     def test_notas_numericas_sao_independentes_por_decisor(self):
         decisor_2 = Decisor.objects.create(projeto=self.projeto, nome="D2")
 
@@ -93,6 +118,44 @@ class ApiEvaluationsTests(APITestCase):
                     "nota": 4.0,
                 }],
             })
+
+        notas = AlternativaCriterio.objects.filter(
+            projeto=self.projeto,
+            criterio=self.criterio_1,
+            alternativa=self.alternativa_1,
+        ).order_by("decisor__nome").values_list("decisor__nome", "nota")
+        self.assertEqual(list(notas), [("D1", 8.0), ("D2", 4.0)])
+
+    def test_numeric_scores_api_preserva_dois_decisores(self):
+        decisor_2 = Decisor.objects.create(projeto=self.projeto, nome="D2")
+
+        response_1 = self.client.put(
+            f"/api/v1/projects/{self.projeto.id}/numeric-scores/",
+            {
+                "scores": [{
+                    "decisor_id": self.decisor.id,
+                    "criterio_id": self.criterio_1.id,
+                    "alternativa_id": self.alternativa_1.id,
+                    "nota": 8.0,
+                }],
+            },
+            format="json",
+        )
+        self.assertEqual(response_1.status_code, 200)
+
+        response_2 = self.client.put(
+            f"/api/v1/projects/{self.projeto.id}/numeric-scores/",
+            {
+                "scores": [{
+                    "decisor_id": decisor_2.id,
+                    "criterio_id": self.criterio_1.id,
+                    "alternativa_id": self.alternativa_1.id,
+                    "nota": 4.0,
+                }],
+            },
+            format="json",
+        )
+        self.assertEqual(response_2.status_code, 200)
 
         notas = AlternativaCriterio.objects.filter(
             projeto=self.projeto,

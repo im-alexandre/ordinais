@@ -131,3 +131,52 @@ class LegacyResultFlowTests(TestCase):
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, "Partial result of Project")
         self.assertContains(response, "Weights of the criteria")
+
+    def test_alternativacriterio_preserva_notas_de_outro_decisor(self):
+        decisor_2 = Decisor.objects.create(
+            projeto=self.projeto,
+            nome="Decisor 2",
+        )
+        AlternativaCriterio.objects.filter(projeto=self.projeto).delete()
+        AlternativaCriterio.objects.create(
+            projeto=self.projeto,
+            decisor=self.decisor,
+            criterio=self.criterio_1,
+            alternativa=self.alternativa_1,
+            nota=8,
+        )
+        AlternativaCriterio.objects.create(
+            projeto=self.projeto,
+            decisor=decisor_2,
+            criterio=self.criterio_1,
+            alternativa=self.alternativa_1,
+            nota=4,
+        )
+
+        response = self.client.post(
+            f"{reverse('alternativacriterio', args=[self.projeto.id])}?decisor_id={decisor_2.id}",
+            {
+                "form-TOTAL_FORMS": "2",
+                "form-INITIAL_FORMS": "0",
+                "form-MIN_NUM_FORMS": "0",
+                "form-MAX_NUM_FORMS": "1000",
+                "form-0-projeto": self.projeto.id,
+                "form-0-criterio": self.criterio_1.id,
+                "form-0-alternativa": self.alternativa_1.id,
+                "form-0-nota": "9",
+                "form-1-projeto": self.projeto.id,
+                "form-1-criterio": self.criterio_1.id,
+                "form-1-alternativa": self.alternativa_2.id,
+                "form-1-nota": "7",
+            },
+            follow=False,
+        )
+
+        self.assertEqual(response.status_code, 302)
+        notas = list(
+            AlternativaCriterio.objects.filter(
+                projeto=self.projeto,
+                criterio=self.criterio_1,
+                alternativa=self.alternativa_1,
+            ).order_by("decisor__nome").values_list("decisor__nome", "nota"))
+        self.assertEqual(notas, [("Decisor 1", 8.0), ("Decisor 2", 9.0)])

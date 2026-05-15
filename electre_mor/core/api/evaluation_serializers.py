@@ -1,6 +1,6 @@
 from rest_framework import serializers
 
-from core.api.serializers import ProjetoSerializer
+from core.api.serializers import DecisorSerializer, ProjetoSerializer
 from core.models import (Alternativa, AlternativaCriterio,
                          AvaliacaoAlternativas, AvaliacaoCriterios, Criterio,
                          CriterioParametro, Decisor)
@@ -124,6 +124,43 @@ class AlternativeComparisonsPayloadSerializer(serializers.Serializer):
 
 class ParametersPayloadSerializer(serializers.Serializer):
     parameters = ParameterItemSerializer(many=True)
+
+
+class ContextoAvaliacaoSerializer(serializers.Serializer):
+    project = serializers.SerializerMethodField()
+    decisor = serializers.SerializerMethodField()
+
+    def get_project(self, obj):
+        projeto = obj["project"] if isinstance(obj, dict) else obj.project
+        return ProjetoSerializer(projeto, context=self.context).data
+
+    def get_decisor(self, obj):
+        decisor = obj["decisor"] if isinstance(obj, dict) else obj.decisor
+        return {
+            "id": decisor.id,
+            "nome": decisor.nome,
+            "status": decisor.status,
+            "ativo": decisor.ativo,
+            "is_criador": decisor.is_criador,
+            "token": decisor.token,
+            "evaluation_url": DecisorSerializer(
+                decisor,
+                context=self.context,
+            ).data["evaluation_url"],
+        }
+
+
+class PendenciaDecisorSerializer(serializers.Serializer):
+    id = serializers.IntegerField()
+    nome = serializers.CharField()
+    status = serializers.CharField()
+    ativo = serializers.BooleanField()
+    faltas = serializers.ListField(child=serializers.CharField())
+
+
+class ResultadoPendenteSerializer(serializers.Serializer):
+    detail = serializers.CharField()
+    pendencias = PendenciaDecisorSerializer(many=True)
 
 
 class ResultadoSerializer(serializers.Serializer):
