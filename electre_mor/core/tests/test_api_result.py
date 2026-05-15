@@ -93,6 +93,15 @@ class ApiResultTests(APITestCase):
         )
 
     def test_resultado_e_consistente_com_dados_completos(self):
+        gerar_response = self.client.post(
+            f"/api/v1/projects/{self.projeto.id}/generate-result/",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(gerar_response.status_code, 200)
+        self.assertIn("classificacao_final", gerar_response.data)
+
         response = self.client.get(f"/api/v1/projects/{self.projeto.id}/result/")
 
         self.assertEqual(response.status_code, 200)
@@ -218,6 +227,14 @@ class ApiResultTests(APITestCase):
                 v=0.8,
             )
 
+        gerar_response = self.client.post(
+            f"/api/v1/projects/{projeto.id}/generate-result/",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(gerar_response.status_code, 200)
+
         response = self.client.get(f"/api/v1/projects/{projeto.id}/result/")
 
         self.assertEqual(response.status_code, 200)
@@ -232,3 +249,155 @@ class ApiResultTests(APITestCase):
                    for item in response.data["classificacao_final"]["range"]),
             ["Vacina A", "Vacina B", "Vacina C"],
         )
+
+    def test_resultado_precisa_ser_gerado_manual_antes_de_consultar(self):
+        response = self.client.get(f"/api/v1/projects/{self.projeto.id}/result/")
+
+        self.assertEqual(response.status_code, 409)
+        self.assertIn("pendencias", response.data)
+
+        gerar_response = self.client.post(
+            f"/api/v1/projects/{self.projeto.id}/generate-result/",
+            {},
+            format="json",
+        )
+
+        self.assertEqual(gerar_response.status_code, 200)
+        self.assertIn("classificacao_final", gerar_response.data)
+
+        consulta_response = self.client.get(
+            f"/api/v1/projects/{self.projeto.id}/result/")
+
+        self.assertEqual(consulta_response.status_code, 200)
+        self.assertEqual(consulta_response.data["project"]["id"],
+                         self.projeto.id)
+
+    def test_resultado_retorna_pendencias_quando_faltam_avaliacoes_de_decisores_ativos(self):
+        projeto = Projeto.objects.create(
+            nome="Projeto pendencias",
+            descricao="Descricao",
+            qtde_classes=2,
+            qtde_criterios=2,
+            qtde_alternativas=2,
+            qtde_decisores=2,
+            lamb=0.6,
+        )
+        Decisor.objects.create(projeto=projeto, nome="D1")
+        Decisor.objects.create(projeto=projeto, nome="D2")
+
+        Criterio.objects.create(
+            projeto=projeto,
+            nome="Criterio 1",
+            numerico=True,
+            monotonico=1,
+        )
+        Criterio.objects.create(
+            projeto=projeto,
+            nome="Criterio 2",
+            numerico=True,
+            monotonico=2,
+        )
+        Alternativa.objects.create(projeto=projeto, nome="A")
+        Alternativa.objects.create(projeto=projeto, nome="B")
+
+        response = self.client.get(f"/api/v1/projects/{projeto.id}/result/")
+
+        self.assertEqual(response.status_code, 409)
+        self.assertIn("pendencias", response.data)
+
+    def test_agrega_dois_decisores_ativos_com_peso_igual(self):
+        from core.services.result_service import obter_resultado_agregado
+
+        projeto = Projeto.objects.create(
+            nome="Projeto agregado",
+            descricao="Descricao",
+            qtde_classes=2,
+            qtde_criterios=2,
+            qtde_alternativas=2,
+            qtde_decisores=2,
+            lamb=0.6,
+        )
+        decisor_1 = Decisor.objects.create(projeto=projeto, nome="D1")
+        decisor_2 = Decisor.objects.create(projeto=projeto, nome="D2")
+
+        criterio_1 = Criterio.objects.create(
+            projeto=projeto,
+            nome="Criterio 1",
+            numerico=True,
+            monotonico=1,
+        )
+        criterio_2 = Criterio.objects.create(
+            projeto=projeto,
+            nome="Criterio 2",
+            numerico=True,
+            monotonico=2,
+        )
+        alternativa_1 = Alternativa.objects.create(projeto=projeto, nome="A")
+        alternativa_2 = Alternativa.objects.create(projeto=projeto, nome="B")
+
+        for decisor, nota_criterio, nota_alternativa in (
+            (decisor_1, 1, (8.0, 4.0)),
+            (decisor_2, 2, (6.0, 5.0)),
+        ):
+            AvaliacaoCriterios.objects.create(
+                projeto=projeto,
+                decisor=decisor,
+                criterioA=criterio_1,
+                criterioB=criterio_2,
+                nota=nota_criterio,
+            )
+            AvaliacaoCriterios.objects.create(
+                projeto=projeto,
+                decisor=decisor,
+                criterioA=criterio_2,
+                criterioB=criterio_1,
+                nota=-nota_criterio,
+            )
+            AlternativaCriterio.objects.create(
+                projeto=projeto,
+                decisor=decisor,
+                criterio=criterio_1,
+                alternativa=alternativa_1,
+                nota=nota_alternativa[0],
+            )
+            AlternativaCriterio.objects.create(
+                projeto=projeto,
+                decisor=decisor,
+                criterio=criterio_1,
+                alternativa=alternativa_2,
+                nota=nota_alternativa[1],
+            )
+            AlternativaCriterio.objects.create(
+                projeto=projeto,
+                decisor=decisor,
+                criterio=criterio_2,
+                alternativa=alternativa_1,
+                nota=7.0,
+            )
+            AlternativaCriterio.objects.create(
+                projeto=projeto,
+                decisor=decisor,
+                criterio=criterio_2,
+                alternativa=alternativa_2,
+                nota=3.0,
+            )
+
+        CriterioParametro.objects.create(
+            projeto=projeto,
+            criterio=criterio_1,
+            p=0.2,
+            q=0.1,
+            v=0.8,
+        )
+        CriterioParametro.objects.create(
+            projeto=projeto,
+            criterio=criterio_2,
+            p=0.3,
+            q=0.1,
+            v=0.7,
+        )
+
+        resultado = obter_resultado_agregado(projeto)
+
+        self.assertEqual(resultado["decisores_ativos"], 2)
+        self.assertIn("classificacao_final", resultado)

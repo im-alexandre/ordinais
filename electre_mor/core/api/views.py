@@ -17,14 +17,20 @@ from core.api.serializers import (AlternativaSerializer, CriterioSerializer,
                                   ParticipantsPayloadSerializer,
                                   ProjetoSerializer)
 from core.models import Alternativa, Criterio, Decisor, Projeto
-from core.services import (obter_resultado, substituir_comparacoes_alternativas,
+from core.services import (substituir_comparacoes_alternativas,
                            substituir_comparacoes_criterios,
                            substituir_notas_numericas, substituir_parametros,
                            substituir_participantes, criar_projeto)
 from core.services.project_service import (criar_decisor_convidado,
                                            desativar_decisor,
                                            listar_decisores)
-from core.services.result_service import ResultadoIndisponivel
+from core.services.result_service import (
+    ResultadoIndisponivel,
+    gerar_resultado_manual,
+    obter_resultado_gerado,
+    obter_pendencias_resultado,
+    resultado_gerado,
+)
 
 
 class ProjectViewSet(viewsets.ModelViewSet):
@@ -122,7 +128,14 @@ class ProjectViewSet(viewsets.ModelViewSet):
         serializer = NumericScoresPayloadSerializer(data=request.data,
                                                     context={"project": projeto})
         serializer.is_valid(raise_exception=True)
-        itens = substituir_notas_numericas(projeto, serializer.validated_data)
+        try:
+            itens = substituir_notas_numericas(projeto,
+                                               serializer.validated_data)
+        except ResultadoIndisponivel as exc:
+            return Response({
+                "detail": exc.motivo,
+                "pendencias": exc.pendencias or [],
+            }, status=status.HTTP_409_CONFLICT)
         return Response(
             {
                 "project_id": projeto.id,
@@ -137,8 +150,14 @@ class ProjectViewSet(viewsets.ModelViewSet):
         serializer = CriteriaComparisonsPayloadSerializer(
             data=request.data, context={"project": projeto})
         serializer.is_valid(raise_exception=True)
-        itens = substituir_comparacoes_criterios(projeto,
-                                                 serializer.validated_data)
+        try:
+            itens = substituir_comparacoes_criterios(projeto,
+                                                     serializer.validated_data)
+        except ResultadoIndisponivel as exc:
+            return Response({
+                "detail": exc.motivo,
+                "pendencias": exc.pendencias or [],
+            }, status=status.HTTP_409_CONFLICT)
         return Response(
             {
                 "project_id": projeto.id,
@@ -154,8 +173,14 @@ class ProjectViewSet(viewsets.ModelViewSet):
         serializer = AlternativeComparisonsPayloadSerializer(
             data=request.data, context={"project": projeto})
         serializer.is_valid(raise_exception=True)
-        itens = substituir_comparacoes_alternativas(projeto,
-                                                    serializer.validated_data)
+        try:
+            itens = substituir_comparacoes_alternativas(
+                projeto, serializer.validated_data)
+        except ResultadoIndisponivel as exc:
+            return Response({
+                "detail": exc.motivo,
+                "pendencias": exc.pendencias or [],
+            }, status=status.HTTP_409_CONFLICT)
         return Response(
             {
                 "project_id": projeto.id,
@@ -173,7 +198,13 @@ class ProjectViewSet(viewsets.ModelViewSet):
         serializer = ParametersPayloadSerializer(data=request.data,
                                                  context={"project": projeto})
         serializer.is_valid(raise_exception=True)
-        itens = substituir_parametros(projeto, serializer.validated_data)
+        try:
+            itens = substituir_parametros(projeto, serializer.validated_data)
+        except ResultadoIndisponivel as exc:
+            return Response({
+                "detail": exc.motivo,
+                "pendencias": exc.pendencias or [],
+            }, status=status.HTTP_409_CONFLICT)
         return Response(
             {
                 "project_id": projeto.id,
@@ -185,11 +216,34 @@ class ProjectViewSet(viewsets.ModelViewSet):
     @action(detail=True, methods=["get"])
     def result(self, request, pk=None):
         projeto = self.get_object()
-        try:
-            resultado = obter_resultado(projeto)
-        except ResultadoIndisponivel as exc:
-            return Response({"detail": exc.motivo},
+        if not resultado_gerado(projeto):
+            return Response({
+                "detail": "Resultado ainda nao gerado manualmente.",
+                "pendencias": obter_pendencias_resultado(projeto),
+            },
                             status=status.HTTP_409_CONFLICT)
+
+        try:
+            resultado = obter_resultado_gerado(projeto)
+        except ResultadoIndisponivel as exc:
+            return Response({
+                "detail": exc.motivo,
+                "pendencias": exc.pendencias or [],
+            }, status=status.HTTP_409_CONFLICT)
+
+        serializer = ResultadoSerializer(resultado)
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    @action(detail=True, methods=["post"], url_path="generate-result")
+    def generate_result(self, request, pk=None):
+        projeto = self.get_object()
+        try:
+            resultado = gerar_resultado_manual(projeto)
+        except ResultadoIndisponivel as exc:
+            return Response({
+                "detail": exc.motivo,
+                "pendencias": exc.pendencias or [],
+            }, status=status.HTTP_409_CONFLICT)
 
         serializer = ResultadoSerializer(resultado)
         return Response(serializer.data, status=status.HTTP_200_OK)

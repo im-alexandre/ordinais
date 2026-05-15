@@ -118,6 +118,13 @@ class ApiContractsSmokeTests(APITestCase):
                 format="json",
             ).status_code, 200)
 
+        generate_response = self.client.post(
+            f"/api/v1/projects/{projeto_id}/generate-result/",
+            {},
+            format="json",
+        )
+        self.assertEqual(generate_response.status_code, 200)
+
         result_response = self.client.get(f"/api/v1/projects/{projeto_id}/result/")
         self.assertEqual(result_response.status_code, 200)
         self.assertEqual(result_response.data["project"]["id"], projeto_id)
