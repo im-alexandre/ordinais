@@ -2,11 +2,11 @@ FROM node:22-alpine AS frontend-builder
 
 WORKDIR /usr/src/app
 
-COPY ./frontend/package*.json ./frontend/
+COPY ./electre_mor/frontend/package*.json ./frontend/
 WORKDIR /usr/src/app/frontend
 RUN npm ci
 
-COPY ./frontend/ ./
+COPY ./electre_mor/frontend/ ./
 RUN npm run build
 
 FROM python:3.13-slim
@@ -18,10 +18,11 @@ ENV PYTHONUNBUFFERED=1
 
 RUN pip install --upgrade pip
 
-COPY ./requirements.txt .
+COPY ./electre_mor/requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
-COPY . .
+COPY ./electre_mor/ .
+COPY ./specs/ ./specs/
 COPY --from=frontend-builder /usr/src/app/static/frontend ./static/frontend
 
 RUN chmod +x ./entrypoint_electre.sh

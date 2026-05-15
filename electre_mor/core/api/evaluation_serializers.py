@@ -1,6 +1,7 @@
 from rest_framework import serializers
 
-from core.api.serializers import DecisorSerializer, ProjetoSerializer
+from core.api.serializers import (AlternativaSerializer, CriterioSerializer,
+                                  DecisorSerializer, ProjetoSerializer)
 from core.models import (Alternativa, AlternativaCriterio,
                          AvaliacaoAlternativas, AvaliacaoCriterios, Criterio,
                          CriterioParametro, Decisor)
@@ -129,6 +130,8 @@ class ParametersPayloadSerializer(serializers.Serializer):
 class ContextoAvaliacaoSerializer(serializers.Serializer):
     project = serializers.SerializerMethodField()
     decisor = serializers.SerializerMethodField()
+    criterios = serializers.SerializerMethodField()
+    alternativas = serializers.SerializerMethodField()
 
     def get_project(self, obj):
         projeto = obj["project"] if isinstance(obj, dict) else obj.project
@@ -148,6 +151,20 @@ class ContextoAvaliacaoSerializer(serializers.Serializer):
                 context=self.context,
             ).data["evaluation_url"],
         }
+
+    def get_criterios(self, obj):
+        projeto = obj["project"] if isinstance(obj, dict) else obj.project
+        return CriterioSerializer(
+            projeto.criterios.all().order_by("id"),
+            many=True,
+        ).data
+
+    def get_alternativas(self, obj):
+        projeto = obj["project"] if isinstance(obj, dict) else obj.project
+        return AlternativaSerializer(
+            projeto.alternativas.all().order_by("id"),
+            many=True,
+        ).data
 
 
 class PendenciaDecisorSerializer(serializers.Serializer):

@@ -3,6 +3,7 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 import {
   criarProjeto,
   gerarResultado,
+  listarDecisores,
   obterContextoAvaliacaoPorToken,
   listarProjetos,
   obterResultado,
@@ -129,6 +130,12 @@ describe('cliente da API', () => {
         evaluation_url:
           'http://localhost/?projectId=4&decisorToken=token-seguro&view=avaliacao',
       },
+      criterios: [
+        { id: 10, nome: 'Qualidade', numerico: false, monotonico: 1 },
+      ],
+      alternativas: [
+        { id: 20, nome: 'Vacina A' },
+      ],
     };
     const fetchMock = vi.fn().mockResolvedValue(
       new Response(JSON.stringify(resposta), {
@@ -148,6 +155,37 @@ describe('cliente da API', () => {
       }),
     );
     expect(contexto).toEqual(resposta);
+  });
+
+  it('lista decisores com links individuais de avaliacao', async () => {
+    const resposta = [{
+      id: 9,
+      nome: 'Ana Souza',
+      status: 'pendente',
+      ativo: true,
+      is_criador: false,
+      token: 'token-seguro',
+      evaluation_url:
+        'http://localhost/?projectId=4&decisorToken=token-seguro&view=avaliacao',
+    }];
+    const fetchMock = vi.fn().mockResolvedValue(
+      new Response(JSON.stringify(resposta), {
+        status: 200,
+        headers: { 'Content-Type': 'application/json' },
+      }),
+    );
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const decisores = await listarDecisores(4);
+
+    expect(fetchMock).toHaveBeenCalledWith(
+      '/api/v1/projects/4/decision-makers/',
+      expect.objectContaining({
+        method: 'GET',
+      }),
+    );
+    expect(decisores).toEqual(resposta);
   });
 
   it('gera resultado manualmente', async () => {

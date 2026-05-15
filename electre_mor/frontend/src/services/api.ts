@@ -2,6 +2,7 @@ import type {
   ComparacoesAlternativasPayload,
   ComparacoesCriteriosPayload,
   ContextoAvaliacao,
+  DecisorDetalhado,
   NotasNumericasPayload,
   ParametrosPayload,
   ParticipantesPayload,
@@ -71,6 +72,13 @@ async function requisitarJson<T>(
 export function listarProjetos() {
   return requisitarJson<Projeto[]>('/projects/');
 }
+
+export function listarDecisores(projetoId: number) {
+  return requisitarJson<DecisorDetalhado[]>(
+    `/projects/${projetoId}/decision-makers/`,
+  );
+}
+
 
 export function criarProjeto(payload: ProjetoPayload) {
   return requisitarJson<Projeto>('/projects/', 'POST', payload);

@@ -4,8 +4,8 @@ import { ActionButton } from '../components/ActionButton';
 import { Notice } from '../components/Notice';
 import { Panel } from '../components/Panel';
 import { QrShareCard } from '../components/QrShareCard';
-import { gerarResultado, obterResultado } from '../services/api';
-import type { PendenciaDecisor, ResultadoProjeto } from '../types';
+import { gerarResultado, listarDecisores, obterResultado } from '../services/api';
+import type { DecisorDetalhado, PendenciaDecisor, ResultadoProjeto } from '../types';
 
 type ResultViewProps = {
   projectId?: number;
@@ -100,6 +100,7 @@ export default function ResultView({ projectId, isCreator = false }: ResultViewP
   const [resultado, setResultado] = useState<ResultadoProjeto | null>(null);
   const [pendencias, setPendencias] = useState<PendenciaDecisor[] | null>(null);
   const [erro, setErro] = useState<string | null>(null);
+  const [decisores, setDecisores] = useState<DecisorDetalhado[]>([]);
   const [carregando, setCarregando] = useState(false);
   const [gerando, setGerando] = useState(false);
   const linkProjeto =
@@ -148,6 +149,30 @@ export default function ResultView({ projectId, isCreator = false }: ResultViewP
       ativo = false;
     };
   }, [projectId]);
+
+  useEffect(() => {
+    if (!isCreator || projectId === undefined) {
+      setDecisores([]);
+      return;
+    }
+
+    let ativo = true;
+    listarDecisores(projectId)
+      .then((dados) => {
+        if (ativo) {
+          setDecisores(dados);
+        }
+      })
+      .catch(() => {
+        if (ativo) {
+          setDecisores([]);
+        }
+      });
+
+    return () => {
+      ativo = false;
+    };
+  }, [isCreator, projectId]);
 
   async function gerarResultadoManual() {
     if (projectId === undefined) {
@@ -206,6 +231,22 @@ export default function ResultView({ projectId, isCreator = false }: ResultViewP
       {erro ? <Notice variant="warning">{erro}</Notice> : null}
       {projectId !== undefined ? (
         <QrShareCard nome="resultado do projeto" url={linkProjeto} />
+      ) : null}
+      {isCreator && decisores.some((decisor) => decisor.ativo && !decisor.is_criador) ? (
+        <section className="resultado-bloco links-decisores" aria-label="Links de avaliacao dos decisores">
+          <h3>Links de avaliacao dos decisores</h3>
+          <div className="links-decisores-grid">
+            {decisores
+              .filter((decisor) => decisor.ativo && !decisor.is_criador)
+              .map((decisor) => (
+                <QrShareCard
+                  key={decisor.id}
+                  nome={decisor.nome}
+                  url={decisor.evaluation_url}
+                />
+              ))}
+          </div>
+        </section>
       ) : null}
       {pendencias ? (
         <section className="resultado-bloco resultado-pendencias" aria-label="Decisores pendentes">

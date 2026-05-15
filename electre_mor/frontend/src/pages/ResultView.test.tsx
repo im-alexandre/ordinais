@@ -8,11 +8,13 @@ import type { ResultadoProjeto } from '../types';
 const mocks = vi.hoisted(() => ({
   obterResultadoMock: vi.fn(),
   gerarResultadoMock: vi.fn(),
+  listarDecisoresMock: vi.fn(),
 }));
 
 vi.mock('../services/api', () => ({
   obterResultado: mocks.obterResultadoMock,
   gerarResultado: mocks.gerarResultadoMock,
+  listarDecisores: mocks.listarDecisoresMock,
 }));
 
 const resultadoFinal: ResultadoProjeto = {
@@ -59,6 +61,7 @@ describe('ResultView', () => {
   afterEach(() => {
     mocks.obterResultadoMock.mockReset();
     mocks.gerarResultadoMock.mockReset();
+    mocks.listarDecisoresMock.mockReset();
   });
 
   it('mostra pendencias e desabilita gerar resultado enquanto faltarem decisores', async () => {
@@ -79,6 +82,7 @@ describe('ResultView', () => {
         },
       }),
     );
+    mocks.listarDecisoresMock.mockResolvedValueOnce([]);
 
     render(<ResultView projectId={4} isCreator />);
 
@@ -101,6 +105,7 @@ describe('ResultView', () => {
       }),
     );
     mocks.gerarResultadoMock.mockResolvedValueOnce(resultadoFinal);
+    mocks.listarDecisoresMock.mockResolvedValueOnce([]);
 
     const usuario = userEvent.setup();
 
@@ -122,12 +127,59 @@ describe('ResultView', () => {
 
   it('mostra o QR de compartilhamento quando o resultado estiver carregado', async () => {
     mocks.obterResultadoMock.mockResolvedValueOnce(resultadoFinal);
+    mocks.listarDecisoresMock.mockResolvedValueOnce([]);
 
     render(<ResultView projectId={4} isCreator />);
 
     expect(
       await screen.findByRole('link', { name: /acessar este projeto/i }),
     ).toBeInTheDocument();
-    expect(screen.getByLabelText(/qr code/i)).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', { name: /qr code/i }),
+    ).toBeInTheDocument();
+  });
+
+  it('mostra links e qr codes dos decisores convidados para o criador', async () => {
+    mocks.obterResultadoMock.mockRejectedValueOnce(
+      Object.assign(new Error('Resultado ainda nao gerado manualmente.'), {
+        status: 409,
+        data: {
+          detail: 'Resultado ainda nao gerado manualmente.',
+          pendencias: [],
+        },
+      }),
+    );
+    mocks.listarDecisoresMock.mockResolvedValueOnce([
+      {
+        id: 1,
+        nome: 'Criador',
+        status: 'pendente',
+        ativo: true,
+        is_criador: true,
+        token: 'criador',
+        evaluation_url: 'http://localhost/?projectId=4&decisorToken=criador&view=avaliacao',
+      },
+      {
+        id: 2,
+        nome: 'Ana Souza',
+        status: 'pendente',
+        ativo: true,
+        is_criador: false,
+        token: 'ana',
+        evaluation_url: 'http://localhost/?projectId=4&decisorToken=ana&view=avaliacao',
+      },
+    ]);
+
+    render(<ResultView projectId={4} isCreator />);
+
+    expect(
+      await screen.findByRole('heading', { name: /links de avaliacao dos decisores/i }),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByText(/link de avaliacao de ana souza/i),
+    ).toBeInTheDocument();
+    expect(
+      screen.getByRole('img', { name: /qr code de ana souza/i }),
+    ).toBeInTheDocument();
   });
 });

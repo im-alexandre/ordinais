@@ -1,11 +1,17 @@
 node_modules/
+**/node_modules/
 .git/
 *.log*
 .env*
 coverage/
+.agents/
+.codex/
+.codex-monitor/
+.superpowers/
 __pycache__/
 *.pyc
 .venv/
+.venv-baseline/
 venv/
 dist/
 build/

@@ -7,6 +7,7 @@ import App from './App';
 const apiMocks = vi.hoisted(() => ({
   criarProjeto: vi.fn(),
   gerarResultado: vi.fn(),
+  listarDecisores: vi.fn(),
   listarProjetos: vi.fn(),
   obterContextoAvaliacaoPorToken: vi.fn(),
   obterResultado: vi.fn(),
@@ -129,6 +130,14 @@ describe('App', () => {
         token: 'abc',
         evaluation_url: 'http://localhost/?projectId=12&decisorToken=abc&view=avaliacao',
       },
+      criterios: [
+        { id: 10, nome: 'Qualidade', numerico: false, monotonico: 1 },
+        { id: 11, nome: 'Custo', numerico: true, monotonico: 2 },
+      ],
+      alternativas: [
+        { id: 20, nome: 'Vacina A' },
+        { id: 21, nome: 'Vacina B' },
+      ],
     });
 
     window.history.replaceState(

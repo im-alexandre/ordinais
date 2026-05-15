@@ -83,6 +83,8 @@ class ApiEvaluationsTests(APITestCase):
         self.assertEqual(response.data["decisor"]["id"], self.decisor.id)
         self.assertEqual(response.data["decisor"]["token"],
                          self.decisor.token)
+        self.assertEqual(len(response.data["criterios"]), 2)
+        self.assertEqual(len(response.data["alternativas"]), 2)
 
     def test_token_invalido_nao_resolve_avaliacao(self):
         response = self.client.get(

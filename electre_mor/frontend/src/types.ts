@@ -50,7 +50,7 @@ export type ParticipantesPayload = {
 
 export type ParticipantesResposta = {
   project: Projeto;
-  decisores: EntidadeNome[];
+  decisores: DecisorDetalhado[];
   criterios: Criterio[];
   alternativas: EntidadeNome[];
 };
@@ -102,7 +102,7 @@ export type ParametrosPayload = {
 
 export type ProjetoCompleto = {
   projeto: Projeto;
-  decisores: EntidadeNome[];
+  decisores: DecisorDetalhado[];
   criterios: Criterio[];
   alternativas: EntidadeNome[];
 };
@@ -110,6 +110,8 @@ export type ProjetoCompleto = {
 export type ContextoAvaliacao = {
   project: Projeto;
   decisor: DecisorDetalhado;
+  criterios: Criterio[];
+  alternativas: EntidadeNome[];
 };
 
 export type PendenciaDecisor = {

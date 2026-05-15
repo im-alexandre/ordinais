@@ -315,6 +315,49 @@ class ApiResultTests(APITestCase):
         self.assertEqual(response.data, snapshot_gerado)
         self.assertEqual(response.data, self.projeto.resultado_snapshot)
 
+    def test_resultado_legado_sem_snapshot_recalcula_uma_vez_e_persiste(self):
+        from django.utils import timezone
+
+        self.projeto.resultado_gerado_em = timezone.now()
+        self.projeto.resultado_snapshot = {}
+        self.projeto.save(update_fields=["resultado_gerado_em",
+                                         "resultado_snapshot"])
+        cache.clear()
+
+        response = self.client.get(f"/api/v1/projects/{self.projeto.id}/result/")
+
+        self.assertEqual(response.status_code, 200)
+        self.assertIn("classificacao_final", response.data)
+
+        self.projeto.refresh_from_db()
+        self.assertEqual(self.projeto.resultado_snapshot, response.data)
+
+    def test_resultado_legado_sem_snapshot_persiste_valor_do_cache(self):
+        from django.utils import timezone
+
+        gerar_response = self.client.post(
+            f"/api/v1/projects/{self.projeto.id}/generate-result/",
+            {},
+            format="json",
+        )
+        snapshot = gerar_response.data
+        self.projeto.refresh_from_db()
+        cache.set(
+            f"electre_mor:resultado_gerado:{self.projeto.id}:{self.projeto.data.isoformat()}",
+            snapshot,
+            timeout=None,
+        )
+        self.projeto.resultado_gerado_em = timezone.now()
+        self.projeto.resultado_snapshot = {}
+        self.projeto.save(update_fields=["resultado_gerado_em",
+                                         "resultado_snapshot"])
+
+        response = self.client.get(f"/api/v1/projects/{self.projeto.id}/result/")
+
+        self.assertEqual(response.status_code, 200)
+        self.projeto.refresh_from_db()
+        self.assertEqual(self.projeto.resultado_snapshot, snapshot)
+
     def test_resultado_retorna_pendencias_quando_faltam_avaliacoes_de_decisores_ativos(self):
         projeto = Projeto.objects.create(
             nome="Projeto pendencias",

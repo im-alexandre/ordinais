@@ -32,7 +32,16 @@ const projeto: ProjetoCompleto = {
     qtde_decisores: 1,
     lamb: 0.65,
   },
-  decisores: [{ id: 1, nome: 'Comite' }],
+  decisores: [{
+    id: 1,
+    nome: 'Comite',
+    status: 'pendente',
+    ativo: true,
+    is_criador: true,
+    token: 'comite-token',
+    evaluation_url:
+      'http://localhost/?projectId=12&decisorToken=comite-token&view=avaliacao',
+  }],
   criterios: [
     { id: 10, nome: 'Qualidade', numerico: false, monotonico: 1 },
     { id: 11, nome: 'Custo', numerico: true, monotonico: 2 },
@@ -143,6 +152,8 @@ describe('EvaluationFlow', () => {
         evaluation_url:
           'http://localhost/?projectId=12&decisorToken=token-seguro&view=avaliacao',
       },
+      criterios: projeto.criterios,
+      alternativas: projeto.alternativas,
     });
     mocks.salvarNotasMock.mockResolvedValue({ project_id: 12, scores: [] });
     mocks.salvarComparacoesCriteriosMock.mockResolvedValue({

@@ -10,7 +10,8 @@ services:
 
   electre_mor:
     build:
-      context: ./electre_mor
+      context: .
+      dockerfile: electre_mor/Dockerfile
     entrypoint: './entrypoint_electre.sh'
     expose:
       - 80

@@ -88,13 +88,23 @@ export function EvaluationFlow({
   onComplete,
 }: EvaluationFlowProps) {
   const projetoId = projectId ?? projeto?.projeto.id ?? 0;
-  const criterios = projeto?.criterios ?? [];
-  const alternativas = projeto?.alternativas ?? [];
   const [contextoAvaliacao, setContextoAvaliacao] =
     useState<ContextoAvaliacao | null>(null);
+  const projetoAvaliacao = projeto ?? (
+    contextoAvaliacao
+      ? {
+          projeto: contextoAvaliacao.project,
+          decisores: [contextoAvaliacao.decisor],
+          criterios: contextoAvaliacao.criterios,
+          alternativas: contextoAvaliacao.alternativas,
+        }
+      : null
+  );
   const decisorId = decisorToken
     ? contextoAvaliacao?.decisor.id ?? 0
-    : projeto?.decisores[0]?.id ?? 0;
+    : projetoAvaliacao?.decisores[0]?.id ?? 0;
+  const criterios = projetoAvaliacao?.criterios ?? [];
+  const alternativas = projetoAvaliacao?.alternativas ?? [];
   const criteriosNumericos = criterios.filter((criterio) => criterio.numerico);
   const criteriosQualitativos = criterios.filter((criterio) => !criterio.numerico);
 
@@ -178,7 +188,7 @@ export function EvaluationFlow({
   async function lidarComEnvio(evento: FormEvent<HTMLFormElement>) {
     evento.preventDefault();
 
-    if (!projeto || decisorId === 0) {
+    if (!projetoAvaliacao || decisorId === 0) {
       setMensagem(
         decisorToken
           ? 'Aguarde o token de avaliacao carregar os dados do decisor.'
@@ -246,7 +256,7 @@ export function EvaluationFlow({
       titulo="Fluxo de avaliacao"
       subtitulo={`Projeto em analise: ${projetoId || 'nao configurado'}`}
     >
-      {!projeto ? (
+      {!projetoAvaliacao ? (
         <Notice variant="warning">Configure o projeto antes de avaliar.</Notice>
       ) : null}
 
@@ -374,7 +384,7 @@ export function EvaluationFlow({
             type="submit"
             disabled={
               carregando ||
-              !projeto ||
+              !projetoAvaliacao ||
               (decisorToken ? carregandoToken || decisorId === 0 : false)
             }
           >

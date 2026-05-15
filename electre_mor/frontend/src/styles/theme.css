@@ -640,19 +640,12 @@ body::before {
   background: rgba(36, 48, 45, 0.08);
 }
 
-.qr-share-card-svg {
+.qr-share-card-image,
+.qr-share-card-placeholder {
   width: min(100%, 320px);
   aspect-ratio: 1;
   display: block;
-  color: #f8f6f1;
-}
-
-.qr-share-card-svg rect {
-  fill: currentColor;
-}
-
-.qr-share-card-pattern rect {
-  fill: #24302d;
+  border-radius: 18px;
 }
 
 .qr-share-card-conteudo {
@@ -762,6 +755,12 @@ body::before {
 .resultado-pendencias {
   display: grid;
   gap: 12px;
+}
+
+.links-decisores,
+.links-decisores-grid {
+  display: grid;
+  gap: 14px;
 }
 
 .resultado-pendencias ul {

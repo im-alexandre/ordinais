@@ -44,12 +44,17 @@ def obter_resultado_gerado(projeto: Projeto) -> dict[str, Any]:
         return projeto.resultado_snapshot
 
     resultado = cache.get(_cache_key(projeto))
-    if resultado is None:
-        raise ResultadoIndisponivel(
-            "Snapshot de resultado indisponivel.",
-            pendencias=obter_pendencias_resultado(projeto),
-        )
-    return resultado
+    if resultado is not None:
+        projeto.resultado_snapshot = resultado
+        projeto.save(update_fields=["resultado_snapshot"])
+        return resultado
+
+    resultado_recalculado = obter_resultado_agregado(projeto)
+    snapshot = ResultadoSerializer(resultado_recalculado).data
+    cache.set(_cache_key(projeto), snapshot, timeout=None)
+    projeto.resultado_snapshot = snapshot
+    projeto.save(update_fields=["resultado_snapshot"])
+    return snapshot
 
 
 def _decisores_ativos(projeto: Projeto):

@@ -40,8 +40,26 @@ describe('ProjectSetup', () => {
         lamb: 0.65,
       },
       decisores: [
-        { id: 1, nome: 'Alexandre' },
-        { id: 2, nome: 'Ana Souza' },
+        {
+          id: 1,
+          nome: 'Alexandre',
+          status: 'pendente',
+          ativo: true,
+          is_criador: true,
+          token: 'alexandre-token',
+          evaluation_url:
+            'http://localhost/?projectId=41&decisorToken=alexandre-token&view=avaliacao',
+        },
+        {
+          id: 2,
+          nome: 'Ana Souza',
+          status: 'pendente',
+          ativo: true,
+          is_criador: false,
+          token: 'ana-token',
+          evaluation_url:
+            'http://localhost/?projectId=41&decisorToken=ana-token&view=avaliacao',
+        },
       ],
       criterios: [
         { id: 10, nome: 'Qualidade', numerico: false, monotonico: 1 },
