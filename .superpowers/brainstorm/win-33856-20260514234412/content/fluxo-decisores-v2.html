@@ -1,0 +1,41 @@
+<h2>Fluxo revisado: projeto individual ou coletivo</h2>
+<p class="subtitle">O criador pode seguir sozinho ou convidar outros decisores por link.</p>
+
+<div class="mockup">
+  <div class="mockup-header">Ponto de decisão após configurar o projeto</div>
+  <div class="mockup-body">
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px">
+      <div class="placeholder" style="min-height:180px">
+        <strong>Fluxo individual</strong><br><br>
+        1. Criador configura projeto<br>
+        2. Clica em continuar para avaliação<br>
+        3. Sistema usa o criador como decisor único<br>
+        4. Resultado pode sair ao concluir a avaliação
+      </div>
+      <div class="placeholder" style="min-height:180px">
+        <strong>Fluxo coletivo</strong><br><br>
+        1. Criador configura projeto<br>
+        2. Clica em adicionar decisores<br>
+        3. Sistema gera links individuais<br>
+        4. Resultado aguarda todos concluírem
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="creator-name" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Pedir nome do criador/decisor</h3>
+      <p>Na criação do projeto, o primeiro decisor já recebe um nome explícito.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="default-name" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Criar “Decisor 1” automaticamente</h3>
+      <p>Menos campos no início, mas a identificação fica genérica até ser editada.</p>
+    </div>
+  </div>
+</div>

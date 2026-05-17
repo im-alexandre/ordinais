@@ -1,0 +1,47 @@
+<h2>Fluxo proposto para múltiplos decisores</h2>
+<p class="subtitle">Um criador configura o projeto; decisores adicionais entram por link quando existirem.</p>
+
+<div class="mockup">
+  <div class="mockup-header">Jornada principal</div>
+  <div class="mockup-body">
+    <div style="display:grid;grid-template-columns:repeat(5,minmax(120px,1fr));gap:12px;align-items:stretch">
+      <div class="placeholder" style="min-height:120px">
+        <strong>1. Criar projeto</strong><br>
+        Projeto pode nascer com 1 decisor.
+      </div>
+      <div class="placeholder" style="min-height:120px">
+        <strong>2. Configurar dados</strong><br>
+        Classes, critérios, alternativas e parâmetros globais.
+      </div>
+      <div class="placeholder" style="min-height:120px">
+        <strong>3. Adicionar decisores</strong><br>
+        Botão cria decisores e links individuais.
+      </div>
+      <div class="placeholder" style="min-height:120px">
+        <strong>4. Cada decisor avalia</strong><br>
+        Link abre a avaliação daquele decisor.
+      </div>
+      <div class="placeholder" style="min-height:120px">
+        <strong>5. Resultado</strong><br>
+        Liberado quando as avaliações necessárias estiverem completas.
+      </div>
+    </div>
+  </div>
+</div>
+
+<div class="options">
+  <div class="option" data-choice="equal" onclick="toggleSelect(this)">
+    <div class="letter">A</div>
+    <div class="content">
+      <h3>Peso igual entre decisores</h3>
+      <p>Todos os decisores contribuem igualmente na agregação antes do ELECTRE-MOr.</p>
+    </div>
+  </div>
+  <div class="option" data-choice="custom" onclick="toggleSelect(this)">
+    <div class="letter">B</div>
+    <div class="content">
+      <h3>Peso configurável por decisor</h3>
+      <p>O criador define a importância de cada decisor antes de liberar o resultado.</p>
+    </div>
+  </div>
+</div>

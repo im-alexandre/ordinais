@@ -20,3 +20,6 @@ Thumbs.db
 *.swp
 .vscode/
 .idea/
+output/playwright
+output/playwright/*.png
+
